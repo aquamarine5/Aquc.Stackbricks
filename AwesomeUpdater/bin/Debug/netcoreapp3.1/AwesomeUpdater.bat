@@ -1,1 +1,0 @@
-AwesomeUpdater -msgSrc BilibiliProvider -msgId 592590952959206542 -updPath D:/P

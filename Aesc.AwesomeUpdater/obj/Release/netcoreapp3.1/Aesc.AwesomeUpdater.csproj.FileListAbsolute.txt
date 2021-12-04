@@ -9,7 +9,6 @@ D:\Program Source\Aesc.AwesomeUpdater\Aesc.AwesomeUpdater\bin\Release\netcoreapp
 D:\Program Source\Aesc.AwesomeUpdater\Aesc.AwesomeUpdater\bin\Release\netcoreapp3.1\Qiniu.dll
 D:\Program Source\Aesc.AwesomeUpdater\Aesc.AwesomeUpdater\bin\Release\netcoreapp3.1\Interop.TaskScheduler.dll
 D:\Program Source\Aesc.AwesomeUpdater\Aesc.AwesomeUpdater\bin\Release\netcoreapp3.1\Aesc.AwesomeKits.pdb
-D:\Program Source\Aesc.AwesomeUpdater\Aesc.AwesomeUpdater\bin\Release\netcoreapp3.1\Qiniu.pdb
 D:\Program Source\Aesc.AwesomeUpdater\Aesc.AwesomeUpdater\bin\Release\netcoreapp3.1\Interop.IWshRuntimeLibrary.dll
 D:\Program Source\Aesc.AwesomeUpdater\Aesc.AwesomeUpdater\obj\Release\netcoreapp3.1\Aesc.AwesomeUpdater.csprojAssemblyReference.cache
 D:\Program Source\Aesc.AwesomeUpdater\Aesc.AwesomeUpdater\obj\Release\netcoreapp3.1\Interop.IWshRuntimeLibrary.dll

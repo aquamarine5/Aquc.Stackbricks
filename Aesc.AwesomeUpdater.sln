@@ -7,8 +7,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Aesc.AwesomeUpdater", "Aesc
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Aesc.AwesomeKits", "..\Aesc.AwesomeKits\Aesc.AwesomeKits\Aesc.AwesomeKits.csproj", "{E863E2AC-250F-45D2-92C2-CDF86A390539}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Aesc.AwesomeProgram", "Aesc.AwesomeProgram\Aesc.AwesomeProgram.csproj", "{F421EB93-8695-45DA-AEE4-46CC6AB1BB6F}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -23,10 +21,6 @@ Global
 		{E863E2AC-250F-45D2-92C2-CDF86A390539}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E863E2AC-250F-45D2-92C2-CDF86A390539}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E863E2AC-250F-45D2-92C2-CDF86A390539}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F421EB93-8695-45DA-AEE4-46CC6AB1BB6F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F421EB93-8695-45DA-AEE4-46CC6AB1BB6F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F421EB93-8695-45DA-AEE4-46CC6AB1BB6F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F421EB93-8695-45DA-AEE4-46CC6AB1BB6F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

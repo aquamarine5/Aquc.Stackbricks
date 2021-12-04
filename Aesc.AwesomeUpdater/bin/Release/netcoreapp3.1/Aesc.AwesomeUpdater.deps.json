@@ -211,19 +211,8 @@
         }
       },
       "Aesc.AwesomeKits/1.0.0": {
-        "dependencies": {
-          "Qiniu": "8.0.0"
-        },
         "runtime": {
           "Aesc.AwesomeKits.dll": {}
-        }
-      },
-      "Qiniu/8.0.0": {
-        "dependencies": {
-          "Newtonsoft.Json": "13.0.1"
-        },
-        "runtime": {
-          "Qiniu.dll": {}
         }
       },
       "Interop.IWshRuntimeLibrary/1.0.0.0": {
@@ -247,6 +236,14 @@
           "Interop.TaskScheduler.dll": {
             "assemblyVersion": "1.0.0.0",
             "fileVersion": "1.0.0.0"
+          }
+        }
+      },
+      "Qiniu/8.0.0.0": {
+        "runtime": {
+          "Qiniu.dll": {
+            "assemblyVersion": "8.0.0.0",
+            "fileVersion": "8.0.0.0"
           }
         }
       }
@@ -438,11 +435,6 @@
       "serviceable": false,
       "sha512": ""
     },
-    "Qiniu/8.0.0": {
-      "type": "project",
-      "serviceable": false,
-      "sha512": ""
-    },
     "Interop.IWshRuntimeLibrary/1.0.0.0": {
       "type": "reference",
       "serviceable": false,
@@ -454,6 +446,11 @@
       "sha512": ""
     },
     "Interop.TaskScheduler.Reference/1.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Qiniu/8.0.0.0": {
       "type": "reference",
       "serviceable": false,
       "sha512": ""

@@ -16,23 +16,16 @@ namespace Aesc.AwesomeUpdater.MessageProvider
         {
             BiliCommit commit = new BiliCommit(int.Parse(value));
             var commitContent = commit.commitText.Split("|");
-            string netdiskProvider = commit.commitText;
-            string resultMain = Bili;//AescWebRequest.WebRequestGet($"{commentsMainUrl}={value}");
-            string result = AescWebRequest.WebRequestGet($"{commentsReplyUrl}={value}");  //oid=592534916524618496
-            JObject jsonObject = JObject.Parse(result);
-            JObject jsonObjectMain = JObject.Parse(resultMain);
-            Console.WriteLine(jsonObjectMain);
-            JObject jsonObjectMainCard = JObject.Parse(jsonObjectMain["data"]["card"]["card"].ToString());
-            string baseDownloadUrl = jsonObjectMainCard["item"]["content"].ToString();
-            string realMessage = jsonObject["data"]["replies"][0]["content"]["message"].ToString();
-            var list = realMessage.Split(':');
-            string resultNetdisk = AescWebRequest.WebRequestPut(baseDownloadUrl.Replace("&downloadCode", list[1]));
-            Console.WriteLine(resultNetdisk);
-            JObject jsonObjectNetdisk = JObject.Parse(resultNetdisk);
+            string packageName = commitContent[0];
+            string netdiskProvider = commitContent[1];
+            string netdiskUrl = commitContent[2];
+            string[] netdiskData = commit.biliReplies[0].text.Split(":");
             return new UpdateMessage()
             {
-                VersionCode = list[0],
-                UpdatePackageUrl = jsonObjectNetdisk["data"].ToString()
+                packageName = packageName,
+                VersionCode = netdiskData[0],
+                UpdatePackageUrl = new Huang111Netdisk().ParseUrl(netdiskData[1])
             };
         }
     }
+}

@@ -12,6 +12,7 @@ using System.IO.Compression;
 using Newtonsoft.Json.Linq;
 using IWshRuntimeLibrary;
 using TaskScheduler;
+using Aesc.AwesomeUpdater.MessageProvider;
 using File = System.IO.File;
 
 
@@ -22,7 +23,6 @@ namespace Aesc.AwesomeUpdater
         public UpdateConfig updateConfig;
         public AescAwesomeUpdater(UpdateConfig updateConfig)
         {
-            if (!updateConfig.IsAvailable) throw new ArgumentException();
             this.updateConfig = updateConfig;
         }
         public virtual IUpdateMessageProvider GetMessageProvider()
@@ -33,13 +33,32 @@ namespace Aesc.AwesomeUpdater
                 _ => null,
             };
         }
-        public virtual UpdateMessage GetUpdateMessage()
-            => GetMessageProvider().GetUpdateMessage(updateConfig.messageData);
+        public virtual UpdateMessage GetUpdateMessage() =>
+            GetMessageProvider().GetUpdateMessage(updateConfig.messageData);
         public virtual bool CheckUpdate()
         {
             return true;
         }
-        pubilc virtual void UpdatePackage(UpdateMessage updateMessage)
+        public virtual void DownloadPackage(string filePath, string extractPath) =>
+            GetUpdateMessage().DownloadPackage(filePath, extractPath);
+        public virtual void UpdatePackage(string updFilePath, string targetPath)
+        {
+            DirectoryInfo directory = new DirectoryInfo(updFilePath);
+            var updateScript = directory.GetFiles("update.bat");
+            if (updateScript.Length == 0)
+            {
+                var process = new Process();
+                process.StartInfo.FileName = updateScript[0].FullName;
+                process.StartInfo.CreateNoWindow = true;
+                process.WaitForExit(30000);
+                File.Delete(updateScript[0].FullName);
+            }
+            foreach (var item in directory.GetFiles())
+            {
+                item.MoveTo($"{targetPath}/{item.Name}", true);
+            }
+        }
+        public virtual void InstallPackage()
         {
 
         }
@@ -51,11 +70,12 @@ namespace Aesc.AwesomeUpdater
     }
     public struct UpdateMessage
     {
+        public string packageName;
         public string VersionCode;
         public string UpdatePackageUrl;
         public void DownloadPackage(string filePath, string extractPath)
         {
-            AescWebRequest.WebRequestDownload(UpdatePackageUrl, filePath);
+            WebRequest.CreateHttp(UpdatePackageUrl).SendGet().WriteToFile(filePath);
             DirectoryInfo directory = new DirectoryInfo(extractPath);
             if (directory.Exists)
             {
@@ -63,8 +83,6 @@ namespace Aesc.AwesomeUpdater
             }
             ZipFile.ExtractToDirectory(filePath, extractPath, true);
         }
-    }
-    
     }
     public struct UpdateConfig
     {
@@ -74,15 +92,11 @@ namespace Aesc.AwesomeUpdater
         public int nowVersion;
         public string messageProvider;
         public string messageData;
-        public bool IsAvailable
-        {
-            get => Directory.Exists(programInstallPath) && File.Exists(programExe);
-        }
+        public bool isInstalled;
     }
     public struct UpdateLaunchConfig
     {
         public List<UpdateConfig> updateConfigs;
-        
     }
     public struct UpdaterArgs : IArgsParseResult
     {
@@ -90,13 +104,49 @@ namespace Aesc.AwesomeUpdater
         public ArgsNamedKey Config;
         public ArgsNamedKey updNow;
         public ArgsNamedKey allowUpdateOlder;
-        
+
     }
     public class AescUpdaterProgram
     {
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
-            
+
+        }
+        /// <summary>
+        /// 默认使用<see cref="BiliCommit"/>和<see cref="BiliReply"/>获取更新信息，此方法可以在子类重写。<br/><br/>
+        /// 关于<see cref="BiliReply"/>的格式规定：<br/>
+        /// packageName|messageData
+        /// <br/><br/>其余<see cref="UpdateConfig"/>的值会自动填充。
+        /// </summary>
+        /// <param name="informationId"></param>
+        /// <returns></returns>
+        public virtual UpdateLaunchConfig GetUpdateLaunchConfigOnline(int informationId)
+        {
+            BiliCommit commit = new BiliCommit(informationId);
+            var replies = commit.biliReplies;
+            var launchConfigMaster = new UpdateLaunchConfig();
+            var launchConfig = launchConfigMaster.updateConfigs;
+            string packageName;
+            string messageData;
+            string[] textSplitResult;
+            string awesomeCorePath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            foreach (var reply in replies)
+            {
+                textSplitResult = reply.text.Split("|");
+                packageName = textSplitResult[0];
+                messageData = textSplitResult[1];
+                launchConfig.Add(new UpdateConfig()
+                {
+                    programExe = $"{packageName}.exe",
+                    programName = packageName,
+                    programInstallPath = $"{awesomeCorePath}\\{packageName}",
+                    messageProvider = "BilibiliProvider",
+                    isInstalled = File.Exists($"{awesomeCorePath}\\{packageName}\\{packageName}.exe"),
+                    messageData = messageData,
+                    nowVersion = 0
+                });
+            }
+            return launchConfigMaster;
         }
         static void Main2(string[] args)
         {
@@ -188,6 +238,5 @@ namespace Aesc.AwesomeUpdater
             }
             else return null;
         }
-
     }
 }

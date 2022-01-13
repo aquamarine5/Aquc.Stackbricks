@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.Text;
 using System.Net;
 using Newtonsoft.Json.Linq;
-using Aesc.AwesomeKits;
+using Aesc.AwesomeKits.Net;
+using Aesc.AwesomeKits.Net.WebStorage;
 
 namespace Aesc.AwesomeUpdater.MessageProvider
 {
@@ -14,7 +15,7 @@ namespace Aesc.AwesomeUpdater.MessageProvider
         public readonly string commentsMainUrl = "https://api.vc.bilibili.com/dynamic_svr/v1/dynamic_svr/get_dynamic_detail?dynamic_id";
         public UpdateMessage GetUpdateMessage(string value)
         {
-            BiliCommit commit = new BiliCommit(int.Parse(value));
+            BiliCommitMsgPvder commit = new BiliCommitMsgPvder(value);
             var commitContent = commit.commitText.Split("|");
             string packageName = commitContent[0];
             string netdiskProvider = commitContent[1];
@@ -24,7 +25,7 @@ namespace Aesc.AwesomeUpdater.MessageProvider
             {
                 packageName = packageName,
                 VersionCode = netdiskData[0],
-                UpdatePackageUrl = new Huang111Netdisk().ParseUrl(netdiskData[1])
+                UpdatePackageUrl = new Huang1111Netdisk().ParseUrl(netdiskData[1])
             };
         }
     }

@@ -7,11 +7,13 @@ using System.Diagnostics;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
-using Aesc.AwesomeKits;
+using Aesc.AwesomeKits.Net.WebStorage;
+using Aesc.AwesomeKits.Net;
+using Aesc.AwesomeKits.ComUtil;
+using Aesc.AwesomeKits.Util;
 using System.IO.Compression;
 using Newtonsoft.Json.Linq;
 using IWshRuntimeLibrary;
-using TaskScheduler;
 using Aesc.AwesomeUpdater.MessageProvider;
 using File = System.IO.File;
 
@@ -122,7 +124,7 @@ namespace Aesc.AwesomeUpdater
         /// <returns></returns>
         public virtual UpdateLaunchConfig GetUpdateLaunchConfigOnline(int informationId)
         {
-            BiliCommit commit = new BiliCommit(informationId);
+            BiliCommitMsgPvder commit = new BiliCommitMsgPvder(informationId);
             var replies = commit.biliReplies;
             var launchConfigMaster = new UpdateLaunchConfig();
             var launchConfig = launchConfigMaster.updateConfigs;

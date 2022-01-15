@@ -22,30 +22,71 @@ namespace Aesc.AwesomeUpdater
 {
     public class AescAwesomeUpdater
     {
-        public UpdateConfig updateConfig;
+        public List<UpdateConfig> updateConfigs;
         public AescAwesomeUpdater(UpdateConfig updateConfig)
         {
-            this.updateConfig = updateConfig;
+            updateConfigs = new List<UpdateConfig>() {updateConfig };
         }
-        public virtual IUpdateMessageProvider GetMessageProvider()
+        public AescAwesomeUpdater(List<UpdateConfig> updateConfigs)
         {
-            return (updateConfig.messageProvider.ToLower()) switch
+            this.updateConfigs = updateConfigs;
+        }
+        /// <summary>
+        /// 获取当前应用程序的版本。
+        /// </summary>
+        /// <returns>当前应用程序的版本</returns>
+        public static Version GetCurrentVersion()
+            => System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
+
+        /// <summary>
+        /// 检查更新，如果有则自动下载并安装，没有则忽略。<br/><br/>
+        /// Steps: <see cref="UpdateLaunchConfig.updateConfigs"/> ->
+        /// <see cref="UpdateConfig.GetUpdateMessage"/> -><br/>
+        /// <see cref="UpdateMessage.DownloadPackage"/> ->
+        /// <see cref="UpdatePackage.InstallPackage"/>
+        /// </summary>
+        public void QuicklyUpdate()
+        {
+            foreach (var updateConfig in updateConfigs)
             {
-                "bilibiliprovider" => new BilibiliUpdateMessageProvider(),
-                _ => null,
-            };
+                updateConfig.QuicklyUpdate();
+            }
         }
-        public virtual UpdateMessage GetUpdateMessage() =>
-            GetMessageProvider().GetUpdateMessage(updateConfig.messageData);
-        public virtual bool CheckUpdate()
+    }
+    public interface IUpdateMessageProvider
+    {
+        string Name { get; }
+        /// <summary>
+        /// 获取更新信息
+        /// </summary>
+        /// <param name="updateConfig">更新配置信息</param>
+        /// <returns>更新信息</returns>
+        UpdateMessage GetUpdateMessage(UpdateConfig updateConfig);
+    }
+    public struct UpdatePackage
+    {
+        public Version Version => updateMessage.Version;
+        public string zipFilePath;
+        public string extractFilePath;
+
+        /// <summary>
+        /// 关于更新包的更新信息
+        /// </summary>
+        public UpdateMessage updateMessage;
+
+        /// <summary>
+        /// 关于更新包的更新配置信息
+        /// </summary>
+        public UpdateConfig updateConfig => updateMessage.updateConfig;
+
+        /// <summary>
+        /// 安装指定的应用程序包。
+        /// </summary>
+        /// <param name="extractPath"></param>
+        /// <param name="targetPath"></param>
+        public void InstallPackage()
         {
-            return true;
-        }
-        public virtual void DownloadPackage(string filePath, string extractPath) =>
-            GetUpdateMessage().DownloadPackage(filePath, extractPath);
-        public virtual void UpdatePackage(string updFilePath, string targetPath)
-        {
-            DirectoryInfo directory = new DirectoryInfo(updFilePath);
+            DirectoryInfo directory = new DirectoryInfo(extractFilePath);
             var updateScript = directory.GetFiles("update.bat");
             if (updateScript.Length == 0)
             {
@@ -57,35 +98,60 @@ namespace Aesc.AwesomeUpdater
             }
             foreach (var item in directory.GetFiles())
             {
-                item.MoveTo($"{targetPath}/{item.Name}", true);
+                item.MoveTo($"{updateConfig.programInstallPath}/{item.Name}", true);
             }
         }
-        public virtual void InstallPackage()
-        {
-
-        }
     }
-    public interface IUpdateMessageProvider
-    {
-        string Name { get; }
-        UpdateMessage GetUpdateMessage(string value);
-    }
+    /// <summary>
+    /// 获取到的更新信息
+    /// </summary>
     public struct UpdateMessage
     {
         public string packageName;
-        public string VersionCode;
+        public string updatePackageUrl;
+        public UpdateConfig updateConfig;
+        public string versionCode;
+        public Version Version {
+            get => new Version(versionCode);
+        }
         public string UpdatePackageUrl;
-        public void DownloadPackage(string filePath, string extractPath)
+
+        /// <summary>
+        /// 下载更新包并解压。
+        /// </summary>
+        /// <returns>更新包</returns>
+        public UpdatePackage DownloadPackage()
+            => DownloadPackage(
+                Path.Combine(updateConfig.programInstallPath, $"UpdatedFile_{Version}.zip"),
+                Path.Combine(updateConfig.programInstallPath, $"UpdatedFile_{Version}"));
+
+        /// <summary>
+        /// 下载更新包到指定位置，并解压到指定位置。
+        /// </summary>
+        /// <param name="filePath">更新包下载位置</param>
+        /// <param name="extractPath">解压位置</param>
+        /// <returns>更新包</returns>
+        public UpdatePackage DownloadPackage(string filePath, string extractPath)
         {
-            WebRequest.CreateHttp(UpdatePackageUrl).SendGet().WriteToFile(filePath);
+            WebRequest.CreateHttp(updatePackageUrl).SendGet().WriteToFile(filePath);
             DirectoryInfo directory = new DirectoryInfo(extractPath);
             if (directory.Exists)
             {
                 directory.Delete(true);
             }
             ZipFile.ExtractToDirectory(filePath, extractPath, true);
+            return new UpdatePackage()
+            {
+                updateMessage = this,
+                extractFilePath = extractPath,
+                zipFilePath = filePath
+            };
         }
     }
+
+    /// <summary>
+    /// 关于更新包的配置信息
+    /// </summary>
     public struct UpdateConfig
     {
         public string programInstallPath;
@@ -95,6 +161,52 @@ namespace Aesc.AwesomeUpdater
         public string messageProvider;
         public string messageData;
         public bool isInstalled;
+        /// <summary>
+        /// 检查当前是否需要更新。
+        /// </summary>
+        /// <returns>当前是否需要更新</returns>
+        public bool IsNeedToUpdated()
+            => AescAwesomeUpdater.GetCurrentVersion() < GetUpdateMessage().Version;
+
+        /// <summary>
+        /// 获取更新信息的提供服务。
+        /// </summary>
+        /// <returns>更新信息的提供服务</returns>
+        public IUpdateMessageProvider GetMessageProvider()
+        {
+            return (messageProvider.ToLower()) switch
+            {
+                "bilibiliprovider" => new BilibiliUpdateMessageProvider(),
+                _ => null,
+            };
+        }
+
+        /// <summary>
+        /// 获取当前最新的更新消息。
+        /// </summary>
+        /// <returns>当前最新的更新消息</returns>
+        public UpdateMessage GetUpdateMessage() =>
+            GetMessageProvider().GetUpdateMessage(this);
+
+        /// <summary>
+        /// 下载最新的应用程序包并解压在指定位置。
+        /// </summary>
+        /// <param name="filePath"></param>
+        /// <param name="extractPath"></param>
+        public void DownloadPackage(string filePath, string extractPath) =>
+            GetUpdateMessage().DownloadPackage(filePath, extractPath);
+
+        /// <summary>
+        /// 检查更新，如果有则自动下载并安装，没有则忽略。<br/><br/>
+        /// Steps: <see cref="GetUpdateMessage"/> ->
+        /// <see cref="UpdateMessage.DownloadPackage"/><br/> ->
+        /// <see cref="UpdatePackage.InstallPackage"/>
+        /// </summary>
+        public void QuicklyUpdate()
+        {
+            if (IsNeedToUpdated()) 
+                GetUpdateMessage().DownloadPackage().InstallPackage();
+        }
     }
     public struct UpdateLaunchConfig
     {
@@ -106,22 +218,26 @@ namespace Aesc.AwesomeUpdater
         public ArgsNamedKey Config;
         public ArgsNamedKey updNow;
         public ArgsNamedKey allowUpdateOlder;
-
     }
     public class AescUpdaterProgram
     {
+        public UpdaterArgs updaterArgs;
+        public AescUpdaterProgram(string[] args)
+        {
+            updaterArgs = AescArgsParser.Parse<UpdaterArgs>(args);
+        }
         public static void Main(string[] args)
         {
-
+            new AescUpdaterProgram(args);
         }
         /// <summary>
-        /// 默认使用<see cref="BiliCommit"/>和<see cref="BiliReply"/>获取更新信息，此方法可以在子类重写。<br/><br/>
+        /// 默认使用<see cref="BiliCommitMsgPvder"/>和<see cref="BiliReply"/>获取更新信息，此方法可以在子类重写。<br/><br/>
         /// 关于<see cref="BiliReply"/>的格式规定：<br/>
         /// packageName|messageData
         /// <br/><br/>其余<see cref="UpdateConfig"/>的值会自动填充。
         /// </summary>
         /// <param name="informationId"></param>
-        /// <returns></returns>
+        /// <returns>启动更新程序的更新配置信息</returns>
         public virtual UpdateLaunchConfig GetUpdateLaunchConfigOnline(int informationId)
         {
             BiliCommitMsgPvder commit = new BiliCommitMsgPvder(informationId);
@@ -150,6 +266,7 @@ namespace Aesc.AwesomeUpdater
             }
             return launchConfigMaster;
         }
+        [Obsolete]
         static void Main2(string[] args)
         {
             List<string> argsList = new List<string>(args);
@@ -187,7 +304,7 @@ namespace Aesc.AwesomeUpdater
             int updPathIndex = argsList.IndexOf("-updPath");
             string updPath = argsList[updPathIndex + 1].Replace("&nbsp;", "");
             IUpdateMessageProvider messageProvider = GetMessageProvider(argsList[msgSrcIndex + 1]);
-            messageProvider.GetUpdateMessage(argsList[msgIdIndex + 1]).DownloadPackage($"{updPath}/UpdatedFile.zip", $"{updPath}/UpdatedFile");
+            messageProvider.GetUpdateMessage(new UpdateConfig()).DownloadPackage($"{updPath}/UpdatedFile.zip", $"{updPath}/UpdatedFile");
             if (argsList.Contains("-updNow"))
             {
                 UpdatePackage($"{updPath}/UpdatedFile", updPath);
@@ -199,12 +316,13 @@ namespace Aesc.AwesomeUpdater
                 Environment.Exit(0);
             }
         }
+        [Obsolete]
         public static void UpdateSelf()
         {
             const int versionCodeNow = 4;
             string p = Process.GetCurrentProcess().MainModule.FileName;
-            var up = new BilibiliUpdateMessageProvider().GetUpdateMessage("595405964716755484");
-            if (int.Parse(up.VersionCode) > versionCodeNow)
+            var up = new BilibiliUpdateMessageProvider().GetUpdateMessage(new UpdateConfig());
+            if (int.Parse(up.versionCode) > versionCodeNow)
             {
                 up.DownloadPackage(
                     Path.Combine(Path.GetDirectoryName(p), "UpdatedFile\\downloadUpdate.zip"), Path.GetDirectoryName(p) + "\\UpdatedFile");
@@ -224,6 +342,7 @@ namespace Aesc.AwesomeUpdater
             link.Description = "AwesomeUpdater";
             link.Save();
         }
+        [Obsolete]
         public static void UpdatePackage(string updFilePath, string targetPath)
         {
             DirectoryInfo directory = new DirectoryInfo(updFilePath);
@@ -232,6 +351,7 @@ namespace Aesc.AwesomeUpdater
                 item.MoveTo($"{targetPath}/{item.Name}", true);
             }
         }
+        [Obsolete]
         public static IUpdateMessageProvider GetMessageProvider(string msgSrcKey)
         {
             if (msgSrcKey == "BilibiliProvider")

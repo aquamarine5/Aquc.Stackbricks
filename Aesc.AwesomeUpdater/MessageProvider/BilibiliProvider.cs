@@ -5,6 +5,7 @@ using System.Net;
 using Newtonsoft.Json.Linq;
 using Aesc.AwesomeKits.Net;
 using Aesc.AwesomeKits.Net.WebStorage;
+using Aesc.AwesomeUpdater;
 
 namespace Aesc.AwesomeUpdater.MessageProvider
 {
@@ -13,9 +14,9 @@ namespace Aesc.AwesomeUpdater.MessageProvider
         public string Name => "BilibiliProvider";
         public readonly string commentsReplyUrl = "https://api.bilibili.com/x/v2/reply/main?jsonp=jsonp&next=0&type=17&mode=2&plat=1&oid";
         public readonly string commentsMainUrl = "https://api.vc.bilibili.com/dynamic_svr/v1/dynamic_svr/get_dynamic_detail?dynamic_id";
-        public UpdateMessage GetUpdateMessage(string value)
+        public UpdateMessage GetUpdateMessage(UpdateConfig updateConfig)
         {
-            BiliCommitMsgPvder commit = new BiliCommitMsgPvder(value);
+            BiliCommitMsgPvder commit = new BiliCommitMsgPvder(updateConfig.messageData);
             var commitContent = commit.commitText.Split("|");
             string packageName = commitContent[0];
             string netdiskProvider = commitContent[1];
@@ -24,8 +25,9 @@ namespace Aesc.AwesomeUpdater.MessageProvider
             return new UpdateMessage()
             {
                 packageName = packageName,
-                VersionCode = netdiskData[0],
-                UpdatePackageUrl = new Huang1111Netdisk().ParseUrl(netdiskData[1])
+                versionCode = netdiskData[0],
+                UpdatePackageUrl = new Huang1111Netdisk().ParseUrl(netdiskData[1]),
+                updateConfig=updateConfig
             };
         }
     }

@@ -5,7 +5,6 @@ using System.Net;
 using Newtonsoft.Json.Linq;
 using Aesc.AwesomeKits.Net;
 using Aesc.AwesomeKits.Net.WebStorage;
-using Aesc.AwesomeUpdater;
 
 namespace Aesc.AwesomeUpdater.MessageProvider
 {

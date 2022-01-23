@@ -25,9 +25,14 @@ namespace Aesc.AwesomeUpdater.MessageProvider
             {
                 packageName = packageName,
                 versionCode = netdiskData[0],
-                UpdatePackageUrl = new Huang1111Netdisk().ParseUrl(netdiskData[1]),
+                updatePackageUrl = new Huang1111Netdisk().ParseUrl(netdiskData[1]),
                 updateConfig=updateConfig
             };
+        }
+
+        UpdateLaunchConfig IUpdateMessageProvider.GetUpdateLaunchConfig(string data)
+        {
+            throw new NotImplementedException();
         }
     }
 }

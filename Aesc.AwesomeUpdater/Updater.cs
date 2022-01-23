@@ -62,7 +62,10 @@ namespace Aesc.AwesomeUpdater
         /// <param name="updateConfig">更新配置信息</param>
         /// <returns>更新信息</returns>
         UpdateMessage GetUpdateMessage(UpdateConfig updateConfig);
+
+        UpdateLaunchConfig GetUpdateLaunchConfig(string data);
     }
+
     public struct UpdatePackage
     {
         public Version Version => updateMessage.Version;
@@ -102,6 +105,7 @@ namespace Aesc.AwesomeUpdater
             }
         }
     }
+
     /// <summary>
     /// 获取到的更新信息
     /// </summary>
@@ -114,7 +118,6 @@ namespace Aesc.AwesomeUpdater
         public Version Version {
             get => new Version(versionCode);
         }
-        public string UpdatePackageUrl;
 
         /// <summary>
         /// 下载更新包并解压。
@@ -208,10 +211,12 @@ namespace Aesc.AwesomeUpdater
                 GetUpdateMessage().DownloadPackage().InstallPackage();
         }
     }
+
     public struct UpdateLaunchConfig
     {
         public List<UpdateConfig> updateConfigs;
     }
+
     public struct UpdaterArgs : IArgsParseResult
     {
         public ArgsNamedKey Update;
@@ -219,6 +224,7 @@ namespace Aesc.AwesomeUpdater
         public ArgsNamedKey updNow;
         public ArgsNamedKey allowUpdateOlder;
     }
+
     public class AescUpdaterProgram
     {
         public UpdaterArgs updaterArgs;
@@ -230,6 +236,12 @@ namespace Aesc.AwesomeUpdater
         {
             new AescUpdaterProgram(args);
         }
+        public void QuicklyUpdate()
+        {
+            var updateConfig = GetUpdateLaunchConfigOnline(1);
+            new AescAwesomeUpdater(updateConfig.updateConfigs).QuicklyUpdate();
+        }
+
         /// <summary>
         /// 默认使用<see cref="BiliCommitMsgPvder"/>和<see cref="BiliReply"/>获取更新信息，此方法可以在子类重写。<br/><br/>
         /// 关于<see cref="BiliReply"/>的格式规定：<br/>

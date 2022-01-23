@@ -22,7 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Aesc.AwesomeKits\Aesc.AwesomeKits\Aesc.AwesomeKits.csproj" />
+    <ProjectReference Include="..\Aesc.AwesomeKits\Aesc.AwesomeKits\Aesc.AwesomeKits.csproj" />
   </ItemGroup>
 
   <ItemGroup>

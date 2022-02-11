@@ -3,12 +3,24 @@ using System.Collections.Generic;
 using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
-using Aesc.AwesomeKits.Net;
-using Aesc.AwesomeKits.Net.WebStorage;
+using Aquc.AquaKits.Net;
+using Aquc.AquaKits.Net.WebStorage;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace Aesc.AwesomeUpdater.MessageProvider
+namespace Aquc.AquaUpdater.MessageProvider
 {
+    public struct LuoguUpdateContent
+    {
+        public string version;
+        public List<LuoguUpdateConfigContent> configContents;
+    }
+    public struct LuoguUpdateConfigContent
+    {
+        public string messageData;
+        public string messageProvider;
+
+    }
     public class LuoguUpdateMsgPvder : IUpdateMessageProvider
     {
         public string Name => nameof(LuoguUpdateMsgPvder);
@@ -23,13 +35,12 @@ namespace Aesc.AwesomeUpdater.MessageProvider
                 packageName = pasteContent["name"].ToString(),
                 versionCode = pasteContent["version"].ToString()
             };
-            
         }
 
-        public UpdateLaunchConfig GetUpdateLaunchConfig(string data)
+        public UpdateLaunchConfig GetUpdateLaunchConfig(string data,LaunchConfig config)
         {
-            var pasteContent = JObject.Parse(LuoguMsgPvder.GetMessage(data));
-            var jsondatas = JArray.Parse(pasteContent["lists"].ToString());
+            var pasteContent = JsonConvert.DeserializeObject<LuoguUpdateContent>(LuoguMsgPvder.GetMessage(data));
+            var programInstallRootPath = config.programInstallRootPath;
             return new UpdateLaunchConfig();
         }
     }

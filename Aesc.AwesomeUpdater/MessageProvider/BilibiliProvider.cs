@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Text;
 using System.Net;
 using Newtonsoft.Json.Linq;
-using Aesc.AwesomeKits.Net;
-using Aesc.AwesomeKits.Net.WebStorage;
+using Aquc.AquaKits.Net;
+using Aquc.AquaKits.Net.WebStorage;
 
-namespace Aesc.AwesomeUpdater.MessageProvider
+namespace Aquc.AquaUpdater.MessageProvider
 {
     public class BilibiliUpdateMessageProvider : IUpdateMessageProvider
     {
@@ -30,7 +30,8 @@ namespace Aesc.AwesomeUpdater.MessageProvider
             };
         }
 
-        UpdateLaunchConfig IUpdateMessageProvider.GetUpdateLaunchConfig(string data)
+
+        public UpdateLaunchConfig GetUpdateLaunchConfig(string data, LaunchConfig launchConfig)
         {
             throw new NotImplementedException();
         }

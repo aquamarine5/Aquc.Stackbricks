@@ -7,18 +7,17 @@ using System.Diagnostics;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
-using Aesc.AwesomeKits.Net.WebStorage;
-using Aesc.AwesomeKits.Net;
-using Aesc.AwesomeKits.ComUtil;
-using Aesc.AwesomeKits.Util;
+using Aquc.AquaKits.Net.WebStorage;
+using Aquc.AquaKits.Net;
+using Aquc.AquaKits.ComUtil;
+using Aquc.AquaKits.Util;
 using System.IO.Compression;
-using Newtonsoft.Json.Linq;
 using IWshRuntimeLibrary;
-using Aesc.AwesomeUpdater.MessageProvider;
+using Aquc.AquaUpdater.MessageProvider;
 using File = System.IO.File;
 
 
-namespace Aesc.AwesomeUpdater
+namespace Aquc.AquaUpdater
 {
     public class AescAwesomeUpdater
     {
@@ -63,7 +62,7 @@ namespace Aesc.AwesomeUpdater
         /// <returns>更新信息</returns>
         UpdateMessage GetUpdateMessage(UpdateConfig updateConfig);
 
-        UpdateLaunchConfig GetUpdateLaunchConfig(string data);
+        UpdateLaunchConfig GetUpdateLaunchConfig(string data,LaunchConfig launchConfig);
     }
 
     public struct UpdatePackage
@@ -224,7 +223,10 @@ namespace Aesc.AwesomeUpdater
         public ArgsNamedKey updNow;
         public ArgsNamedKey allowUpdateOlder;
     }
-
+    public struct LaunchConfig
+    {
+        public string programInstallRootPath;
+    }
     public class AescUpdaterProgram
     {
         public UpdaterArgs updaterArgs;
@@ -235,6 +237,27 @@ namespace Aesc.AwesomeUpdater
         public static void Main(string[] args)
         {
             new AescUpdaterProgram(args);
+        }
+        public LaunchConfig GetLaunchConfig()
+        {
+            var path = Path.Combine(Path.GetPathRoot(Process.GetCurrentProcess().MainModule.FileName), "Aquc.AquaUpdater.launch.json");
+            var needInitial = File.Exists(path);
+            FileStream fs = new FileStream(path, FileMode.OpenOrCreate, FileAccess.ReadWrite);
+            if (needInitial)
+            {
+                var fswrite = new StreamWriter(fs);
+                var launchConfig = new LaunchConfig()
+                {
+                    programInstallRootPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "AwesomeProgram")
+                };
+                fswrite.WriteLine(JsonConvert.SerializeObject(launchConfig));
+                return launchConfig;
+            }
+            else
+            {
+                var fsread = new StreamReader(fs);
+                return JsonConvert.DeserializeObject<LaunchConfig>(fsread.ReadToEnd());
+            }
         }
         public void QuicklyUpdate()
         {

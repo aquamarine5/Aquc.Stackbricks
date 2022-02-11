@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30225.117
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Aesc.AwesomeUpdater", "Aesc.AwesomeUpdater\Aesc.AwesomeUpdater.csproj", "{E2DB5B5C-7B7B-470E-9DE2-B2FBB5AAA006}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Aquc.AquaUpdater", "Aesc.AwesomeUpdater\Aquc.AquaUpdater.csproj", "{E2DB5B5C-7B7B-470E-9DE2-B2FBB5AAA006}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Aesc.AwesomeKits", "Aesc.AwesomeKits\Aesc.AwesomeKits\Aesc.AwesomeKits.csproj", "{75206C65-843B-447D-9576-451EF40EB392}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Aquc.AquaKits", "..\Aesc.AwesomeKits\Aesc.AwesomeKits\Aquc.AquaKits.csproj", "{381D2E4F-6774-4126-B083-F686D371D6F8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,10 +17,10 @@ Global
 		{E2DB5B5C-7B7B-470E-9DE2-B2FBB5AAA006}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E2DB5B5C-7B7B-470E-9DE2-B2FBB5AAA006}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E2DB5B5C-7B7B-470E-9DE2-B2FBB5AAA006}.Release|Any CPU.Build.0 = Release|Any CPU
-		{75206C65-843B-447D-9576-451EF40EB392}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{75206C65-843B-447D-9576-451EF40EB392}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{75206C65-843B-447D-9576-451EF40EB392}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{75206C65-843B-447D-9576-451EF40EB392}.Release|Any CPU.Build.0 = Release|Any CPU
+		{381D2E4F-6774-4126-B083-F686D371D6F8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{381D2E4F-6774-4126-B083-F686D371D6F8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{381D2E4F-6774-4126-B083-F686D371D6F8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{381D2E4F-6774-4126-B083-F686D371D6F8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

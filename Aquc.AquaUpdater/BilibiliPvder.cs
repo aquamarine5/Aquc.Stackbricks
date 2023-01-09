@@ -4,6 +4,7 @@ using System.Text;
 using System.Net;
 using Aquc.AquaUpdater.Net;
 using Newtonsoft.Json.Linq;
+using System.Net.Http;
 
 namespace Aquc.AquaUpdater.Pvder
 {

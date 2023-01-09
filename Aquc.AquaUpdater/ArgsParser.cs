@@ -21,7 +21,7 @@ namespace Aesc.AwesomeKits.Util
         {
             T result = Activator.CreateInstance<T>();
             object resultObject = result;
-            List<string> argsList = new List<string>(args);
+            List<string> argsList = new(args);
             if (ignoreCase) argsList.ForEach(str => str = str.ToLower());
             FieldInfo[] fieldInfos = typeof(T).GetFields(BindingFlags.Instance | BindingFlags.Public);
             int argsLength = argsList.Count;

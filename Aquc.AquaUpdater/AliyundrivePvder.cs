@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -18,29 +19,30 @@ namespace Aquc.AquaUpdater.Pvder
     }
     public class AliyunpanInteraction
     {
-        string exePath;
-        public AliyunpanInteraction() =>
-            new AliyunpanInteraction(Path.Combine(
-                    Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName), 
-                    Launch.LaunchConfig.implementations["aliyunpan"].folder));
+        public string exePath;
+        readonly ILogger<AliyunpanInteraction> logger;
+        public AliyunpanInteraction() : this(Path.Combine(
+                    Path.GetDirectoryName(Environment.ProcessPath),
+                    Launch.LaunchConfig.implementations["aliyunpan"].folder))
+        { }
 
         public AliyunpanInteraction(string folder)
         {
             exePath = Path.Combine(folder, "aliyunpan.exe");
-            Console.WriteLine(exePath);
-            Console.WriteLine(1);
+            logger = Logging.InitLogger<AliyunpanInteraction>();
+            logger.LogInformation("exePath= {exePath}",exePath);
         }
-        public string DownloadFile(string drivePath,string downloadPath)
+        public string DownloadFile(string drivePath,string downloadPath,string token)
         {
+            this.token = token;
             var task = Task.Run(async () =>
             {
                 if (await ProcessLoglist())
                 {
-                    await ProcessLogin();
+                    await ProcessLogin(token);
                 }
                 return await ProcessDownload(drivePath, downloadPath);
             });
-            Console.WriteLine("Result "+task.IsCompleted+":"+task.Result);
             return task.Result;
         }
         bool wait4loglist = false;
@@ -48,17 +50,15 @@ namespace Aquc.AquaUpdater.Pvder
         bool wait4download = false;
         bool wait4downloadresult = false;
         bool resultLogin;
-        readonly string token="3eebc598a03c40e9a1384e713df3c247";
-        private async Task ProcessInvoke(string args,string exePath)
+        string token="";
+        private async Task ProcessInvoke(string args)
         {
-            Console.WriteLine(exePath);
             await Task.Run(() =>
             {
                 var process = new Process();
-                process.StartInfo.FileName = @"D:\Program Source\v2\Aquc.AquaUpdater\Aquc.AquaUpdater\bin\Debug\netcoreapp3.1\aliyunpan-v0.2.5-windows-x86\aliyunpan.exe";
+                process.StartInfo.FileName = exePath;
                 process.StartInfo.CreateNoWindow = true;
                 process.StartInfo.Arguments = args;
-                //process.StartInfo.UseShellExecute = false;
                 process.StartInfo.RedirectStandardInput = true;
                 process.StartInfo.RedirectStandardOutput = true;
                 process.StartInfo.StandardOutputEncoding = Encoding.UTF8;
@@ -73,30 +73,30 @@ namespace Aquc.AquaUpdater.Pvder
         }
         private async Task<bool> ProcessLoglist()
         {
-            Console.WriteLine("processloglist");
+            logger.LogInformation("processloglist");
             wait4loglist = true;
-            await ProcessInvoke("loglist",exePath);
+            await ProcessInvoke("loglist");
             return await Task.FromResult(resultLogin);
             
         }
         private async Task<string> ProcessDownload(string drivePath,string downloadPath)
         {
-            Console.WriteLine("processdownload");
+            logger.LogInformation("processdownload");
             wait4download = true;
-            await ProcessInvoke("download " + drivePath+" --saveto "+downloadPath, exePath);
+            await ProcessInvoke("download " + drivePath+" --saveto "+downloadPath);
             return await Task.FromResult(Path.Combine(downloadPath, Path.GetFileName(drivePath)));
 
         }
-        private async Task ProcessLogin()
+        private async Task ProcessLogin(string token)
         {
-            Console.WriteLine("processlogin");
+            logger.LogInformation("processlogin");
             wait4login = true;
-            await ProcessInvoke("login -RefreshToken=" + token, exePath);
+            await ProcessInvoke("login -RefreshToken=" + token);
 
         }
         private void ProcessExited(object sender, EventArgs e)
         {
-            Console.WriteLine("processexited");
+            logger.LogInformation("processexited");
             if (wait4loglist)
             {
                 wait4loglist = false;

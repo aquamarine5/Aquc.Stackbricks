@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Text;
 using Aquc.AquaUpdater.Pvder;
+using Microsoft.Extensions.Logging;
 
 namespace Aquc.AquaUpdater
 {
@@ -24,8 +25,10 @@ namespace Aquc.AquaUpdater
     public class Launch
     {
         public static LaunchConfig LaunchConfig;
+        readonly ILogger<Launch> logger;
         public Launch()
         {
+            logger = Logging.InitLogger<Launch>();
             JsonConvert.DefaultSettings = new Func<JsonSerializerSettings>(() => {
                 var setting = new JsonSerializerSettings();
                 setting.Converters.Add(new UpdateSubscriptionConverter());
@@ -33,10 +36,10 @@ namespace Aquc.AquaUpdater
             });
 
             LaunchConfig = GetLaunchConfig();
-            Console.WriteLine(1);
             
         }
-        LaunchConfig DefaultLaunchConfig => new LaunchConfig()
+
+        static LaunchConfig DefaultLaunchConfig => new()
         {
             implementations = new Dictionary<string,Implementation>()
             {
@@ -60,11 +63,11 @@ namespace Aquc.AquaUpdater
             version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString()
         };
         
-        public string LaunchConfigPath =>
-            Path.Combine(Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName),"Aquc.AquaUpdater.launch.json");
+        public static string LaunchConfigPath =>
+            Path.Combine(Path.GetDirectoryName(Environment.ProcessPath),"Aquc.AquaUpdater.launch.json");
         public LaunchConfig GetLaunchConfig()
         {
-            Console.WriteLine(LaunchConfigPath);
+            logger.LogInformation("load launch config from: {launchconfigpath}",LaunchConfigPath);
             if (File.Exists(LaunchConfigPath))
             {
                 using var sr = new StreamReader(LaunchConfigPath);
@@ -74,7 +77,7 @@ namespace Aquc.AquaUpdater
         }
         public LaunchConfig InitiationLaunchConfig()
         {
-            Console.WriteLine(2);
+            logger.LogInformation("launch config not found, initation a new launch config on:{launchconfigpath}",LaunchConfigPath);
             var lc = DefaultLaunchConfig;
             using var fs = new FileStream(LaunchConfigPath, FileMode.CreateNew, FileAccess.Write);
             using var sw = new StreamWriter(fs);

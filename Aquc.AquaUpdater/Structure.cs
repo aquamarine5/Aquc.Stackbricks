@@ -73,6 +73,7 @@ namespace Aquc.AquaUpdater
     }
     public struct UpdateSubscription
     {
+        public DateTime lastCheckUpdateTime;
         public string args;
         public DirectoryInfo programDirectory;
         public FileInfo programExtrancePath;
@@ -90,7 +91,12 @@ namespace Aquc.AquaUpdater
             return new UpdateSubscription()
             {
                 args = jo["args"].ToString(),
-                updateMessageProvider = Provider.GetMessageProvider(jo["updateMessageProvider"]["Identity"].ToString())
+                updateMessageProvider = Provider.GetMessageProvider(jo["updateMessageProvider"]["Identity"].ToString()),
+                currentlyVersion = new Version(jo["version"].ToString()),
+                lastCheckUpdateTime=new DateTime(long.Parse(jo["lastCheckUpdateTime"].ToString())),
+                programKey = jo["programKey"].ToString(),
+                programDirectory = new DirectoryInfo(jo["programDirectory"].ToString()),
+                programExtrancePath=new FileInfo(jo["programExtrancePath"].ToString())
             };
         }
 
@@ -99,6 +105,16 @@ namespace Aquc.AquaUpdater
             writer.WriteStartObject();
             writer.WritePropertyName("args");
             writer.WriteValue(value.args);
+            writer.WritePropertyName("lastCheckUpdateTime");
+            writer.WriteValue(value.lastCheckUpdateTime.Ticks.ToString());
+            writer.WritePropertyName("version");
+            writer.WriteValue(value.currentlyVersion.ToString());
+            writer.WritePropertyName("programDirectory");
+            writer.WriteValue(value.programDirectory.FullName);
+            writer.WritePropertyName("programExtrancePath");
+            writer.WriteValue(value.programExtrancePath.FullName);
+            writer.WritePropertyName("programKey");
+            writer.WriteValue(value.programKey);
             writer.WritePropertyName("updateMessageProvider");
             writer.WriteStartObject();
             writer.WritePropertyName("Identity");

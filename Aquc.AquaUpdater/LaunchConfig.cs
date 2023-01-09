@@ -46,7 +46,7 @@ namespace Aquc.AquaUpdater
                 { "aliyunpan", new Implementation()
                     {
                         link="https://github.com/tickstep/aliyunpan/releases/tag/v0.2.5",
-                        folder="aliyunpan-v0.2.5-windows-x86",
+                        folder="",
                         name="aliyunpan",
                         version="0.2.5"
                     } 
@@ -56,11 +56,15 @@ namespace Aquc.AquaUpdater
             {
                 new UpdateSubscription()
                 {
-                    args="aja",
-                    updateMessageProvider=new BiliCommitMsgPvder()
+                    args="748314802178228304",
+                    programDirectory=new DirectoryInfo(@"D:\Program Source\v2\Aquc.AquaUpdater\Aquc.AquaUpdater\debug"),
+                    programExtrancePath=new FileInfo(@"D:\Program Source\v2\Aquc.AquaUpdater\Aquc.AquaUpdater\bin\Debug\net6.0\aliyunpan.exe"),
+                    programKey="test",
+                    updateMessageProvider=new BiliCommitMsgPvder(),
+                    currentlyVersion=new Version("0.1.0")
                 }
             },
-            version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString()
+            version = Environment.Version.ToString()
         };
         
         public static string LaunchConfigPath =>

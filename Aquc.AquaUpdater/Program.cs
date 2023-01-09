@@ -13,6 +13,7 @@ namespace Aquc.AquaUpdater
             logger = Logging.InitLogger<Program>();
             Console.WriteLine("Hello World!");
             var lc = new Launch();
+            Launch.LaunchConfig.subscriptions[0].GetUpdateMessage().GetUpdatePackage().InstallPackage();
             
         }
     }

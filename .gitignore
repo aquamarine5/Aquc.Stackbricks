@@ -1,4 +1,4 @@
-Aquc.AquaUpdater/obj
-Aquc.AquaUpdater/bin
+**/obj
+**/bin
 *.user
 .vs

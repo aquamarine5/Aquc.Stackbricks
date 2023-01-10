@@ -3,14 +3,14 @@ using System.Reflection;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Aesc.AwesomeKits.Util
+namespace Aquc.AquaUpdater.Util
 {
     public delegate void ParseValueDelegate(FieldInfo field, object obj, object value);
-    public class AescArgsParser
+    public class ArgsParser
     {
         readonly string[] args;
         
-        public AescArgsParser(string[] args)
+        public ArgsParser(string[] args)
         {
             this.args = args;
         }
@@ -22,7 +22,9 @@ namespace Aesc.AwesomeKits.Util
             T result = Activator.CreateInstance<T>();
             object resultObject = result;
             List<string> argsList = new(args);
-            if (ignoreCase) argsList.ForEach(str => str = str.ToLower());
+            if (ignoreCase) argsList.ForEach(str => {
+                if (str.StartsWith("-") || str.StartsWith("/")) str = str.ToLower();
+            });
             FieldInfo[] fieldInfos = typeof(T).GetFields(BindingFlags.Instance | BindingFlags.Public);
             int argsLength = argsList.Count;
             foreach (var field in fieldInfos)
@@ -32,8 +34,22 @@ namespace Aesc.AwesomeKits.Util
                 bool isContains = true;
                 string content = null;
                 int keyIndex = -1;
-                int index1 = argsList.IndexOf("-" + fieldName);
+                int index1;
                 int index2 = argsList.IndexOf("/" + fieldName);
+                if(fieldName.Contains('_'))
+                {
+                    var splitedFieldName = fieldName.Split('_');
+                    var finalFieldName = "--" + splitedFieldName[0];
+                    for (int i = 1; i < splitedFieldName.Length; i++)
+                    {
+                        finalFieldName += "-" + splitedFieldName[i];
+                    }
+                    index1= argsList.IndexOf(finalFieldName);
+                }
+                else
+                {
+                    index1=argsList.IndexOf("-" + fieldName);
+                }
                 if (index1 == -1 && index2 == -1) isContains = false;
                 else if (index1 != -1 && index2 != -1) keyIndex = index2;
                 else keyIndex = index1 != -1 ? index1 : index2;
@@ -77,24 +93,22 @@ namespace Aesc.AwesomeKits.Util
                 field.SetValue(obj, bool.Parse(((string)value).ToLower()));
             else if (fieldType == typeof(string))
                 field.SetValue(obj, (string)value);
-            else if (fieldType == typeof(ArgsSwitchKey<>))
-                field.SetValue(obj, value);
-            else throw new ArgumentException();
+            else throw new ArgumentException("error",nameof(field));
         }
         public virtual void ParseValue(FieldInfo field, object obj, object value) =>
             LocalParseValue(field, obj, value);
     }
 
     public interface IArgsParseResult { }
-    public struct ArgsSwitchKey<T> where T : notnull
+    public struct ArgsSwitchKey<T>
     {
         public string switchKey;
         public T content;
     }
     public struct ArgsNamedKey
     {
-        public static ArgsNamedKey Contains = new ArgsNamedKey(true);
-        public static ArgsNamedKey NotContains = new ArgsNamedKey(false);
+        public static readonly ArgsNamedKey Contains = new (true);
+        public static readonly ArgsNamedKey NotContains = new (false);
         public readonly bool isContains;
         public ArgsNamedKey(bool isContains)
         {

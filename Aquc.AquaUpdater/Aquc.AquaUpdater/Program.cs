@@ -5,6 +5,7 @@ using Aquc.AquaUpdater.Pvder;
 using Aquc.AquaUpdater.Util;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Console;
+using Newtonsoft.Json;
 
 namespace Aquc.AquaUpdater;
 
@@ -16,6 +17,12 @@ public class Program
     static void Main(string[] args)
     {
         logger = Logging.InitLogger<Program>();
+        JsonConvert.DefaultSettings = new Func<JsonSerializerSettings>(() =>
+        {
+            var setting = new JsonSerializerSettings();
+            setting.Converters.Add(new UpdateSubscriptionConverter());
+            return setting;
+        });
         var program = new Program
         {
             launch = new Launch(),
@@ -26,13 +33,13 @@ public class Program
     }
     void ParseLaunchArgs()
     {
-        UpdateLaunchArgs updateLaunchArgs=ArgsParser.Parse<UpdateLaunchArgs>(args);
+        UpdateLaunchArgs updateLaunchArgs = ArgsParser.Parse<UpdateLaunchArgs>(args);
         if (updateLaunchArgs.update != null)
             Launch.LaunchConfig.subscriptions[updateLaunchArgs.update].GetUpdateMessage().GetUpdatePackageWhenAvailable()?.InstallPackage();
         if (updateLaunchArgs.update_all.isContains)
             foreach (var item in Launch.LaunchConfig.subscriptions.Values)
                 item.GetUpdateMessage().GetUpdatePackageWhenAvailable()?.InstallPackage();
-        if(updateLaunchArgs.unsubscribe!=null)
+        if (updateLaunchArgs.unsubscribe != null)
             Launch.LaunchConfig.subscriptions.Remove(updateLaunchArgs.unsubscribe);
     }
     public static void UpdateWhenAvailable(UpdateSubscription updateSubscription)
@@ -43,9 +50,7 @@ public class Program
     public static void UpdateAllWhenAvailable(List<UpdateSubscription> updateSubscriptions)
     {
         foreach (var item in updateSubscriptions)
-        {
             UpdateWhenAvailable(item);
-        }
     }
 
 }

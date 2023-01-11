@@ -13,7 +13,7 @@ public class Logging
     {
         return LoggerFactory.Create(builder => builder.AddConsole()).CreateLogger<T>();
     }
-    static ILogger<UpdateMessage> s_UpdateMessageLogger=null;
+    static ILogger<UpdateMessage> s_UpdateMessageLogger = null;
     public static ILogger<UpdateMessage> UpdateMessageLogger => s_UpdateMessageLogger ??= InitLogger<UpdateMessage>();
 
     static ILogger<UpdateSubscription> s_UpdateSubscriptionLogger = null;

@@ -9,10 +9,10 @@ using Microsoft.Extensions.Logging;
 
 namespace Aquc.AquaUpdater;
 
-public struct LaunchConfig:ICloneable
+public struct LaunchConfig : ICloneable
 {
-    public Dictionary<string,UpdateSubscription> subscriptions;
-    public Dictionary<string,Implementation> implementations;
+    public Dictionary<string, UpdateSubscription> subscriptions;
+    public Dictionary<string, Implementation> implementations;
     public string version;
     public object Clone()
     {
@@ -29,24 +29,18 @@ public struct Implementation
 public class Launch
 {
     public static LaunchConfig LaunchConfig;
-    readonly object beforeLaunchConfig;
+    object beforeLaunchConfig;
     readonly ILogger<Launch> logger;
     public Launch()
     {
         logger = Logging.InitLogger<Launch>();
-        JsonConvert.DefaultSettings = new Func<JsonSerializerSettings>(() => {
-            var setting = new JsonSerializerSettings();
-            setting.Converters.Add(new UpdateSubscriptionConverter());
-            return setting;
-        });
-
         LaunchConfig = GetLaunchConfig();
         beforeLaunchConfig = LaunchConfig.Clone();
     }
 
     static LaunchConfig DefaultLaunchConfig => new()
     {
-        implementations = new Dictionary<string,Implementation>()
+        implementations = new Dictionary<string, Implementation>()
         {
             { "aliyunpan", new Implementation()
                 {
@@ -54,10 +48,10 @@ public class Launch
                     folder="",
                     name="aliyunpan",
                     version="0.2.5"
-                } 
+                }
             }
         },
-        subscriptions = new Dictionary<string,UpdateSubscription>()
+        subscriptions = new Dictionary<string, UpdateSubscription>()
         {
             {"", new UpdateSubscription()
                 {
@@ -67,17 +61,17 @@ public class Launch
                     programKey="test",
                     updateMessageProvider=new BiliCommitMsgPvder(),
                     currentlyVersion=new Version("0.1.0")
-                } 
+                }
             }
         },
         version = Environment.Version.ToString()
     };
-    
+
     public static string LaunchConfigPath =>
-        Path.Combine(Path.GetDirectoryName(Environment.ProcessPath),"Aquc.AquaUpdater.launch.json");
+        Path.Combine(Path.GetDirectoryName(Environment.ProcessPath), "Aquc.AquaUpdater.launch.json");
     public LaunchConfig GetLaunchConfig()
     {
-        logger.LogInformation("load launch config from: {launchconfigpath}",LaunchConfigPath);
+        logger.LogInformation("load launch config from: {launchconfigpath}", LaunchConfigPath);
         if (File.Exists(LaunchConfigPath))
         {
             using var sr = new StreamReader(LaunchConfigPath);
@@ -87,7 +81,7 @@ public class Launch
     }
     public LaunchConfig InitiationLaunchConfig()
     {
-        logger.LogInformation("launch config not found, initation a new launch config on:{launchconfigpath}",LaunchConfigPath);
+        logger.LogInformation("launch config not found, initation a new launch config on:{launchconfigpath}", LaunchConfigPath);
         var lc = DefaultLaunchConfig;
         using var fs = new FileStream(LaunchConfigPath, FileMode.CreateNew, FileAccess.Write);
         using var sw = new StreamWriter(fs);
@@ -100,6 +94,7 @@ public class Launch
         using var fs = new FileStream(LaunchConfigPath, FileMode.Truncate, FileAccess.Write);
         using var sw = new StreamWriter(fs);
         sw.Write(JsonConvert.SerializeObject(LaunchConfig));
+        beforeLaunchConfig = LaunchConfig.Clone();
     }
     public bool UpdateLaunchConfigWhenEdited()
     {

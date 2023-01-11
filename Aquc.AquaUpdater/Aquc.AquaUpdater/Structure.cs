@@ -38,7 +38,7 @@ public struct UpdatePackage
         var updateScript = extraceZipDirectory.GetFiles("do.");
         if (updateScript.Length != 0)
         {
-            foreach(FileInfo f in updateScript)
+            foreach (FileInfo f in updateScript)
             {
                 var process = new Process
                 {
@@ -64,14 +64,14 @@ public struct UpdatePackage
         zipPath.Delete();
         extraceZipDirectory.Delete(true);
     }
-    private void CopyDirectory(DirectoryInfo directory,DirectoryInfo dest)
+    private void CopyDirectory(DirectoryInfo directory, DirectoryInfo dest)
     {
         if (!dest.Exists) dest.Create();
-        foreach(FileInfo f in directory.GetFiles())
+        foreach (FileInfo f in directory.GetFiles())
         {
-            f.CopyTo(Path.Combine(dest.FullName, f.Name),true);
+            f.CopyTo(Path.Combine(dest.FullName, f.Name), true);
         }
-        foreach(DirectoryInfo d in directory.GetDirectories())
+        foreach (DirectoryInfo d in directory.GetDirectories())
         {
             CopyDirectory(d, new DirectoryInfo(Path.Combine(dest.FullName, d.Name)));
         }
@@ -99,10 +99,10 @@ public class UpdateSubscriptionConverter : JsonConverter<UpdateSubscription>
             args = jo["args"].ToString(),
             updateMessageProvider = Provider.GetMessageProvider(jo["updateMessageProvider"]["Identity"].ToString()),
             currentlyVersion = new Version(jo["version"].ToString()),
-            lastCheckUpdateTime=new DateTime(long.Parse(jo["lastCheckUpdateTime"].ToString())),
+            lastCheckUpdateTime = new DateTime(long.Parse(jo["lastCheckUpdateTime"].ToString())),
             programKey = jo["programKey"].ToString(),
             programDirectory = new DirectoryInfo(jo["programDirectory"].ToString()),
-            programExtrancePath=new FileInfo(jo["programExtrancePath"].ToString())
+            programExtrancePath = new FileInfo(jo["programExtrancePath"].ToString())
         };
     }
 

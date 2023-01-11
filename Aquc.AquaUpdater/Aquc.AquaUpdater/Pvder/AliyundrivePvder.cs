@@ -17,11 +17,11 @@ namespace Aquc.AquaUpdater.Pvder
         {
             var data = updateMessage.fileArgs.Split("]]");
             string token = data[2];
-            string filePath= data[1];
+            string filePath = data[1];
             string version = data[0];
             string zipDirectory = updateMessage.updateSubscription.programDirectory.FullName;
             string extractZipDirectory = Path.Combine(zipDirectory, $"update_{version}");
-            string zipPath = new AliyunpanInteraction().DownloadFile(filePath,zipDirectory, token);
+            string zipPath = new AliyunpanInteraction().DownloadFile(filePath, zipDirectory, token);
             if (Directory.Exists(extractZipDirectory))
             {
                 Directory.Delete(extractZipDirectory, true);
@@ -50,9 +50,9 @@ namespace Aquc.AquaUpdater.Pvder
         {
             exePath = Path.Combine(folder, "aliyunpan.exe");
             logger = Logging.InitLogger<AliyunpanInteraction>();
-            logger.LogInformation("use aliyunpan implementation in: {exePath}",exePath);
+            logger.LogInformation("use aliyunpan implementation in: {exePath}", exePath);
         }
-        public string DownloadFile(string drivePath,string downloadPath,string token)
+        public string DownloadFile(string drivePath, string downloadPath, string token)
         {
             this.token = token;
             var task = Task.Run(async () =>
@@ -70,7 +70,7 @@ namespace Aquc.AquaUpdater.Pvder
         bool wait4download = false;
         bool wait4downloadresult = false;
         bool resultLogin;
-        string token="";
+        string token = "";
         private async Task ProcessInvoke(string args)
         {
             await Task.Run(() =>
@@ -98,13 +98,13 @@ namespace Aquc.AquaUpdater.Pvder
             wait4loglist = true;
             await ProcessInvoke("loglist");
             return await Task.FromResult(resultLogin);
-            
+
         }
-        private async Task<string> ProcessDownload(string drivePath,string downloadPath)
+        private async Task<string> ProcessDownload(string drivePath, string downloadPath)
         {
             logger.LogInformation("processdownload");
             wait4download = true;
-            await ProcessInvoke("download " + drivePath+$" --saveto \"{downloadPath}\"");
+            await ProcessInvoke("download " + drivePath + $" --saveto \"{downloadPath}\"");
             return await Task.FromResult(Path.Combine(downloadPath, Path.GetFileName(drivePath)));
 
         }

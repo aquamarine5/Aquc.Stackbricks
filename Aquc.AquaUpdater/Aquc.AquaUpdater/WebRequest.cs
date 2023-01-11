@@ -31,7 +31,7 @@ public static class WebRequestStreamExtension
     }
     public static HttpWebRequest AddText(this HttpWebRequest webRequest, string text, Encoding encoding)
         => webRequest.AddText(text, encoding.BodyName);
-    public static HttpWebRequest AddFormdata(this HttpWebRequest webRequest,MultipartFormDataContent multipartFormData,string boundary)
+    public static HttpWebRequest AddFormdata(this HttpWebRequest webRequest, MultipartFormDataContent multipartFormData, string boundary)
     {
         webRequest.Method = "POST"; // See: https://github.com/awesomehhhhh/Aesc.AwesomeKits/issues/8
         webRequest.ContentType = $"multipart/form-data; boundary={boundary}";
@@ -67,7 +67,7 @@ public static class WebResponseExtension
         streamReader.Close();
         return result;
     }
-    public static JObject ReadJsonObject(this WebResponse webResponse) 
+    public static JObject ReadJsonObject(this WebResponse webResponse)
         => JObject.Parse(webResponse.ReadText());
 
     public static void WriteToFile(this WebResponse webResponse, string filePath)

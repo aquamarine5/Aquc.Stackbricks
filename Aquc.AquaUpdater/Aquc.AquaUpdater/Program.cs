@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Aquc.AquaUpdater.Pvder;
 using Aquc.AquaUpdater.Util;
+using dotnetCampus.Cli;
+using dotnetCampus.Cli.Standard;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Console;
 using Newtonsoft.Json;
@@ -33,14 +35,18 @@ public class Program
     }
     void ParseLaunchArgs()
     {
-        UpdateLaunchArgs updateLaunchArgs = ArgsParser.Parse<UpdateLaunchArgs>(args);
-        if (updateLaunchArgs.update != null)
-            Launch.LaunchConfig.subscriptions[updateLaunchArgs.update].GetUpdateMessage().GetUpdatePackageWhenAvailable()?.InstallPackage();
-        if (updateLaunchArgs.update_all.isContains)
-            foreach (var item in Launch.LaunchConfig.subscriptions.Values)
-                item.GetUpdateMessage().GetUpdatePackageWhenAvailable()?.InstallPackage();
-        if (updateLaunchArgs.unsubscribe != null)
-            Launch.LaunchConfig.subscriptions.Remove(updateLaunchArgs.unsubscribe);
+        CommandLine.Parse(args)
+            .AddStandardHandlers()
+            .AddHandler<SubscribeOption>(option => { 
+
+            })
+            .AddHandler<UpdateOption>(option => {
+                UpdateWhenAvailable(Launch.LaunchConfig.subscriptions[option.Key]);
+            })
+            .AddHandler<UnsubscribeOption>(option => { 
+            
+            })
+            .Run();
     }
     public static void UpdateWhenAvailable(UpdateSubscription updateSubscription)
     {
@@ -54,18 +60,26 @@ public class Program
     }
 
 }
-public struct UpdateLaunchArgs : IArgsParseResult
+[Verb("subscribe")]
+public class SubscribeOption
 {
-    public string update;
-    public ArgsNamedKey update_all;
+    [Option('a',"Args")]public string Args { get; set; }
+    [Option('p',"Provider")]public string Provider { get; set; }
+    [Option('v',"Version")]public string Version { get; set; }
+    [Option('d',"Directory")]public string Directory { get; set; }
+    [Option('e',"Program")]public string Program { get; set; }
+    [Option('k',"Key")]public string Key { get; set; }
+    [Option('j',"Json")]public string Json { get; set; }
+}
 
-    public ArgsNamedKey subscribe;
-    public string args;
-    public string provider;
-    public string version;
-    public string directory;
-    public string program;
-    public string json;
+[Verb("update")]
+public class UpdateOption
+{
+    [Value(0), Option('k', "Key")]public string Key { get; set; }
+}
 
-    public string unsubscribe;
+[Verb("unsubscribe")]
+public class UnsubscribeOption
+{
+    [Value(0), Option('k',"Key")] public string Key { get; set;}
 }

@@ -28,14 +28,14 @@ public struct Implementation
 }
 public class Launch
 {
-    public static LaunchConfig LaunchConfig;
-    object beforeLaunchConfig;
-    readonly ILogger<Launch> logger;
+    public static LaunchConfig launchConfig;
+    static object beforeLaunchConfig;
+    static ILogger<Launch> logger;
     public Launch()
     {
         logger = Logging.InitLogger<Launch>();
-        LaunchConfig = GetLaunchConfig();
-        beforeLaunchConfig = LaunchConfig.Clone();
+        launchConfig = GetLaunchConfig();
+        beforeLaunchConfig = launchConfig.Clone();
     }
 
     static LaunchConfig DefaultLaunchConfig => new()
@@ -69,7 +69,7 @@ public class Launch
 
     public static string LaunchConfigPath =>
         Path.Combine(Path.GetDirectoryName(Environment.ProcessPath), "Aquc.AquaUpdater.launch.json");
-    public LaunchConfig GetLaunchConfig()
+    public static LaunchConfig GetLaunchConfig()
     {
         logger.LogInformation("load launch config from: {launchconfigpath}", LaunchConfigPath);
         if (File.Exists(LaunchConfigPath))
@@ -79,7 +79,7 @@ public class Launch
         }
         else return InitiationLaunchConfig();
     }
-    public LaunchConfig InitiationLaunchConfig()
+    public static LaunchConfig InitiationLaunchConfig()
     {
         logger.LogInformation("launch config not found, initation a new launch config on:{launchconfigpath}", LaunchConfigPath);
         var lc = DefaultLaunchConfig;
@@ -88,17 +88,17 @@ public class Launch
         sw.Write(JsonConvert.SerializeObject(lc));
         return lc;
     }
-    public void UpdateLaunchConfig()
+    public static void UpdateLaunchConfig()
     {
-        logger.LogInformation("launch config updated.");
         using var fs = new FileStream(LaunchConfigPath, FileMode.Truncate, FileAccess.Write);
         using var sw = new StreamWriter(fs);
-        sw.Write(JsonConvert.SerializeObject(LaunchConfig));
-        beforeLaunchConfig = LaunchConfig.Clone();
+        sw.Write(JsonConvert.SerializeObject(launchConfig));
+        logger.LogInformation("launch config updated.");
+        beforeLaunchConfig = launchConfig.Clone();
     }
-    public bool UpdateLaunchConfigWhenEdited()
+    public static bool UpdateLaunchConfigWhenEdited()
     {
-        if (!beforeLaunchConfig.Equals(LaunchConfig))
+        if (!beforeLaunchConfig.Equals(launchConfig))
         {
             UpdateLaunchConfig();
             return true;

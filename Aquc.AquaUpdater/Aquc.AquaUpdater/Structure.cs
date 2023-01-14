@@ -20,7 +20,9 @@ public struct UpdateMessage
         packageVersion > System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
     public UpdatePackage GetUpdatePackage()
     {
-        return filesProvider.DownloadPackage(this);
+        var package= filesProvider.DownloadPackage(this);
+        Logging.UpdateMessageLogger.LogInformation("Download update package successfully.");
+        return package;
     }
     public UpdatePackage? GetUpdatePackageWhenAvailable()
     {
@@ -53,7 +55,7 @@ public struct UpdatePackage
                 process.Start();
                 process.BeginOutputReadLine();
                 if (!process.WaitForExit(30000))
-                    Logging.UpdatePackageLogger.LogWarning("execute update script: {filename} failed with timeout 30000ms", f.Name);
+                    Logging.UpdatePackageLogger.LogWarning("execute update script: {filename} failed within 30000ms", f.Name);
                 else
                     Logging.UpdatePackageLogger.LogInformation("execute update script: {filename} successfully", f.Name);
             }
@@ -79,6 +81,7 @@ public struct UpdatePackage
 }
 public struct UpdateSubscription
 {
+    public int SubscriptionVersion { get; init; }
     public DateTime lastCheckUpdateTime;
     public string args;
     public DirectoryInfo programDirectory;
@@ -86,8 +89,15 @@ public struct UpdateSubscription
     public string programKey;
     public Version currentlyVersion;
     public IUpdateMessageProvider updateMessageProvider;
+    public IUpdateMessageProvider secondUpdateMessageProvider;
     public bool NeedUpdate() => GetUpdateMessage().NeedUpdate();
-    public UpdateMessage GetUpdateMessage() => updateMessageProvider.GetUpdateMessage(this);
+    public UpdateMessage GetUpdateMessage()
+    {
+        var message=updateMessageProvider.GetUpdateMessage(this);
+        Logging.UpdateSubscriptionLogger.LogInformation("Get {key}, ver={ver} update message successfully.",
+            message.updateSubscription.programKey, message.packageVersion);
+        return message;
+    }
 }
 public class UpdateSubscriptionConverter : JsonConverter<UpdateSubscription>
 {
@@ -96,8 +106,10 @@ public class UpdateSubscriptionConverter : JsonConverter<UpdateSubscription>
         var jo = serializer.Deserialize(reader) as JObject;
         return new UpdateSubscription()
         {
+            SubscriptionVersion = jo["subscriptionVersion"].ToObject<int>(),
             args = jo["args"].ToString(),
             updateMessageProvider = Provider.GetMessageProvider(jo["updateMessageProvider"]["Identity"].ToString()),
+            secondUpdateMessageProvider = Provider.GetMessageProvider(jo["secondUpdateMessageProvider"]["Identity"].ToString()),
             currentlyVersion = new Version(jo["version"].ToString()),
             lastCheckUpdateTime = new DateTime(long.Parse(jo["lastCheckUpdateTime"].ToString())),
             programKey = jo["programKey"].ToString(),
@@ -111,6 +123,8 @@ public class UpdateSubscriptionConverter : JsonConverter<UpdateSubscription>
         writer.WriteStartObject();
         writer.WritePropertyName("args");
         writer.WriteValue(value.args);
+        writer.WritePropertyName("subscriptionVersion");
+        writer.WriteValue(SubscriptionController.NEWEST_SUBSCRIPTION_VERSION);
         writer.WritePropertyName("lastCheckUpdateTime");
         writer.WriteValue(value.lastCheckUpdateTime.Ticks.ToString());
         writer.WritePropertyName("version");
@@ -125,6 +139,11 @@ public class UpdateSubscriptionConverter : JsonConverter<UpdateSubscription>
         writer.WriteStartObject();
         writer.WritePropertyName("Identity");
         writer.WriteValue(value.updateMessageProvider.Identity);
+        writer.WriteEndObject();
+        writer.WritePropertyName("secondUpdateMessageProvider");
+        writer.WriteStartObject();
+        writer.WritePropertyName("Identity");
+        writer.WriteValue(value.secondUpdateMessageProvider.Identity);
         writer.WriteEndObject();
         writer.WriteEndObject();
     }

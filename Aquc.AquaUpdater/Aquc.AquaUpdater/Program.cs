@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Aquc.AquaUpdater.Pvder;
-using Aquc.AquaUpdater.Util;
 using dotnetCampus.Cli;
 using dotnetCampus.Cli.Standard;
 using Microsoft.Extensions.Logging;
@@ -16,7 +16,7 @@ public class Program
     public Launch launch;
     static ILogger<Program> logger;
     string[] args;
-    static void Main(string[] args)
+    public static void Main(string[] args)
     {
         logger = Logging.InitLogger<Program>();
         JsonConvert.DefaultSettings = new Func<JsonSerializerSettings>(() =>
@@ -37,24 +37,43 @@ public class Program
     {
         CommandLine.Parse(args)
             .AddStandardHandlers()
-            .AddHandler<SubscribeOption>(option => { 
-
+            .AddHandler<SubscribeOption>(option => {
+                if (!SubscriptionController.RegisterSubscription(option))
+                    logger.LogError("Failed to register a new subscription.");
             })
             .AddHandler<UpdateOption>(option => {
-                UpdateWhenAvailable(Launch.LaunchConfig.subscriptions[option.Key]);
+                if (Launch.launchConfig.subscriptions.ContainsKey(option.Key))
+                {
+                    logger.LogInformation("Start update: {key}", option.Key);
+                    UpdateWhenAvailable(Launch.launchConfig.subscriptions[option.Key]);
+                }
+                else
+                    logger.LogError("Update {key} failed. Not found.", option.Key);
             })
-            .AddHandler<UnsubscribeOption>(option => { 
-            
+            .AddHandler<UnsubscribeOption>(option => {
+                if (Launch.launchConfig.subscriptions.Remove(option.Key))
+                {
+                    logger.LogInformation("Unsubscribe {key} successfully.",option.Key);
+                    Launch.UpdateLaunchConfig();
+                    
+                }
+                else
+                    logger.LogError("Unsubscribe {key} failed. Not found.", option.Key);
             })
             .Run();
     }
     public static void UpdateWhenAvailable(UpdateSubscription updateSubscription)
     {
         var msg = updateSubscription.GetUpdateMessage();
-        if (msg.NeedUpdate()) msg.GetUpdatePackage().InstallPackage();
+        if (msg.NeedUpdate()) 
+        {
+            logger.LogInformation("{key} have new version {version} to use", updateSubscription.programKey, msg.packageVersion);
+            msg.GetUpdatePackage().InstallPackage(); 
+        }
     }
     public static void UpdateAllWhenAvailable(List<UpdateSubscription> updateSubscriptions)
     {
+        logger.LogInformation("Update all subscriptions. Found {length}.", updateSubscriptions.Count);
         foreach (var item in updateSubscriptions)
             UpdateWhenAvailable(item);
     }
@@ -63,11 +82,12 @@ public class Program
 [Verb("subscribe")]
 public class SubscribeOption
 {
-    [Option('a',"Args")]public string Args { get; set; }
-    [Option('p',"Provider")]public string Provider { get; set; }
+    [Value(2),Option('a',"Args")]public string Args { get; set; }
+    [Value(1),Option('p',"Provider")]public string Provider { get; set; }
+    [Option('s',"Subprovider")] public string Subprovider { get; set; }
     [Option('v',"Version")]public string Version { get; set; }
     [Option('d',"Directory")]public string Directory { get; set; }
-    [Option('e',"Program")]public string Program { get; set; }
+    [Value(0),Option('e',"Program")]public string Program { get; set; }
     [Option('k',"Key")]public string Key { get; set; }
     [Option('j',"Json")]public string Json { get; set; }
 }

@@ -11,10 +11,12 @@ namespace Aquc.AquaUpdater.Tests
     [TestClass()]
     public class LaunchTests
     {
+        LaunchConfig launchConfig;
         [TestMethod()]
         public void GetLaunchConfigTest()
         {
-            Assert.Fail();
+            var _ = new Launch();
+            launchConfig = Launch.launchConfig;
         }
     }
 }

@@ -43,7 +43,7 @@ namespace Aquc.AquaUpdater.Pvder
         readonly ILogger<AliyunpanInteraction> logger;
         public AliyunpanInteraction() : this(Path.Combine(
                     Path.GetDirectoryName(Environment.ProcessPath),
-                    Launch.LaunchConfig.implementations["aliyunpan"].folder))
+                    Launch.launchConfig.implementations["aliyunpan"].folder))
         { }
 
         public AliyunpanInteraction(string folder)
@@ -97,7 +97,7 @@ namespace Aquc.AquaUpdater.Pvder
             logger.LogInformation("processloglist");
             wait4loglist = true;
             await ProcessInvoke("loglist");
-            return await Task.FromResult(resultLogin);
+            return resultLogin;
 
         }
         private async Task<string> ProcessDownload(string drivePath, string downloadPath)
@@ -105,7 +105,7 @@ namespace Aquc.AquaUpdater.Pvder
             logger.LogInformation("processdownload");
             wait4download = true;
             await ProcessInvoke("download " + drivePath + $" --saveto \"{downloadPath}\"");
-            return await Task.FromResult(Path.Combine(downloadPath, Path.GetFileName(drivePath)));
+            return Path.Combine(downloadPath, Path.GetFileName(drivePath));
 
         }
         private async Task ProcessLogin(string token)

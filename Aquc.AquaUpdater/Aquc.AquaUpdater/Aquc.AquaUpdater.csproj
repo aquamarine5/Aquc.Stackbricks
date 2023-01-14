@@ -7,10 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="debug\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="dotnetCampus.CommandLine" Version="3.3.0" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="7.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="7.0.0" />
@@ -22,6 +18,10 @@
     <None Update="aliyunpan.exe">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="debug\" />
   </ItemGroup>
 
 </Project>

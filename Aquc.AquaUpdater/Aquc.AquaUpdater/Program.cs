@@ -82,12 +82,12 @@ public class Program
 [Verb("subscribe")]
 public class SubscribeOption
 {
-    [Value(2),Option('a',"Args")]public string Args { get; set; }
-    [Value(1),Option('p',"Provider")]public string Provider { get; set; }
+    [Option('a', "Args"),Value(2),]public string Args { get; set; }
+    [Option('p',"Provider"),Value(1),]public string Provider { get; set; }
     [Option('s',"Subprovider")] public string Subprovider { get; set; }
     [Option('v',"Version")]public string Version { get; set; }
     [Option('d',"Directory")]public string Directory { get; set; }
-    [Value(0),Option('e',"Program")]public string Program { get; set; }
+    [Option('e', "Program"), Value(0),]public string Program { get; set; }
     [Option('k',"Key")]public string Key { get; set; }
     [Option('j',"Json")]public string Json { get; set; }
 }

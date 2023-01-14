@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Aquc.AquaUpdater": {
+      "commandName": "Project",
+      "commandLineArgs": "subscribe -d D:/a -a s -v 1.2.3.4 -s bilibilimsgpvder -p bilibilimsgpvder -j s -k a -e D:/a.jpg"
+    }
+  }
+}

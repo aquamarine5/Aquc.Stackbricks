@@ -60,7 +60,9 @@ public class Launch
                     programExtrancePath=new FileInfo(@"D:\Program Source\v2\Aquc.AquaUpdater\Aquc.AquaUpdater\bin\Debug\net6.0\aliyunpan.exe"),
                     programKey="test",
                     updateMessageProvider=new BiliCommitMsgPvder(),
-                    currentlyVersion=new Version("0.1.0")
+                    secondUpdateMessageProvider=null,
+                    currentlyVersion=new Version("0.1.0"),
+                    lastCheckUpdateTime=new DateTime(0)
                 }
             }
         },

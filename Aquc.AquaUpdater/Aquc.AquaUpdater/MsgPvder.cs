@@ -19,17 +19,19 @@ public class Provider
 {
     public static IUpdateMessageProvider GetMessageProvider(string identity)
     {
-        return (identity.ToLower()) switch
+        return (identity?.ToLower()) switch
         {
             "bilibilimsgpvder" => new BiliCommitMsgPvder(),
+            null => null,
             _ => null,
         };
     }
     public static IUpdateFilesProvider GetFilesProvider(string identity)
     {
-        return (identity.ToLower()) switch
+        return (identity?.ToLower()) switch
         {
             "aliyunfilepvder" => new AliyundrivePvder(),
+            null => null,
             _ => null,
         };
     }

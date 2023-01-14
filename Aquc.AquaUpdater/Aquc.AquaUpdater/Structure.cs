@@ -143,7 +143,7 @@ public class UpdateSubscriptionConverter : JsonConverter<UpdateSubscription>
         writer.WritePropertyName("secondUpdateMessageProvider");
         writer.WriteStartObject();
         writer.WritePropertyName("Identity");
-        writer.WriteValue(value.secondUpdateMessageProvider.Identity);
+        writer.WriteValue(value.secondUpdateMessageProvider?.Identity);
         writer.WriteEndObject();
         writer.WriteEndObject();
     }

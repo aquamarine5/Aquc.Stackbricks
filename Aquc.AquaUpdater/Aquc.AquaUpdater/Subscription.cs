@@ -98,23 +98,25 @@ public class SubscriptionController
     public static bool RegisterSubscription(SubscribeOption option)
     {
         var logger = Logging.InitLogger<SubscriptionController>();
-
-        if (option.Json != null)
-            option = ParseSubscribeJson(option.Json, logger);
         if (option == null) return false;
         CheckOption(option, logger);
         Launch.launchConfig.subscriptions.Add(option.Key, ParseSubscribeOption(option));
         Launch.UpdateLaunchConfig();
         return true;
     }
-    public static SubscribeOption ParseSubscribeJson(string jsonPath, ILogger logger)
+    public static bool RegisterSubscriptionByJson(FileInfo jsonFile)
     {
-        if (!File.Exists(jsonPath))
+        var logger = Logging.InitLogger<SubscriptionController>();
+        return RegisterSubscription(ParseSubscribeJson(jsonFile,logger));
+    }
+    static SubscribeOption ParseSubscribeJson(FileInfo jsonFile, ILogger logger)
+    {
+        if (!jsonFile.Exists)
         {
-            logger.LogError("-Json {value} is not a valid file.", jsonPath);
+            logger.LogError("-Json {value} is not a valid file.", jsonFile);
             return null;
         }
-        using var file = new FileStream(jsonPath, FileMode.Open, FileAccess.Read);
+        using var file = jsonFile.OpenRead();
         using var stream = new StreamReader(file);
         return JsonConvert.DeserializeObject<SubscribeOption>(stream.ReadToEnd());
     }

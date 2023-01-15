@@ -26,6 +26,10 @@ public class Provider
             _ => null,
         };
     }
+    public static bool ContainInMessageProvider(string identity)
+        => new List<string> { "bilibilimsgpvder" }.Contains(identity);
+    public static bool ContainInFileProvider(string identity)
+        => new List<string> { "aliyunfilepvder" }.Contains(identity);
     public static IUpdateFilesProvider GetFilesProvider(string identity)
     {
         return (identity?.ToLower()) switch

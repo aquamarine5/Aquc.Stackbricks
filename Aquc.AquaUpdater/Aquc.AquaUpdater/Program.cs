@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.CommandLine;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using Aquc.AquaUpdater.Pvder;
-using dotnetCampus.Cli;
-using dotnetCampus.Cli.Standard;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Console;
 using Newtonsoft.Json;
@@ -35,6 +35,139 @@ public class Program
     }
     void ParseLaunchArgs()
     {
+        var jsonSubscribeArgument = new Argument<FileInfo>()
+        {
+            Description = "",
+            Arity=ArgumentArity.ExactlyOne
+        };
+        var kvpSubscribeProvider = new Option<IUpdateMessageProvider>(new string[] { "-pvd","--provider"}, parseArgument: result =>
+        {
+            var content = result.Tokens.Single().Value;
+            if (!Provider.ContainInMessageProvider(content))
+            {
+                result.ErrorMessage = "";
+                return null;
+            }
+            return Provider.GetMessageProvider(content);
+        })
+        {
+            Description="",
+            Arity=ArgumentArity.ExactlyOne
+        };
+        var kvpSubscribeSubprovider = new Option<IUpdateMessageProvider>(new string[] { "-subpvd", "--subprovider" }, parseArgument: result =>
+        {
+            var content = result.Tokens.Single().Value;
+            if (!Provider.ContainInMessageProvider(content))
+            {
+                result.ErrorMessage = "";
+                return null;
+            }
+            return Provider.GetMessageProvider(content);
+        })
+        {
+            Description = "",
+            Arity = ArgumentArity.ZeroOrOne,
+        };
+        var kvpSubscribeArgs = new Option<string>(new string[] { "-a", "--args" })
+        {
+            Description = "",
+            Arity = ArgumentArity.ExactlyOne
+        };
+        var kvpSubscribeProgram = new Option<FileInfo>(new string[] { "-p", "--program" })
+        {
+            Description = "",
+            Arity = ArgumentArity.ExactlyOne
+        };
+        var kvpSubscribeDirectory = new Option<DirectoryInfo>(new string[] { "-d", "--directory" }, parseArgument: result =>
+        {
+            if (result.Tokens.Count == 0)
+                return result.GetValueForOption(kvpSubscribeProgram).Directory;
+            else
+            {
+                var content = result.Tokens.Single().Value;
+                if (!Directory.Exists(content))
+                {
+                    result.ErrorMessage = "";
+                    return null;
+                }
+                else
+                    return new DirectoryInfo(content);
+            }
+        })
+        {
+            Description = "",
+            Arity = ArgumentArity.ZeroOrOne
+        };
+        var kvpSubscribeVersion = new Option<Version>(new string[] { "-v", "--version" }, parseArgument: result =>
+        {
+            if (result.Tokens.Count == 0)
+            {
+                var fvi = FileVersionInfo.GetVersionInfo(result.GetValueForOption(kvpSubscribeProgram).FullName).FileVersion;
+                if (fvi == null)
+                {
+                    result.ErrorMessage = "";
+                    return null;
+                }
+                else
+                    return new Version(fvi);
+            }
+            else
+            {
+                if (Version.TryParse(result.Tokens.Single().Value, out var version))
+                    return version;
+                else
+                {
+                    result.ErrorMessage = "";
+                    return null;
+                }
+            }
+        })
+        {
+            Description = "",
+            Arity = ArgumentArity.ZeroOrOne
+        };
+        var kvpSubscribeKey = new Option<string>(new string[] { "-k", "--key" }, parseArgument: result =>
+        {
+            if (result.Tokens.Count == 0)
+            {
+                return Path.GetFileNameWithoutExtension(result.GetValueForOption(kvpSubscribeProgram).Name);
+            }
+            else
+                return result.Tokens.Single().Value;
+        })
+        {
+            Description = "",
+            Arity = ArgumentArity.ZeroOrOne
+        };
+
+        var jsonSubscribeCommand = new Command("json")
+        {
+            jsonSubscribeArgument
+        };
+        var kvpSubscribeCommand = new Command("kvp")
+        {
+            kvpSubscribeDirectory,
+            kvpSubscribeProgram,
+            kvpSubscribeProvider,
+            kvpSubscribeSubprovider,
+            kvpSubscribeVersion,
+            kvpSubscribeKey,
+            kvpSubscribeArgs
+        };
+        
+        var subscribeCommand = new Command("subscribe")
+        {
+            jsonSubscribeCommand,
+            kvpSubscribeCommand
+        };
+        var root = new RootCommand()
+        {
+            subscribeCommand
+        };
+        jsonSubscribeCommand.SetHandler((json) => {
+            SubscriptionController.RegisterSubscriptionByJson(json);
+        },jsonSubscribeArgument);
+            /*
         CommandLine.Parse(args)
             .AddStandardHandlers()
             .AddHandler<SubscribeOption>(option => {
@@ -60,7 +193,7 @@ public class Program
                 else
                     logger.LogError("Unsubscribe {key} failed. Not found.", option.Key);
             })
-            .Run();
+            .Run();*/
     }
     public static void UpdateWhenAvailable(UpdateSubscription updateSubscription)
     {
@@ -79,27 +212,23 @@ public class Program
     }
 
 }
-[Verb("subscribe")]
 public class SubscribeOption
 {
-    [Option('a', "Args"),Value(2),]public string Args { get; set; }
-    [Option('p',"Provider"),Value(1),]public string Provider { get; set; }
-    [Option('s',"Subprovider")] public string Subprovider { get; set; }
-    [Option('v',"Version")]public string Version { get; set; }
-    [Option('d',"Directory")]public string Directory { get; set; }
-    [Option('e', "Program"), Value(0),]public string Program { get; set; }
-    [Option('k',"Key")]public string Key { get; set; }
-    [Option('j',"Json")]public string Json { get; set; }
+    public string Args { get; set; }
+    public string Provider { get; set; }
+    public string Subprovider { get; set; }
+    public string Version { get; set; }
+    public string Directory { get; set; }
+    public string Program { get; set; }
+    public string Key { get; set; }
 }
 
-[Verb("update")]
 public class UpdateOption
 {
-    [Value(0), Option('k', "Key")]public string Key { get; set; }
+    public string Key { get; set; }
 }
 
-[Verb("unsubscribe")]
 public class UnsubscribeOption
 {
-    [Value(0), Option('k',"Key")] public string Key { get; set;}
+    public string Key { get; set;}
 }

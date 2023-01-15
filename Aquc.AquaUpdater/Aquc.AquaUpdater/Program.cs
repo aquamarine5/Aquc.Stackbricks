@@ -35,11 +35,13 @@ public class Program
     }
     void ParseLaunchArgs()
     {
+        #region subscribe <json/kvp/unsubscribe/list>
         var jsonSubscribeArgument = new Argument<FileInfo>()
         {
             Description = "",
             Arity=ArgumentArity.ExactlyOne
         };
+        
         var kvpSubscribeProvider = new Option<IUpdateMessageProvider>(new string[] { "-pvd","--provider"}, parseArgument: result =>
         {
             var content = result.Tokens.Single().Value;
@@ -140,6 +142,60 @@ public class Program
             Arity = ArgumentArity.ZeroOrOne
         };
 
+        var unsubscribeKeyArgument = new Argument<string>(parse: result =>
+        {
+            var content = result.Tokens.Single().Value;
+            if (!Launch.launchConfig.subscriptions.ContainsKey(content))
+            {
+                result.ErrorMessage = "";
+                return null;
+            }
+            else return result.Tokens.Single().Value;
+        })
+        {
+            Description = "",
+            Arity = ArgumentArity.ExactlyOne
+        };
+
+        var listKeyArgument = new Argument<string>(parse: result =>
+        {
+            var content = result.Tokens.Single().Value;
+            if (!Launch.launchConfig.subscriptions.ContainsKey(content))
+            {
+                result.ErrorMessage = "";
+                return null;
+            }
+            else return result.Tokens.Single().Value;
+        })
+        {
+            Description = "",
+            Arity = ArgumentArity.ExactlyOne
+        };
+        #endregion
+
+        #region update
+        var updateArgument = new Argument<string>(parse: result =>
+        {
+            var content = result.Tokens.Single().Value;
+            if (!Launch.launchConfig.subscriptions.ContainsKey(content))
+            {
+                result.ErrorMessage = "";
+                return null;
+            }
+            else return result.Tokens.Single().Value;
+        })
+        {
+            Description = "",
+            Arity = ArgumentArity.ExactlyOne
+        };
+
+        #endregion
+
+        #region schedule
+
+        #endregion
+
+        // subscribe <json/kvp/unsubscribe/list>
         var jsonSubscribeCommand = new Command("json")
         {
             jsonSubscribeArgument
@@ -154,19 +210,56 @@ public class Program
             kvpSubscribeKey,
             kvpSubscribeArgs
         };
-        
+        var listSubscribeCommand = new Command("list")
+        {
+            listKeyArgument
+        };
+        var unsubscribeCommand = new Command("unsubscribe")
+        {
+            unsubscribeKeyArgument
+        };
         var subscribeCommand = new Command("subscribe")
         {
             jsonSubscribeCommand,
-            kvpSubscribeCommand
+            kvpSubscribeCommand,
+            listSubscribeCommand,
+            unsubscribeCommand
         };
+
+        // schedule
+        var scheduleCommand = new Command("schedule");
+
+        // update
+        var updateCommand = new Command("update")
+        {
+            updateArgument
+        };
+
         var root = new RootCommand()
         {
-            subscribeCommand
+            subscribeCommand,
+            scheduleCommand,
+            updateCommand
         };
         jsonSubscribeCommand.SetHandler((json) => {
             SubscriptionController.RegisterSubscriptionByJson(json);
         },jsonSubscribeArgument);
+
+        updateCommand.SetHandler((key) =>
+        {
+            UpdateWhenAvailable(Launch.launchConfig.subscriptions[key]);
+        }, updateArgument);
+
+        unsubscribeCommand.SetHandler((key) =>
+        {
+            if (Launch.launchConfig.subscriptions.Remove(key))
+            {
+                logger.LogInformation("Unsubscribe {key} successfully.", key);
+                Launch.UpdateLaunchConfig();
+            }
+            else
+                logger.LogError("Unsubscribe {key} failed. Not found.", key);
+        }, unsubscribeKeyArgument);
             /*
         CommandLine.Parse(args)
             .AddStandardHandlers()

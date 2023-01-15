@@ -6,4 +6,4 @@
 [![Release date](https://img.shields.io/github/release-date-pre/aquamarine5/Aquc.AquaUpdater)]()
 [![](https://img.shields.io/github/actions/workflow/status/aquamarine5/Aquc.AquaUpdater/codeql.yml)]()
 [![Download count](https://img.shields.io/github/downloads/aquamarine5/Aquc.AquaUpdater/total)]()
-![Alt](https://repobeats.axiom.co/api/embed/4d6b8dfa6b640c61ffafda093e55ccbb757c38a6.svg "Repobeats analytics image")
+![Alt](https://repobeats.axiom.co/api/embed/cf5dd91e19a47a02faefd7610ebbecef70de6f8e.svg "Repobeats analytics image")

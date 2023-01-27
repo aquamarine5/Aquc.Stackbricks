@@ -1,10 +1,20 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
+    <OutputType>WinExe</OutputType>
     <TargetFramework>net6.0</TargetFramework>
     <ProduceReferenceAssembly>True</ProduceReferenceAssembly>
+    <NeutralLanguage>zh-CN</NeutralLanguage>
+    <ApplicationIcon>icon.ico</ApplicationIcon>
+
+
+    <AssemblyVersion>2.0.1</AssemblyVersion>
+    <FileVersion>2.0.1.50127</FileVersion>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="icon.ico" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Logging" Version="7.0.0" />

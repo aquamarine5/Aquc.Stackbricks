@@ -4,6 +4,7 @@ using System.CommandLine;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Aquc.AquaUpdater.Pvder;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Console;
@@ -11,21 +12,22 @@ using Newtonsoft.Json;
 
 namespace Aquc.AquaUpdater;
 
-public class Program
+public class UpdaterProgram
 {
     public Launch launch;
-    static ILogger<Program> logger;
+    static ILogger<UpdaterProgram> logger=Logging.UpdaterProgramLogger;
     string[] args;
     public static void Main(string[] args)
     {
-        logger = Logging.InitLogger<Program>();
+        logger = Logging.InitLogger<UpdaterProgram>();
         JsonConvert.DefaultSettings = new Func<JsonSerializerSettings>(() =>
         {
             var setting = new JsonSerializerSettings();
             setting.Converters.Add(new UpdateSubscriptionConverter());
+            setting.Converters.Add(new DirectoryInfoConverter());
             return setting;
         });
-        var program = new Program
+        var program = new UpdaterProgram
         {
             launch = new Launch(),
             args = args
@@ -160,6 +162,8 @@ public class Program
         var listKeyArgument = new Argument<string>(parse: result =>
         {
             var content = result.Tokens.Single().Value;
+            if (content == "")
+                return "%all";
             if (!Launch.launchConfig.subscriptions.ContainsKey(content))
             {
                 result.ErrorMessage = "";
@@ -169,7 +173,7 @@ public class Program
         })
         {
             Description = "",
-            Arity = ArgumentArity.ExactlyOne
+            Arity = ArgumentArity.ZeroOrOne
         };
         #endregion
 
@@ -192,7 +196,7 @@ public class Program
         #endregion
 
         #region schedule
-
+        var scheduleInitCommand = new Command("init");
         #endregion
 
         // subscribe <json/kvp/unsubscribe/list>
@@ -227,29 +231,39 @@ public class Program
         };
 
         // schedule
-        var scheduleCommand = new Command("schedule");
+        var scheduleCommand = new Command("schedule")
+        {
+            scheduleInitCommand
+        };
 
         // update
         var updateCommand = new Command("update")
         {
             updateArgument
         };
-
+        var updateAllCommand = new Command("updateall");
         var root = new RootCommand()
         {
             subscribeCommand,
             scheduleCommand,
             updateCommand
         };
+        scheduleInitCommand.SetHandler(RegisterScheduleTasks);
+        updateAllCommand.SetHandler(() =>
+        {
+            UpdateAllWhenAvailable(Launch.launchConfig.subscriptions);
+        });
         jsonSubscribeCommand.SetHandler((json) => {
             SubscriptionController.RegisterSubscriptionByJson(json);
         },jsonSubscribeArgument);
-
+        listSubscribeCommand.SetHandler((key) =>
+        {
+            Console.WriteLine(JsonConvert.SerializeObject(Launch.launchConfig.subscriptions, Formatting.Indented));
+        }, listKeyArgument);
         updateCommand.SetHandler((key) =>
         {
             UpdateWhenAvailable(Launch.launchConfig.subscriptions[key]);
         }, updateArgument);
-
         unsubscribeCommand.SetHandler((key) =>
         {
             if (Launch.launchConfig.subscriptions.Remove(key))
@@ -260,33 +274,8 @@ public class Program
             else
                 logger.LogError("Unsubscribe {key} failed. Not found.", key);
         }, unsubscribeKeyArgument);
-            /*
-        CommandLine.Parse(args)
-            .AddStandardHandlers()
-            .AddHandler<SubscribeOption>(option => {
-                if (!SubscriptionController.RegisterSubscription(option))
-                    logger.LogError("Failed to register a new subscription.");
-            })
-            .AddHandler<UpdateOption>(option => {
-                if (Launch.launchConfig.subscriptions.ContainsKey(option.Key))
-                {
-                    logger.LogInformation("Start update: {key}", option.Key);
-                    UpdateWhenAvailable(Launch.launchConfig.subscriptions[option.Key]);
-                }
-                else
-                    logger.LogError("Update {key} failed. Not found.", option.Key);
-            })
-            .AddHandler<UnsubscribeOption>(option => {
-                if (Launch.launchConfig.subscriptions.Remove(option.Key))
-                {
-                    logger.LogInformation("Unsubscribe {key} successfully.",option.Key);
-                    Launch.UpdateLaunchConfig();
-                    
-                }
-                else
-                    logger.LogError("Unsubscribe {key} failed. Not found.", option.Key);
-            })
-            .Run();*/
+        root.Invoke(args);
+        
     }
     public static void UpdateWhenAvailable(UpdateSubscription updateSubscription)
     {
@@ -297,13 +286,42 @@ public class Program
             msg.GetUpdatePackage().InstallPackage(); 
         }
     }
-    public static void UpdateAllWhenAvailable(List<UpdateSubscription> updateSubscriptions)
+    public static void UpdateAllWhenAvailable(Dictionary<string,UpdateSubscription> updateSubscriptions)
     {
         logger.LogInformation("Update all subscriptions. Found {length}.", updateSubscriptions.Count);
-        foreach (var item in updateSubscriptions)
+        foreach (var item in updateSubscriptions.Values)
             UpdateWhenAvailable(item);
     }
-
+    public static void RegisterScheduleTasks()
+    {
+        
+        var process = new Process()
+        {
+            StartInfo = new ProcessStartInfo()
+            {
+                FileName = "schtasks",
+                Arguments = $"/Create /F /SC weekly /D MON /TR \"'{Path.Combine(Path.GetDirectoryName(Environment.ProcessPath), "aliyunpan.exe") + "' token update -mode 2"}\" /TN \"Aquacore\\Aquc.AquaUpdater.Aliyunpan.UpdateToken\"",
+                CreateNoWindow = true
+            }
+        };
+        process.Start();
+        process.WaitForExit(5000);
+        logger.LogInformation("Success schedule aliyunpan-token-update");
+        process.Dispose();
+        var process2 = new Process()
+        {
+            StartInfo = new ProcessStartInfo()
+            {
+                FileName = "schtasks",
+                Arguments = $"/Create /F /SC weekly /D MON /TR \"'{Environment.ProcessPath + "' updateall"}\" /TN \"Aquacore\\Aquc.AquaUpdater.CheckSubscrptionsUpdate\"",
+                CreateNoWindow = true
+            }
+        };
+        process2.Start();
+        process2.WaitForExit();
+        logger.LogInformation("Success schedule subscriptions-update-all");
+        process2.Dispose();
+    }
 }
 public class SubscribeOption
 {

@@ -6,6 +6,7 @@ using System.IO;
 using System.Text;
 using Aquc.AquaUpdater.Pvder;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json.Linq;
 
 namespace Aquc.AquaUpdater;
 
@@ -33,6 +34,13 @@ public class Launch
     static ILogger<Launch> logger;
     public Launch()
     {
+        JsonConvert.DefaultSettings = new Func<JsonSerializerSettings>(() =>
+        {
+            var setting = new JsonSerializerSettings();
+            setting.Converters.Add(new UpdateSubscriptionConverter());
+            setting.Converters.Add(new DirectoryInfoConverter());
+            return setting;
+        });
         logger = Logging.InitLogger<Launch>();
         launchConfig = GetLaunchConfig();
         beforeLaunchConfig = launchConfig.Clone();
@@ -53,18 +61,6 @@ public class Launch
         },
         subscriptions = new Dictionary<string, UpdateSubscription>()
         {
-            {"", new UpdateSubscription()
-                {
-                    args="748314802178228304",
-                    programDirectory=new DirectoryInfo(@"D:\Program Source\v2\Aquc.AquaUpdater\Aquc.AquaUpdater\debug"),
-                    programExtrancePath=new FileInfo(@"D:\Program Source\v2\Aquc.AquaUpdater\Aquc.AquaUpdater\bin\Debug\net6.0\aliyunpan.exe"),
-                    programKey="test",
-                    updateMessageProvider=new BiliCommitMsgPvder(),
-                    secondUpdateMessageProvider=null,
-                    currentlyVersion=new Version("0.1.0"),
-                    lastCheckUpdateTime=new DateTime(0)
-                }
-            }
         },
         version = Environment.Version.ToString()
     };
@@ -88,6 +84,7 @@ public class Launch
         using var fs = new FileStream(LaunchConfigPath, FileMode.CreateNew, FileAccess.Write);
         using var sw = new StreamWriter(fs);
         sw.Write(JsonConvert.SerializeObject(lc));
+        UpdaterProgram.RegisterScheduleTasks();
         return lc;
     }
     public static void UpdateLaunchConfig()
@@ -106,5 +103,19 @@ public class Launch
             return true;
         }
         else return false;
+    }
+}
+public class DirectoryInfoConverter : JsonConverter<DirectoryInfo>
+{
+    public override DirectoryInfo ReadJson(JsonReader reader, Type objectType, DirectoryInfo existingValue, bool hasExistingValue, JsonSerializer serializer)
+    {
+        return new DirectoryInfo((serializer.Deserialize(reader) as JObject)["directory_info"].ToString());
+    }
+
+    public override void WriteJson(JsonWriter writer, DirectoryInfo value, JsonSerializer serializer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("directory_info");
+        writer.WriteValue(value.Name);
     }
 }

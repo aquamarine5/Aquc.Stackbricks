@@ -17,7 +17,7 @@ namespace Aquc.AquaUpdater.Pvder
             var commitTextJson = WebRequest.CreateHttp("https://api.vc.bilibili.com/dynamic_svr/v1/dynamic_svr/get_dynamic_detail?dynamic_id=" + id)
                 .SendGet().ReadJsonObject()["data"]["card"]["card"].ToString();
             var commitText = JObject.Parse(commitTextJson)["item"]["content"].ToString();
-            var content = WebRequest.CreateHttp("https://api.bilibili.com/x/v2/reply/main?jsonp=jsonp&next=0&type=17&mode=2&plat=1&oid=" + id)
+            var content = WebRequest.CreateHttp($"https://api.bilibili.com/x/v2/reply/main?jsonp=jsonp&next=0&type=11&oid={id}&mode=3&plat=1")
                 .SendGet().ReadJsonObject()["data"]["replies"].ToString();
             var replyJsonArray = JArray.Parse(content);
             var biliReplies = new List<BiliReply>();

@@ -21,4 +21,7 @@ public class Logging
 
     static ILogger<UpdatePackage> s_UpdatePackageLogger = null;
     public static ILogger<UpdatePackage> UpdatePackageLogger => s_UpdatePackageLogger ??= InitLogger<UpdatePackage>();
+
+    static ILogger<UpdaterProgram> s_UpdaterProgramLogger = null;
+    public static ILogger<UpdaterProgram> UpdaterProgramLogger => s_UpdaterProgramLogger ??= InitLogger<UpdaterProgram>();
 }

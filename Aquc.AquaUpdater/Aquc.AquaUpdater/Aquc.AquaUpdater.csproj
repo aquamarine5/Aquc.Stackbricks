@@ -32,6 +32,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\Aquc.Netdisk\Aquc.Netdisk.Aliyunpan\Aquc.Netdisk.Aliyunpan.csproj" />
     <ProjectReference Include="..\..\..\Aquc.Netdisk\Aquc.Netdisk.Bilibili\Aquc.Netdisk.Bilibili.csproj" />
+    <ProjectReference Include="..\..\..\Aquc.Netdisk\Aquc.Netdisk.Huang1111\Aquc.Netdisk.Huang1111.csproj" />
   </ItemGroup>
 
   <ItemGroup>

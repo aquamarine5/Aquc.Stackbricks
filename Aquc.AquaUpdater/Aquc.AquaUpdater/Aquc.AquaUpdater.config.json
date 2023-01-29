@@ -1,0 +1,14 @@
+{
+  "subscriptions": {
+    "66": {}
+  },
+  "implementations": {
+    "aliyunpan": {
+      "folder": "",
+      "version": "0.2.5",
+      "name": "aliyunpan",
+      "link": "https://github.com/tickstep/aliyunpan/releases/tag/v0.2.5"
+    }
+  },
+  "registered": false
+}

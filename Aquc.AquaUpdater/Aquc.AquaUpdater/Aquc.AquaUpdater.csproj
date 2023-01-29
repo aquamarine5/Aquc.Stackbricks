@@ -7,9 +7,12 @@
     <NeutralLanguage>zh-CN</NeutralLanguage>
     <ApplicationIcon>icon.ico</ApplicationIcon>
 
-
-    <AssemblyVersion>2.0.1</AssemblyVersion>
-    <FileVersion>2.0.1.50127</FileVersion>
+    <Authors>aquamarine5</Authors>
+    <Company>aquamarine5</Company>
+    <VersionSuffix>beta</VersionSuffix>
+    <SatelliteResourceLanguages>zh-hans;en-us</SatelliteResourceLanguages>    
+    <AssemblyVersion>2.1.0</AssemblyVersion>
+    <FileVersion>2.1.0.50129</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -17,21 +20,24 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="7.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="7.0.0" />
+    <PackageReference Include="Huanent.Logging.File" Version="3.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="6.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="6.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
     <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
     <PackageReference Include="System.IO.Compression.ZipFile" Version="4.3.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="aliyunpan.exe">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    <ProjectReference Include="..\..\..\Aquc.Netdisk\Aquc.Netdisk.Aliyunpan\Aquc.Netdisk.Aliyunpan.csproj" />
+    <ProjectReference Include="..\..\..\Aquc.Netdisk\Aquc.Netdisk.Bilibili\Aquc.Netdisk.Bilibili.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="debug\" />
+    <None Update="Aquc.AquaUpdater.config.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

@@ -11,7 +11,9 @@ public class Logging
 {
     public static ILogger<T> InitLogger<T>()
     {
-        return LoggerFactory.Create(builder => builder.AddConsole()).CreateLogger<T>();
+        return LoggerFactory.Create(builder => {
+            builder.AddConsole();
+        }).CreateLogger<T>();
     }
     static ILogger<UpdateMessage> s_UpdateMessageLogger = null;
     public static ILogger<UpdateMessage> UpdateMessageLogger => s_UpdateMessageLogger ??= InitLogger<UpdateMessage>();
@@ -22,6 +24,4 @@ public class Logging
     static ILogger<UpdatePackage> s_UpdatePackageLogger = null;
     public static ILogger<UpdatePackage> UpdatePackageLogger => s_UpdatePackageLogger ??= InitLogger<UpdatePackage>();
 
-    static ILogger<UpdaterProgram> s_UpdaterProgramLogger = null;
-    public static ILogger<UpdaterProgram> UpdaterProgramLogger => s_UpdaterProgramLogger ??= InitLogger<UpdaterProgram>();
 }

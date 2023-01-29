@@ -80,7 +80,7 @@ public class SubscriptionController
         option.Key ??= Path.GetFileName(option.Program ?? option.Directory);
         return true;
     }
-    static UpdateSubscription ParseSubscribeOption(SubscribeOption option)
+    public static UpdateSubscription ParseSubscribeOption(SubscribeOption option)
     {
         return new UpdateSubscription()
         {
@@ -91,8 +91,8 @@ public class SubscriptionController
             currentlyVersion = new Version(option.Version),
             lastCheckUpdateTime = new DateTime(0),
             programKey = option.Key,
-            updateMessageProvider = Provider.GetMessageProvider(option.Provider),
-            secondUpdateMessageProvider = Provider.GetMessageProvider(option.Subprovider)
+            updateMessageProvider = option.Provider,
+            secondUpdateMessageProvider = option.Subprovider
         };
     }
     public static bool RegisterSubscription(SubscribeOption option)
@@ -101,7 +101,6 @@ public class SubscriptionController
         if (option == null) return false;
         CheckOption(option, logger);
         Launch.launchConfig.subscriptions.Add(option.Key, ParseSubscribeOption(option));
-        Launch.UpdateLaunchConfig();
         return true;
     }
     public static bool RegisterSubscriptionByJson(FileInfo jsonFile)

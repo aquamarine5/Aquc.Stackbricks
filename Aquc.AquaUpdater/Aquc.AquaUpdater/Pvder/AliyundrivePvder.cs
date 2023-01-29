@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Aquc.Netdisk.Aliyunpan;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -16,27 +18,35 @@ namespace Aquc.AquaUpdater.Pvder
         public UpdatePackage DownloadPackage(UpdateMessage updateMessage)
         {
             var data = updateMessage.fileArgs.Split("]]");
-            string token = data[2];
+            if (data.Length != 2)
+            {
+                Logging.UpdatePackageLogger.LogError("Failed to decode received data from {pvd}: {msg}",
+                    updateMessage.updateSubscription.updateMessageProvider, data);
+                throw new ArgumentException("UpdateMessage_ReceivedData");
+            }
             string filePath = data[1];
             string version = data[0];
             string zipDirectory = updateMessage.updateSubscription.programDirectory.FullName;
             string extractZipDirectory = Path.Combine(zipDirectory, $"update_{version}");
-            string zipPath = new AliyunpanInteraction().DownloadFile(filePath, zipDirectory, token);
+            var zipPath = ActivatorUtilities.GetServiceOrCreateInstance<AliyunpanNetdisk>(UpdaterProgram.host.Services)
+                .Download(filePath, new DirectoryInfo(zipDirectory));
+            zipPath.Wait();
             if (Directory.Exists(extractZipDirectory))
             {
                 Directory.Delete(extractZipDirectory, true);
             }
-            ZipFile.ExtractToDirectory(zipPath, extractZipDirectory);
+            ZipFile.ExtractToDirectory(zipPath.Result, extractZipDirectory);
             Logging.UpdatePackageLogger.LogInformation("extract update zip successfully: {ezd}", extractZipDirectory);
             return new UpdatePackage()
             {
                 updateMessage = updateMessage,
                 updateSubscription = updateMessage.updateSubscription,
                 extraceZipDirectory = new DirectoryInfo(extractZipDirectory),
-                zipPath = new FileInfo(zipPath)
+                zipPath = new FileInfo(zipPath.Result)
             };
         }
     }
+    [Obsolete("Use Aquc.Netdisk.Aliyunpan")]
     public class AliyunpanInteraction
     {
         public string exePath;

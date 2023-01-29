@@ -5,6 +5,7 @@ using System;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Reflection;
 
 namespace Aquc.AquaUpdater;
 
@@ -17,7 +18,7 @@ public struct UpdateMessage
     public bool NeedUpdate(Version version) =>
         packageVersion > version;
     public bool NeedUpdate() =>
-        packageVersion > System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
+        packageVersion > updateSubscription.currentlyVersion;
     public UpdatePackage GetUpdatePackage()
     {
         var package= filesProvider.DownloadPackage(this);
@@ -37,7 +38,7 @@ public struct UpdatePackage
     public DirectoryInfo extraceZipDirectory;
     public void InstallPackage()
     {
-        var updateScript = extraceZipDirectory.GetFiles("do.");
+        var updateScript = extraceZipDirectory.GetFiles("do.*");
         if (updateScript.Length != 0)
         {
             foreach (FileInfo f in updateScript)
@@ -48,12 +49,12 @@ public struct UpdatePackage
                     {
                         FileName = f.FullName,
                         CreateNoWindow = true,
-                        StandardOutputEncoding = System.Text.Encoding.UTF8
+                        UseShellExecute=false
                     },
                     EnableRaisingEvents = true
                 };
                 process.Start();
-                process.BeginOutputReadLine();
+                //process.BeginOutputReadLine();
                 if (!process.WaitForExit(30000))
                     Logging.UpdatePackageLogger.LogWarning("execute update script: {filename} failed within 30000ms", f.Name);
                 else
@@ -63,6 +64,9 @@ public struct UpdatePackage
         CopyDirectory(extraceZipDirectory, updateSubscription.programDirectory);
         Logging.UpdatePackageLogger.LogInformation("install package {programname}:{programversion} successfully",
             updateSubscription.programKey, updateMessage.packageVersion.ToString());
+        updateSubscription.lastCheckUpdateTime = DateTime.Now;
+        updateSubscription.currentlyVersion = updateMessage.packageVersion;
+        Launch.UpdateLaunchConfig();
         zipPath.Delete();
         extraceZipDirectory.Delete(true);
     }
@@ -88,17 +92,18 @@ public struct UpdateSubscription
     public FileInfo programExtrancePath;
     public string programKey;
     public Version currentlyVersion;
-    public IUpdateMessageProvider updateMessageProvider;
-    public IUpdateMessageProvider secondUpdateMessageProvider;
+    public string updateMessageProvider;
+    public string secondUpdateMessageProvider;
     public bool NeedUpdate() => GetUpdateMessage().NeedUpdate();
     public UpdateMessage GetUpdateMessage()
     {
-        var message=updateMessageProvider.GetUpdateMessage(this);
+        var message=Provider.GetMessageProvider(updateMessageProvider).GetUpdateMessage(this);
         Logging.UpdateSubscriptionLogger.LogInformation("Get {key}, ver={ver} update message successfully.",
             message.updateSubscription.programKey, message.packageVersion);
         return message;
     }
 }
+
 public class UpdateSubscriptionConverter : JsonConverter<UpdateSubscription>
 {
     public override UpdateSubscription ReadJson(JsonReader reader, Type objectType, [AllowNull] UpdateSubscription existingValue, bool hasExistingValue, JsonSerializer serializer)
@@ -108,8 +113,8 @@ public class UpdateSubscriptionConverter : JsonConverter<UpdateSubscription>
         {
             SubscriptionVersion = jo["subscriptionVersion"].ToObject<int>(),
             args = jo["args"].ToString(),
-            updateMessageProvider = Provider.GetMessageProvider(jo["updateMessageProvider"]["Identity"].ToString()),
-            secondUpdateMessageProvider = Provider.GetMessageProvider(jo["secondUpdateMessageProvider"]["Identity"].ToString()),
+            updateMessageProvider = jo["updateMessageProvider"]["Identity"].ToString(),
+            secondUpdateMessageProvider = jo["secondUpdateMessageProvider"]["Identity"].ToString(),
             currentlyVersion = new Version(jo["version"].ToString()),
             lastCheckUpdateTime = new DateTime(long.Parse(jo["lastCheckUpdateTime"].ToString())),
             programKey = jo["programKey"].ToString(),
@@ -138,12 +143,12 @@ public class UpdateSubscriptionConverter : JsonConverter<UpdateSubscription>
         writer.WritePropertyName("updateMessageProvider");
         writer.WriteStartObject();
         writer.WritePropertyName("Identity");
-        writer.WriteValue(value.updateMessageProvider.Identity);
+        writer.WriteValue(value.updateMessageProvider);
         writer.WriteEndObject();
         writer.WritePropertyName("secondUpdateMessageProvider");
         writer.WriteStartObject();
         writer.WritePropertyName("Identity");
-        writer.WriteValue(value.secondUpdateMessageProvider?.Identity);
+        writer.WriteValue(value.secondUpdateMessageProvider);
         writer.WriteEndObject();
         writer.WriteEndObject();
     }

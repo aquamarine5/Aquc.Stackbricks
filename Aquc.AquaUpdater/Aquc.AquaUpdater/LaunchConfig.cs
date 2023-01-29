@@ -7,6 +7,7 @@ using System.Text;
 using Aquc.AquaUpdater.Pvder;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
+using System.Reflection;
 
 namespace Aquc.AquaUpdater;
 
@@ -14,19 +15,20 @@ public struct LaunchConfig : ICloneable
 {
     public Dictionary<string, UpdateSubscription> subscriptions;
     public Dictionary<string, Implementation> implementations;
-    public string version;
+    public bool registered;
     public object Clone()
     {
         return MemberwiseClone();
     }
 }
-public struct Implementation
+public class Implementation
 {
     public string folder;
     public string version;
     public string name;
     public string link;
 }
+
 public class Launch
 {
     public static LaunchConfig launchConfig;
@@ -61,8 +63,7 @@ public class Launch
         },
         subscriptions = new Dictionary<string, UpdateSubscription>()
         {
-        },
-        version = Environment.Version.ToString()
+        }
     };
 
     public static string LaunchConfigPath =>
@@ -84,7 +85,7 @@ public class Launch
         using var fs = new FileStream(LaunchConfigPath, FileMode.CreateNew, FileAccess.Write);
         using var sw = new StreamWriter(fs);
         sw.Write(JsonConvert.SerializeObject(lc));
-        UpdaterProgram.RegisterScheduleTasks();
+        //UpdaterProgram.RegisterScheduleTasks();
         return lc;
     }
     public static void UpdateLaunchConfig()

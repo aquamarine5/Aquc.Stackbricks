@@ -5,6 +5,7 @@ using System.Net;
 using Aquc.AquaUpdater.Net;
 using Newtonsoft.Json.Linq;
 using System.Net.Http;
+using Aquc.Netdisk.Bilibili;
 
 namespace Aquc.AquaUpdater.Pvder
 {
@@ -12,6 +13,7 @@ namespace Aquc.AquaUpdater.Pvder
     {
         public BiliCommitMsgPvder() { }
         public string Identity => "bilibilimsgpvder";
+        [Obsolete("Use Aquc.Netdisk.Bilibili")]
         public List<BiliReply> GetReplies(string id)
         {
             var commitTextJson = WebRequest.CreateHttp("https://api.vc.bilibili.com/dynamic_svr/v1/dynamic_svr/get_dynamic_detail?dynamic_id=" + id)
@@ -30,11 +32,14 @@ namespace Aquc.AquaUpdater.Pvder
             }
             return biliReplies;
         }
+        [Obsolete("Use Aquc.Netdisk.Bilibili")]
         public List<BiliReply> GetReplies(long id) => GetReplies(id.ToString());
 
         public UpdateMessage GetUpdateMessage(UpdateSubscription updateSubscription)
         {
-            var data = GetReplies(updateSubscription.args)[0].text.Split(";;");
+            var t = BilibiliMsgPvder.Get(updateSubscription.args);
+            t.Wait();
+            var data = t.Result.Split(";;");
             return new UpdateMessage()
             {
                 fileArgs = data[2],

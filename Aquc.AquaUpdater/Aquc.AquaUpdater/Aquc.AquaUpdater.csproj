@@ -11,8 +11,8 @@
     <Company>aquamarine5</Company>
     <VersionSuffix>beta</VersionSuffix>
     <SatelliteResourceLanguages>zh-hans;en-us</SatelliteResourceLanguages>    
-    <AssemblyVersion>2.1.0</AssemblyVersion>
-    <FileVersion>2.1.0.50129</FileVersion>
+    <AssemblyVersion>2.2.0</AssemblyVersion>
+    <FileVersion>2.2.0.50130</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>

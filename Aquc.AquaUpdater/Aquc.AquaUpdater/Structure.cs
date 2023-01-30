@@ -67,9 +67,9 @@ public struct UpdatePackage
         updateSubscription.lastCheckUpdateTime = DateTime.Now;
         updateSubscription.currentlyVersion = updateMessage.packageVersion;
         Launch.UpdateLaunchConfig();
-        if (extraceZipDirectory.GetFiles(".donotremovezip").Length!=0)
+        if (extraceZipDirectory.GetFiles(".donotremovezip").Length==0)
             zipPath.Delete();
-        if (extraceZipDirectory.GetFiles(".donotremoveextracezip").Length != 0)
+        if (extraceZipDirectory.GetFiles(".donotremoveextracezip").Length == 0)
             extraceZipDirectory.Delete(true);
     }
     private void CopyDirectory(DirectoryInfo directory, DirectoryInfo dest)

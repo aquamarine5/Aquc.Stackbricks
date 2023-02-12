@@ -56,12 +56,15 @@ public class UpdaterService : IHostedService
     public void UpdateWhenAvailable(UpdateSubscription updateSubscription)
     {
         var msg = updateSubscription.GetUpdateMessage();
-        _logger.LogInformation("{}", Assembly.GetExecutingAssembly().GetName().Version);
         _logger.LogInformation("{key} currently version is {cv}. Get {nv}.", updateSubscription.programKey, updateSubscription.currentlyVersion, msg.packageVersion);
         if (msg.NeedUpdate())
         {
             _logger.LogInformation("{key} have new version {version} to use", updateSubscription.programKey, msg.packageVersion);
             msg.GetUpdatePackage().InstallPackage();
+        }
+        else
+        {
+            //_logger.LogInformation("");
         }
     }
     public void UpdateAllWhenAvailable()

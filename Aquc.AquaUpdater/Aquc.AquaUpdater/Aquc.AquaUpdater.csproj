@@ -7,12 +7,14 @@
     <NeutralLanguage>zh-CN</NeutralLanguage>
     <ApplicationIcon>icon.ico</ApplicationIcon>
 
+    <BaseOutputPath>D:\Program Source\Aquacore</BaseOutputPath>
     <Authors>aquamarine5</Authors>
     <Company>aquamarine5</Company>
     <VersionSuffix>beta</VersionSuffix>
     <SatelliteResourceLanguages>zh-hans;en-us</SatelliteResourceLanguages>    
-    <AssemblyVersion>2.2.0</AssemblyVersion>
-    <FileVersion>2.2.0.50130</FileVersion>
+    <AssemblyVersion>2.3.0</AssemblyVersion>
+    <Version>2.3.0</Version>
+    <FileVersion>2.3.0.2211</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -36,7 +38,22 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Aquc.AquaUpdater.config.json">
+    <None Update="Aquc.AquaUpdater.Background\Aquc.AquaUpdater.Background.deps.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Aquc.AquaUpdater.Background\Aquc.AquaUpdater.Background.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Aquc.AquaUpdater.Background\Aquc.AquaUpdater.Background.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Aquc.AquaUpdater.Background\Aquc.AquaUpdater.Background.pdb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Aquc.AquaUpdater.Background\Aquc.AquaUpdater.Background.runtimeconfig.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Aquc.AquaUpdater.launch.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

@@ -9,11 +9,15 @@ namespace Aquc.AquaUpdater;
 
 public class Logging
 {
+    static ILoggerFactory f;
     public static ILogger<T> InitLogger<T>()
     {
-        return LoggerFactory.Create(builder => {
+        f ??= LoggerFactory.Create(builder =>
+        {
             builder.AddConsole();
-        }).CreateLogger<T>();
+            builder.AddFile();
+        });
+        return f.CreateLogger<T>();
     }
     static ILogger<UpdateMessage> s_UpdateMessageLogger = null;
     public static ILogger<UpdateMessage> UpdateMessageLogger => s_UpdateMessageLogger ??= InitLogger<UpdateMessage>();

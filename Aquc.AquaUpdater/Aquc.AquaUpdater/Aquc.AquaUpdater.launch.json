@@ -1,0 +1,24 @@
+{
+  "subscriptions": {
+    "Aquc.AquaUpdater.Background": {
+      "args": "224377650",
+      "subscriptionVersion": 4,
+      "lastCheckUpdateTime": "638117471959394502",
+      "version": "0.2.0",
+      "programDirectory": "Aquc.AquaUpdater.Background\\",
+      "programExtrancePath": "Aquc.AquaUpdater.Background\\Aquc.AquaUpdater.Background.exe",
+      "programKey": "Aquc.AquaUpdater.Background",
+      "updateMessageProvider": { "Identity": "bilibilimsgpvder" },
+      "secondUpdateMessageProvider": { "Identity": "" }
+    }
+  },
+  "implementations": {
+    "aliyunpan": {
+      "folder": "",
+      "version": "0.2.5",
+      "name": "aliyunpan",
+      "link": "https://github.com/tickstep/aliyunpan/releases/tag/v0.2.5"
+    }
+  },
+  "registered": false
+}

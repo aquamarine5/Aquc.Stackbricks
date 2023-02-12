@@ -9,7 +9,7 @@ using System.Reflection;
 
 namespace Aquc.AquaUpdater;
 
-public struct UpdateMessage
+public class UpdateMessage
 {
     public UpdateSubscription updateSubscription;
     public string fileArgs;
@@ -25,12 +25,12 @@ public struct UpdateMessage
         Logging.UpdateMessageLogger.LogInformation("Download update package successfully.");
         return package;
     }
-    public UpdatePackage? GetUpdatePackageWhenAvailable()
+    public UpdatePackage GetUpdatePackageWhenAvailable()
     {
         return NeedUpdate() ? GetUpdatePackage() : null;
     }
 }
-public struct UpdatePackage
+public class UpdatePackage
 {
     public UpdateMessage updateMessage;
     public UpdateSubscription updateSubscription;
@@ -38,27 +38,58 @@ public struct UpdatePackage
     public DirectoryInfo extraceZipDirectory;
     public void InstallPackage()
     {
+        string Parse(string i)
+        {
+            if (i.EndsWith("\\"))
+                return i[..^1];
+            else return i;
+        }
+        if (extraceZipDirectory.GetFiles(".usebackground").Length == 1)
+        {
+            var process = new Process
+            {
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = Path.Combine(AppContext.BaseDirectory, "Aquc.AquaUpdater.Background", "Aquc.AquaUpdater.Background.exe"),
+                    Arguments=$"\"{Parse(extraceZipDirectory.FullName)}\" \"{Parse(updateSubscription.programDirectory.FullName)}\" \"{zipPath.FullName}\"",
+                    CreateNoWindow = true,
+
+                }
+            };
+            Logging.UpdatePackageLogger.LogInformation("run background task: {a}",
+                $"\"{Parse(extraceZipDirectory.FullName)}\" \"{Parse(updateSubscription.programDirectory.FullName)}\" \"{zipPath.FullName}\"");
+            process.Start();
+            
+            return;
+        }
         var updateScript = extraceZipDirectory.GetFiles("do.*");
         if (updateScript.Length != 0)
         {
             foreach (FileInfo f in updateScript)
             {
-                var process = new Process
+                try
                 {
-                    StartInfo = new ProcessStartInfo
+                    var process = new Process
                     {
-                        FileName = f.FullName,
-                        CreateNoWindow = true,
-                        UseShellExecute=false
-                    },
-                    EnableRaisingEvents = true
-                };
-                process.Start();
-                //process.BeginOutputReadLine();
-                if (!process.WaitForExit(30000))
-                    Logging.UpdatePackageLogger.LogWarning("execute update script: {filename} failed within 30000ms", f.Name);
-                else
-                    Logging.UpdatePackageLogger.LogInformation("execute update script: {filename} successfully", f.Name);
+                        StartInfo = new ProcessStartInfo
+                        {
+                            FileName = f.FullName,
+                            CreateNoWindow = true,
+                            UseShellExecute = false
+                        },
+                        EnableRaisingEvents = true
+                    };
+                    process.Start();
+                    //process.BeginOutputReadLine();
+                    if (!process.WaitForExit(30000))
+                        Logging.UpdatePackageLogger.LogWarning("execute update script: {filename} failed within 30000ms", f.Name);
+                    else
+                        Logging.UpdatePackageLogger.LogInformation("execute update script: {filename} successfully", f.Name);
+                }
+                catch (Exception ex)
+                {
+                    Logging.UpdatePackageLogger.LogError("execute update script: {filename} raised a exception: {exception} {track}", f.Name, ex.Message, ex.StackTrace);
+                }
             }
         }
         CopyDirectory(extraceZipDirectory, updateSubscription.programDirectory);
@@ -85,7 +116,7 @@ public struct UpdatePackage
         }
     }
 }
-public struct UpdateSubscription
+public class UpdateSubscription
 {
     public int SubscriptionVersion { get; init; }
     public DateTime lastCheckUpdateTime;

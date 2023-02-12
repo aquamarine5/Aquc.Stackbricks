@@ -37,7 +37,7 @@ public class UpdaterProgram
             })
             .ConfigureAppConfiguration((builder) =>
             {
-                builder.AddJsonFile(UpdaterService.CONFIG_JSON,false,true);
+                //builder.AddJsonFile(UpdaterService.CONFIG_JSON,false,true);
             })
             .ConfigureServices(container =>
             {
@@ -259,6 +259,7 @@ public class UpdaterProgram
             scheduleCommand,
             updateCommand
         };
+        kvpSubscribeCommand.SetHandler((args,dir,key,program,pvder,subpvder,ver) => { }, kvpSubscribeArgs, kvpSubscribeDirectory, kvpSubscribeKey, kvpSubscribeProgram, kvpSubscribeProvider, kvpSubscribeSubprovider, kvpSubscribeVersion);
         scheduleInitCommand.SetHandler(new Action(() => host.Services.GetRequiredService<UpdaterService>().RegisterScheduleTasks()));
         updateAllCommand.SetHandler(() =>
         {

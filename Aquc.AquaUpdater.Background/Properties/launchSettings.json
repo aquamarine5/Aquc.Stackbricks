@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Aquc.AquaUpdater.Background": {
+      "commandName": "Project",
+      "commandLineArgs": "\"D:\\Program Source\\Aquacore\\Debug\\net6.0-windows7.0\\update_1.4.3\" \"D:\\Program Source\\Aquacore\\Debug\\net6.0-windows7.0\" \"D:\\Program Source\\Aquacore\\Debug\\net6.0-windows7.0\\test3.zip\""
+    }
+  }
+}

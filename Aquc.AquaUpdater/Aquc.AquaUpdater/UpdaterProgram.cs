@@ -260,7 +260,8 @@ public class UpdaterProgram
             updateCommand
         };
         kvpSubscribeCommand.SetHandler((args,dir,key,program,pvder,subpvder,ver) => { }, kvpSubscribeArgs, kvpSubscribeDirectory, kvpSubscribeKey, kvpSubscribeProgram, kvpSubscribeProvider, kvpSubscribeSubprovider, kvpSubscribeVersion);
-        scheduleInitCommand.SetHandler(new Action(() => host.Services.GetRequiredService<UpdaterService>().RegisterScheduleTasks()));
+        scheduleInitCommand.SetHandler(new Action(async() =>
+            await host.Services.GetRequiredService<UpdaterService>().RegisterScheduleTasks()));
         updateAllCommand.SetHandler(() =>
         {
             CurrentUpdaterService.UpdateAllWhenAvailable(Launch.launchConfig.subscriptions);

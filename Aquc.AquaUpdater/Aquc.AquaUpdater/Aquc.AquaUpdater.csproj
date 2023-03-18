@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net6.0-windows</TargetFramework>
     <ProduceReferenceAssembly>True</ProduceReferenceAssembly>
     <NeutralLanguage>zh-CN</NeutralLanguage>
     <ApplicationIcon>icon.ico</ApplicationIcon>
@@ -38,19 +38,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Aquc.AquaUpdater.Background\Aquc.AquaUpdater.Background.deps.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Aquc.AquaUpdater.Background\Aquc.AquaUpdater.Background.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Aquc.AquaUpdater.Background\Aquc.AquaUpdater.Background.exe">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Aquc.AquaUpdater.Background\Aquc.AquaUpdater.Background.pdb">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Aquc.AquaUpdater.Background\Aquc.AquaUpdater.Background.runtimeconfig.json">
+    <None Update="Aquc.AquaUpdater.Background.exe">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Aquc.AquaUpdater.launch.json">

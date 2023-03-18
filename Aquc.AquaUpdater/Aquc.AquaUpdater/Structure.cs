@@ -38,7 +38,7 @@ public class UpdatePackage
     public DirectoryInfo extraceZipDirectory;
     public void InstallPackage()
     {
-        string Parse(string i)
+        static string Parse(string i)
         {
             if (i.EndsWith("\\"))
                 return i[..^1];
@@ -50,13 +50,13 @@ public class UpdatePackage
             {
                 StartInfo = new ProcessStartInfo
                 {
-                    FileName = Path.Combine(AppContext.BaseDirectory, "Aquc.AquaUpdater.Background", "Aquc.AquaUpdater.Background.exe"),
+                    FileName = Path.Combine(AppContext.BaseDirectory, "Aquc.AquaUpdater.Background.exe"),
                     Arguments=$"\"{Parse(extraceZipDirectory.FullName)}\" \"{Parse(updateSubscription.programDirectory.FullName)}\" \"{zipPath.FullName}\"",
                     CreateNoWindow = true,
 
                 }
             };
-            Logging.UpdatePackageLogger.LogInformation("run background task: {a}",
+            Logging.UpdatePackageLogger.LogDebug("run background task: {a}",
                 $"\"{Parse(extraceZipDirectory.FullName)}\" \"{Parse(updateSubscription.programDirectory.FullName)}\" \"{zipPath.FullName}\"");
             process.Start();
             
@@ -88,7 +88,7 @@ public class UpdatePackage
                 }
                 catch (Exception ex)
                 {
-                    Logging.UpdatePackageLogger.LogError("execute update script: {filename} raised a exception: {exception} {track}", f.Name, ex.Message, ex.StackTrace);
+                    Logging.UpdatePackageLogger.LogWarning("execute update script: {filename} raised a exception: {exception} {track}", f.Name, ex.Message, ex.StackTrace);
                 }
             }
         }

@@ -1,4 +1,5 @@
-﻿using Huanent.Logging.Core;
+﻿using Aquc.Netdisk.Aliyunpan;
+using Huanent.Logging.Core;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -18,11 +19,10 @@ public class UpdaterService : IHostedService
 {
     public const string CONFIG_JSON = "Aquc.AquaUpdater.config.json";
     private readonly ILogger _logger;
+    private readonly AliyunpanNetdisk aliyunpanNetdisk;
     [Obsolete]
     public readonly LaunchConfig configuration;
-    [Obsolete]
-    IConfiguration a;
-    public UpdaterService(ILogger<UpdaterService> logger, IConfiguration configuration)
+    public UpdaterService(ILogger<UpdaterService> logger,AliyunpanNetdisk aliyunpanNetdisk)
     {
         (_logger) = (logger );
     }
@@ -77,21 +77,10 @@ public class UpdaterService : IHostedService
         foreach (var item in updateSubscriptions.Values)
             UpdateWhenAvailable(item);
     }
-    public void RegisterScheduleTasks()
+    public async Task RegisterScheduleTasks()
     {
-        var process = new Process()
-        {
-            StartInfo = new ProcessStartInfo()
-            {
-                FileName = "schtasks",
-                Arguments = $"/Create /F /SC weekly /D MON /TR \"'{Path.Combine(Path.GetDirectoryName(Environment.ProcessPath), "aliyunpan.exe") + "' token update -mode 2"}\" /TN \"Aquacore\\Aquc.AquaUpdater.Aliyunpan.UpdateToken\"",
-                CreateNoWindow = true
-            }
-        };
-        process.Start();
-        process.WaitForExit(5000);
-        _logger.LogInformation("Success schedule aliyunpan-token-update");
-        process.Dispose();
+        
+        await aliyunpanNetdisk.RegisterUpdateTokenSchtask();
         var process2 = new Process()
         {
             StartInfo = new ProcessStartInfo()

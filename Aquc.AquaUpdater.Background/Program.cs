@@ -10,35 +10,88 @@ internal class Program
         DirectoryInfo directory = new(args[0]);
         DirectoryInfo destination=new(args[1]);
         
-        var updateScript = directory.GetFiles("do.*");
+        var updateScript = directory.GetFiles("dobefore.*");
         if (updateScript.Length != 0)
         {
             foreach (FileInfo f in updateScript)
             {
-                try
+                if (f.Extension == ".exe" || f.Extension == ".bat")
                 {
-                    var process = new Process
+                    try
                     {
-                        StartInfo = new ProcessStartInfo
+                        var process = new Process
                         {
-                            FileName = f.FullName,
-                            CreateNoWindow = true,
-                            UseShellExecute = false
-                        },
-                        EnableRaisingEvents = true
-                    };
-                    process.Start();
-                    //process.BeginOutputReadLine();
-                    process.WaitForExit(30000);
-                }
-                catch
-                {
-
+                            StartInfo = new ProcessStartInfo
+                            {
+                                FileName = f.FullName,
+                                CreateNoWindow = true,
+                                UseShellExecute = false,
+                                WorkingDirectory=destination.FullName
+                            },
+                            //EnableRaisingEvents = true
+                        };
+                        process.Start();
+                        //process.BeginOutputReadLine();
+                        process.WaitForExit(30000);
+                    }
+                    catch(Exception ex)
+                    {
+                        var logsDir = directory.GetDirectories("logs");
+                        if (logsDir.Length == 1)
+                        {
+                            var logFile = logsDir[0].GetFiles($"{DateTime.Now:yyyMMdd}.txt");
+                            if (logFile.Length == 1)
+                            {
+                                await File.AppendAllLinesAsync(logFile[0].FullName, 
+                                    new string[] { $"[Exception] [Aquc.AquaUpdater.Background.dobefore] [0] [{DateTime.Now:G}]",$"{ex.Message}" });
+                            }
+                        }
+                    }
                 }
             }
         }
         CopyDirectory(directory, destination);
         if (File.Exists(args[2])) File.Delete(args[2]);
+        var updateAfterScript = directory.GetFiles("doafter.*");
+        if (updateAfterScript.Length != 0)
+        {
+            foreach (FileInfo f in updateAfterScript)
+            {
+                if (f.Extension == ".exe" || f.Extension == ".bat")
+                {
+                    try
+                    {
+                        var process = new Process
+                        {
+                            StartInfo = new ProcessStartInfo
+                            {
+                                FileName = f.FullName,
+                                CreateNoWindow = true,
+                                UseShellExecute = false,
+                                WorkingDirectory = directory.FullName
+                            },
+                            //EnableRaisingEvents = true
+                        };
+                        process.Start();
+                        //process.BeginOutputReadLine();
+                        process.WaitForExit(30000);
+                    }
+                    catch(Exception ex)
+                    {
+                        var logsDir = directory.GetDirectories("logs");
+                        if (logsDir.Length == 1)
+                        {
+                            var logFile = logsDir[0].GetFiles($"{DateTime.Now:yyyMMdd}.txt");
+                            if (logFile.Length == 1)
+                            {
+                                await File.AppendAllLinesAsync(logFile[0].FullName,
+                                    new string[] { $"[Exception] [Aquc.AquaUpdater.Background.doafter] [0] [{DateTime.Now:G}]", $"{ex.Message}" });
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
     private static void CopyDirectory(DirectoryInfo directory, DirectoryInfo dest)
     {

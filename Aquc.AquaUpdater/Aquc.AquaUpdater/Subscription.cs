@@ -62,14 +62,14 @@ public class SubscriptionController
         {
             if (option.Subprovider == null)
             {
-                logger.LogError("-Provider value is necessary.");
+                logger.LogError("-ProviderController value is necessary.");
                 return false;
             }
             else
             {
                 option.Provider = option.Subprovider;
                 option.Subprovider = null;
-                logger.LogWarning("-Provider is not found but -Subprovider is found. Use -Subprovider value as -Provider value and subprovier is now set to null.");
+                logger.LogWarning("-ProviderController is not found but -Subprovider is found. Use -Subprovider value as -ProviderController value and subprovier is now set to null.");
             }
         }
         if (option.Args == null)
@@ -95,6 +95,7 @@ public class SubscriptionController
             secondUpdateMessageProvider = option.Subprovider
         };
     }
+    [Obsolete]
     public static bool RegisterSubscription(SubscribeOption option)
     {
         var logger = Logging.InitLogger<SubscriptionController>();
@@ -103,6 +104,7 @@ public class SubscriptionController
         Launch.launchConfig.subscriptions.Add(option.Key, ParseSubscribeOption(option));
         return true;
     }
+    [Obsolete]
     public static bool RegisterSubscriptionByJson(FileInfo jsonFile)
     {
         var logger = Logging.InitLogger<SubscriptionController>();

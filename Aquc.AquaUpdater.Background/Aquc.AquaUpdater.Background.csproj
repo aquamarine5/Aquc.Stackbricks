@@ -5,7 +5,8 @@
     <TargetFramework>net6.0-windows</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <BaseOutputPath>bin</BaseOutputPath>
+
+    <BaseOutputPath>D:\Program Source\Aquacore</BaseOutputPath>
     <PublishSingleFile Condition="'$(Configuration)' == 'Release' ">true</PublishSingleFile>
     <DebugType>embedded</DebugType>
   

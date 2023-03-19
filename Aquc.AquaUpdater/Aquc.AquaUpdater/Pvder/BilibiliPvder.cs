@@ -43,7 +43,7 @@ namespace Aquc.AquaUpdater.Pvder
             return new UpdateMessage()
             {
                 fileArgs = data[2],
-                filesProvider = Provider.GetFilesProvider(data[1]),
+                filesProvider = ProviderController.GetFilesProvider(data[1]),
                 packageVersion = new Version(data[0]),
                 updateSubscription=updateSubscription
             };

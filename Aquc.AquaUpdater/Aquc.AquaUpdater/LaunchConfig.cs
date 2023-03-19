@@ -8,19 +8,22 @@ using Aquc.AquaUpdater.Pvder;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using System.Reflection;
+using Aquc.Configuration.Abstractions;
 
 namespace Aquc.AquaUpdater;
 
-public struct LaunchConfig : ICloneable
+public class LaunchConfig : ICloneable,IConfigurationStruct
 {
-    public Dictionary<string, UpdateSubscription> subscriptions;
-    public Dictionary<string, Implementation> implementations;
+    public Dictionary<string, UpdateSubscription> subscriptions=new();
+    [Obsolete("Useless")]
+    public Dictionary<string, Implementation> implementations=new();
     public bool registered;
     public object Clone()
     {
         return MemberwiseClone();
     }
 }
+[Obsolete("Useless")]
 public class Implementation
 {
     public string folder;
@@ -28,7 +31,7 @@ public class Implementation
     public string name;
     public string link;
 }
-
+[Obsolete("Use Aquc.Configuration")]
 public class Launch
 {
     public static LaunchConfig launchConfig;
@@ -50,17 +53,6 @@ public class Launch
 
     static LaunchConfig DefaultLaunchConfig => new()
     {
-        implementations = new Dictionary<string, Implementation>()
-        {
-            { "aliyunpan", new Implementation()
-                {
-                    link="https://github.com/tickstep/aliyunpan/releases/tag/v0.2.5",
-                    folder="",
-                    name="aliyunpan",
-                    version="0.2.5"
-                }
-            }
-        },
         subscriptions = new Dictionary<string, UpdateSubscription>()
         {
         }

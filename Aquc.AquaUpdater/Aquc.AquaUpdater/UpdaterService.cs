@@ -1,50 +1,36 @@
-﻿using Aquc.Netdisk.Aliyunpan;
-using Huanent.Logging.Core;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Hosting;
+﻿using Aquc.Configuration.Abstractions;
+using Aquc.Netdisk.Aliyunpan;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace Aquc.AquaUpdater;
-public class UpdaterService : IHostedService
+public class UpdaterService
 {
     public const string CONFIG_JSON = "Aquc.AquaUpdater.config.json";
     private readonly ILogger _logger;
+    public static IConfigurationSource<LaunchConfig> _configuration;
     private readonly AliyunpanNetdisk aliyunpanNetdisk;
-    [Obsolete]
-    public readonly LaunchConfig configuration;
-    public UpdaterService(ILogger<UpdaterService> logger,AliyunpanNetdisk aliyunpanNetdisk)
+
+    public UpdaterService(ILogger<UpdaterService> logger, AliyunpanNetdisk aliyunpanNetdisk, IConfigurationSource<LaunchConfig> configuration)
     {
-        (_logger) = (logger );
+        (_logger, this.aliyunpanNetdisk,_configuration) = (logger,aliyunpanNetdisk, configuration);
     }
 
-    public Task StartAsync(CancellationToken cancellationToken)
-    {
-        return Task.CompletedTask;
-    }
-
-    public Task StopAsync(CancellationToken cancellationToken)
-    {
-        return Task.CompletedTask;
-    }
     public void RegisterSubscription(SubscribeOption option)
     {
-        Launch.launchConfig.subscriptions.Add(option.Key, SubscriptionController.ParseSubscribeOption(option));
+        using var flow = _configuration.GetFlow();
+        flow.Data.subscriptions.Add(option.Key, SubscriptionController.ParseSubscribeOption(option));
         _logger.LogInformation("Successfully register {key}", option.Key);
     }
+
     public void RegisterSubscriptionByJson() { }
+
     public void UpdateWhenAvailable(string key)
     {
-        if (Launch.launchConfig.subscriptions.TryGetValue(key, out UpdateSubscription valve))
+        if (_configuration.Data.subscriptions.TryGetValue(key, out UpdateSubscription valve))
         {
             UpdateWhenAvailable(valve);
         }
@@ -69,7 +55,7 @@ public class UpdaterService : IHostedService
     }
     public void UpdateAllWhenAvailable()
     {
-        UpdateAllWhenAvailable(Launch.launchConfig.subscriptions);
+        UpdateAllWhenAvailable(_configuration.Data.subscriptions);
     }
     public void UpdateAllWhenAvailable(Dictionary<string, UpdateSubscription> updateSubscriptions)
     {
@@ -79,7 +65,7 @@ public class UpdaterService : IHostedService
     }
     public async Task RegisterScheduleTasks()
     {
-        
+
         await aliyunpanNetdisk.RegisterUpdateTokenSchtask();
         var process2 = new Process()
         {
@@ -91,7 +77,7 @@ public class UpdaterService : IHostedService
             }
         };
         process2.Start();
-        process2.WaitForExit();
+        await process2.WaitForExitAsync();
         _logger.LogInformation("Success schedule subscriptions-update-all");
         process2.Dispose();
     }

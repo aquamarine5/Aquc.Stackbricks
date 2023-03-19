@@ -10,10 +10,14 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Aquc.AquaUpdater.Pvder;
+using Aquc.Configuration;
+using Aquc.Configuration.Abstractions;
 using Aquc.Netdisk.Aliyunpan;
 using Aquc.Netdisk.Bilibili;
+using Huanent.Logging.File;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Console;
@@ -24,8 +28,9 @@ namespace Aquc.AquaUpdater;
 public class UpdaterProgram
 {
     private static ILogger<UpdaterProgram> logger;
+    private static IConfigurationSource<LaunchConfig> configuration;
+    public static IServiceProvider serviceProvider;
     public static UpdaterService CurrentUpdaterService { get; set; }
-    public static IHost host;
     public static void Main(string[] args)
     {
         using var host=new HostBuilder()
@@ -33,11 +38,9 @@ public class UpdaterProgram
             {
                 builder.ClearProviders();
                 builder.AddSimpleConsole((option) => option.UseUtcTimestamp = true);
+                builder.AddFilter<ConsoleLoggerProvider>(level => level >= LogLevel.Debug);
+                builder.AddFilter<FileLoggerProvider>(level => level >= LogLevel.Debug);
                 builder.AddFile();
-            })
-            .ConfigureAppConfiguration((builder) =>
-            {
-                //builder.AddJsonFile(UpdaterService.CONFIG_JSON,false,true);
             })
             .ConfigureServices(container =>
             {
@@ -50,26 +53,41 @@ public class UpdaterProgram
                         token.Result,
                         container.GetRequiredService<ILogger<AliyunpanNetdisk>>());
                 });
+                container.AddSingleton<ProviderController>();
+                container.AddSingleton<SubscriptionController>();
+                container.AddSingleton<IConfigurationSource<LaunchConfig>, ConfigurationDefaultSource<LaunchConfig>>((services) =>
+                    ConfigurationBuilder<LaunchConfig>.Create()
+                        .SetDefault(new LaunchConfig())
+                        .BindJsonAsync(Path.Combine(AppContext.BaseDirectory, "Aquc.AquaUpdater.launch.json")).Result
+                        .BuildDefault());
+                
             })
             .Build();
-        var _ = new Launch();
-        UpdaterProgram.host = host;
+        //var _ = new Launch();
+        serviceProvider = host.Services;
+        configuration = host.Services.GetRequiredService<IConfigurationSource<LaunchConfig>>();
         logger = host.Services.GetRequiredService<ILogger<UpdaterProgram>>();
         CurrentUpdaterService = host.Services.GetRequiredService<UpdaterService>();
-        logger.LogInformation("Hello World!");
-        ParseLaunchArgs(args);
+        try
+        {
+            ParseLaunchArgs(args, host);
+        }
+        catch(Exception ex)
+        {
+            logger.LogError("{ex} {msg}", ex.Message, ex.StackTrace);
+        }
     }
     static string CheckSubscriptionKey(ArgumentResult result)
     {
         var content = result.Tokens.Single().Value;
-        if (Launch.launchConfig.subscriptions.ContainsKey(content))
+        if (configuration.Data.subscriptions.ContainsKey(content))
         {
             result.ErrorMessage = "";
             return null;
         }
         else return result.Tokens.Single().Value;
     }
-    static void ParseLaunchArgs(string[] args)
+    static void ParseLaunchArgs(string[] args,IHost host)
     {
         #region subscribe <json/kvp/unsubscribe/list>
         var jsonSubscribeArgument = new Argument<FileInfo>()
@@ -81,12 +99,12 @@ public class UpdaterProgram
         var kvpSubscribeProvider = new Option<IUpdateMessageProvider>(new string[] { "-pvd", "--provider" }, parseArgument: result =>
         {
             var content = result.Tokens.Single().Value;
-            if (!Provider.ContainInMessageProvider(content))
+            if (!ProviderController.ContainInMessageProvider(content))
             {
                 result.ErrorMessage = "";
                 return null;
             }
-            return Provider.GetMessageProvider(content);
+            return ProviderController.GetMessageProvider(content);
         })
         {
             Description = "",
@@ -95,12 +113,12 @@ public class UpdaterProgram
         var kvpSubscribeSubprovider = new Option<IUpdateMessageProvider>(new string[] { "-subpvd", "--subprovider" }, parseArgument: result =>
         {
             var content = result.Tokens.Single().Value;
-            if (!Provider.ContainInMessageProvider(content))
+            if (!ProviderController.ContainInMessageProvider(content))
             {
                 result.ErrorMessage = "";
                 return null;
             }
-            return Provider.GetMessageProvider(content);
+            return ProviderController.GetMessageProvider(content);
         })
         {
             Description = "",
@@ -259,27 +277,28 @@ public class UpdaterProgram
             scheduleCommand,
             updateCommand
         };
+        var config = host.Services.GetRequiredService<IConfigurationSource<LaunchConfig>>().Data;
         kvpSubscribeCommand.SetHandler((args,dir,key,program,pvder,subpvder,ver) => { }, kvpSubscribeArgs, kvpSubscribeDirectory, kvpSubscribeKey, kvpSubscribeProgram, kvpSubscribeProvider, kvpSubscribeSubprovider, kvpSubscribeVersion);
         scheduleInitCommand.SetHandler(new Action(async() =>
             await host.Services.GetRequiredService<UpdaterService>().RegisterScheduleTasks()));
         updateAllCommand.SetHandler(() =>
         {
-            CurrentUpdaterService.UpdateAllWhenAvailable(Launch.launchConfig.subscriptions);
+            CurrentUpdaterService.UpdateAllWhenAvailable(config.subscriptions);
         });
         jsonSubscribeCommand.SetHandler((json) => {
-            SubscriptionController.RegisterSubscriptionByJson(json);
+            //SubscriptionController.RegisterSubscriptionByJson(json);
         }, jsonSubscribeArgument);
         listSubscribeCommand.SetHandler((key) =>
         {
-            logger.LogInformation(JsonConvert.SerializeObject(Launch.launchConfig.subscriptions, Formatting.Indented));
+            logger.LogInformation(JsonConvert.SerializeObject(config.subscriptions, Formatting.Indented));
         }, listKeyArgument);
         updateCommand.SetHandler((key) =>
         {
-            CurrentUpdaterService.UpdateWhenAvailable(Launch.launchConfig.subscriptions[key]);
+            CurrentUpdaterService.UpdateWhenAvailable(config.subscriptions[key]);
         }, updateArgument);
         unsubscribeCommand.SetHandler((key) =>
         {
-            if (Launch.launchConfig.subscriptions.Remove(key))
+            if (config.subscriptions.Remove(key))
             {
                 logger.LogInformation("Successfully unsubscribe {key}", key);
             }

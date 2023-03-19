@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Aquc.Configuration.Abstractions;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -95,9 +96,12 @@ public class UpdatePackage
         CopyDirectory(extraceZipDirectory, updateSubscription.programDirectory);
         Logging.UpdatePackageLogger.LogInformation("install package {programname}:{programversion} successfully",
             updateSubscription.programKey, updateMessage.packageVersion.ToString());
+        using var flow=UpdaterService._configuration.GetFlow();
         updateSubscription.lastCheckUpdateTime = DateTime.Now;
         updateSubscription.currentlyVersion = updateMessage.packageVersion;
-        Launch.UpdateLaunchConfig();
+        flow.Data.subscriptions[updateSubscription.programKey] = updateSubscription;
+
+        // UpdatePackageFlags
         if (extraceZipDirectory.GetFiles(".donotremovezip").Length==0)
             zipPath.Delete();
         if (extraceZipDirectory.GetFiles(".donotremoveextracezip").Length == 0)
@@ -116,11 +120,14 @@ public class UpdatePackage
         }
     }
 }
+
+[JsonConverter(typeof(UpdateSubscriptionConverter))]
 public class UpdateSubscription
 {
     public int SubscriptionVersion { get; init; }
     public DateTime lastCheckUpdateTime;
     public string args;
+    [JsonConverter(typeof(DirectoryInfoConverter))]
     public DirectoryInfo programDirectory;
     public FileInfo programExtrancePath;
     public string programKey;
@@ -130,7 +137,7 @@ public class UpdateSubscription
     public bool NeedUpdate() => GetUpdateMessage().NeedUpdate();
     public UpdateMessage GetUpdateMessage()
     {
-        var message=Provider.GetMessageProvider(updateMessageProvider).GetUpdateMessage(this);
+        var message=ProviderController.GetMessageProvider(updateMessageProvider).GetUpdateMessage(this);
         Logging.UpdateSubscriptionLogger.LogInformation("Get {key}, ver={ver} update message successfully.",
             message.updateSubscription.programKey, message.packageVersion);
         return message;

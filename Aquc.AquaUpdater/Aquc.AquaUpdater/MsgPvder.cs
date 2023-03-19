@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Text;
 using Aquc.AquaUpdater.Pvder;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Aquc.AquaUpdater;
 
@@ -17,8 +18,13 @@ public interface IUpdateFilesProvider
     public string Identity { get; }
     UpdatePackage DownloadPackage(UpdateMessage updateMessage);
 }
-public class Provider
+public class ProviderController
 {
+    private readonly IServiceProvider serviceDescriptors;
+    public ProviderController(IServiceProvider serviceDescriptors)
+    {
+        this.serviceDescriptors = serviceDescriptors;
+    }
     public static IUpdateMessageProvider GetMessageProvider(string identity)
     {
         return (identity?.ToLower()) switch

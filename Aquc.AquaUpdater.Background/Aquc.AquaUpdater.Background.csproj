@@ -6,7 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
 
-    <BaseOutputPath>D:\Program Source\Aquacore</BaseOutputPath>
+    <ApplicationIcon>icon.ico</ApplicationIcon>
     <PublishSingleFile Condition="'$(Configuration)' == 'Release' ">true</PublishSingleFile>
     <DebugType>embedded</DebugType>
   

@@ -33,7 +33,9 @@ public class UpdaterProgram
     public static UpdaterService CurrentUpdaterService { get; set; }
     public static void Main(string[] args)
     {
-        using var host=new HostBuilder()
+        try
+        {
+            using var host=new HostBuilder()
             .ConfigureLogging(builder =>
             {
                 builder.ClearProviders();
@@ -56,11 +58,10 @@ public class UpdaterProgram
                 container.AddSingleton<ProviderController>();
                 container.AddSingleton<SubscriptionController>();
                 container.AddSingleton<IConfigurationSource<LaunchConfig>, ConfigurationDefaultSource<LaunchConfig>>((services) =>
-                    ConfigurationBuilder<LaunchConfig>.Create()
+                    ConfigurationBuilder<LaunchConfig>.Create(services.GetRequiredService<ILogger<ConfigurationBuilder<LaunchConfig>>>())
                         .SetDefault(new LaunchConfig())
                         .BindJsonAsync(Path.Combine(AppContext.BaseDirectory, "Aquc.AquaUpdater.launch.json")).Result
                         .BuildDefault());
-                
             })
             .Build();
         //var _ = new Launch();
@@ -68,8 +69,7 @@ public class UpdaterProgram
         configuration = host.Services.GetRequiredService<IConfigurationSource<LaunchConfig>>();
         logger = host.Services.GetRequiredService<ILogger<UpdaterProgram>>();
         CurrentUpdaterService = host.Services.GetRequiredService<UpdaterService>();
-        try
-        {
+        
             ParseLaunchArgs(args, host);
         }
         catch(Exception ex)
@@ -283,6 +283,7 @@ public class UpdaterProgram
             await host.Services.GetRequiredService<UpdaterService>().RegisterScheduleTasks()));
         updateAllCommand.SetHandler(() =>
         {
+            logger.LogDebug(Path.Combine(AppContext.BaseDirectory, "Aquc.AquaUpdater.launch.json"));
             CurrentUpdaterService.UpdateAllWhenAvailable(config.subscriptions);
         });
         jsonSubscribeCommand.SetHandler((json) => {

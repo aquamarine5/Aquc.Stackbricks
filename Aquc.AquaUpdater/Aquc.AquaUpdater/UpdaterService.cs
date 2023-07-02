@@ -66,8 +66,10 @@ public class UpdaterService
     public async Task RegisterScheduleTasks()
     {
 
-        await aliyunpanNetdisk.RegisterUpdateTokenSchtask();
-        var process2 = new Process()
+        _logger.LogInformation("111");
+        aliyunpanNetdisk.RegisterUpdateTokenSchtask();
+        _logger.LogInformation("111");
+        using var process2 = new Process()
         {
             StartInfo = new ProcessStartInfo()
             {
@@ -79,6 +81,5 @@ public class UpdaterService
         process2.Start();
         await process2.WaitForExitAsync();
         _logger.LogInformation("Success schedule subscriptions-update-all");
-        process2.Dispose();
     }
 }

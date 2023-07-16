@@ -13,12 +13,13 @@ name: "CodeQL"
 
 on:
   push:
-    branches: [ "main-v2", a ]
+    branches: [ "stackbricks-v3", a ]
   pull_request:
     # The branches below must be a subset of the branches above
-    branches: [ "main-v2" ]
+    branches: [ "stackbricks-v3" ]
   schedule:
     - cron: '18 7 * * 4'
+  
 
 jobs:
   analyze:

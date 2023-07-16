@@ -1,0 +1,3 @@
+[submodule "Aquc.BiliCommits"]
+	path = Aquc.BiliCommits
+	url = https://github.com/aquamarine5/Aquc.BiliCommits.git

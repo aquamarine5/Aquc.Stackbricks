@@ -1,8 +1,0 @@
-{
-  "profiles": {
-    "Aquc.AquaUpdater": {
-      "commandName": "Project",
-      "commandLineArgs": "subscribe list"
-    }
-  }
-}

@@ -9,19 +9,31 @@ namespace Aquc.Stackbricks.MsgPvder;
 
 public class BiliCommitMsgPvder : IStackbricksMsgPvder
 {
-    public string Id => "stbks.msgpvder.bilicmts";
+    public string MsgPvderId => "stbks.msgpvder.bilicmts";
 
-    public StackbricksUpdateMessage GetUpdateMessage(string data)
+    public async Task<StackbricksUpdateMessage> GetUpdateMessage(string data)
     {
 
-        //stbks.msgpvder.bilicmts@1;;
-        var message=BiliCommits
-        var data = message.Split(";;");
+        //stbks.msgpvder.bilicmts@1;;0.2.0;;stbks.pkgpvder.ghproxy;;
+        var message=await BiliCommitsClass.GetReply(data);
+        var msgData = message.Split(";;");
+        if (msgData.Length > 0) {
+            if (msgData[0]==MsgPvderId+"@1")
+            {
+                return ParseToUpdateMessageV1(msgData);
+            }
+            // ncpe
+        }
         throw new NotImplementedException();
     }
 
-    StackbricksUpdateMessage ParseToUpdateMessage(string[] message)
+    static StackbricksUpdateMessage ParseToUpdateMessageV1(string[] message)
     {
-        return new StackbricksUpdateMessage()
+        // ncpe
+        return new StackbricksUpdateMessage(
+            new Version(message[1]),
+            message[2],
+            message[3]
+            );
     }
 }

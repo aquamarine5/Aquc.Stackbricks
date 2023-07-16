@@ -5,6 +5,7 @@ namespace Aquc.Stackbricks;
 
 public class Program
 {
+    public static readonly HttpClient _httpClient = new ();
     public static void Main(string[] args)
     {
         var root = new RootCommand() { };

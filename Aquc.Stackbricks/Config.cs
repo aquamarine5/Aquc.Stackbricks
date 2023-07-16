@@ -19,6 +19,7 @@ public class StackbricksConfig
 }
 public class StackbricksManifest
 {
+    public DirectoryInfo programDir;
     public string Id;
     public DateTime? LastCheckTime;
     public DateTime? LastUpdateTime;

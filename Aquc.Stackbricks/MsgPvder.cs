@@ -14,11 +14,13 @@ public interface IStackbricksMsgPvder
 }
 public class StackbricksUpdateMessage
 {
+    public StackbricksManifest stackbricksManifest;
     public Version version;
     public string PkgPvderId;
     public string PkgPvderArgs;
-    public StackbricksUpdateMessage(Version version, string pkgPvderId, string pkgPvderArgs)
+    public StackbricksUpdateMessage(StackbricksManifest stackbricksManifest,Version version, string pkgPvderId, string pkgPvderArgs)
     {
+        this.stackbricksManifest=stackbricksManifest;
         this.version = version;
         PkgPvderId = pkgPvderId;
         PkgPvderArgs = pkgPvderArgs;

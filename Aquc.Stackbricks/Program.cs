@@ -6,9 +6,8 @@ namespace Aquc.Stackbricks;
 public class Program
 {
     public static readonly HttpClient _httpClient = new ();
-    public static void Main(string[] args)
+    public static async void Main(string[] args)
     {
-        var root = new RootCommand() { };
         var updateCommand = new Command("update")
         {
 
@@ -21,6 +20,22 @@ public class Program
         {
 
         };
+        var downloadCommand = new Command("download")
+        {
+
+        };
+        updateCommand.SetHandler(() =>
+        {
+
+        });
+        var root = new RootCommand() 
+        {
+            updateCommand,
+            checkCommand,
+            installCommand,
+            downloadCommand,
+        };
+        await root.InvokeAsync(args);
         using var file = new FileStream("Aquc.Stackbricks.config.json", FileMode.OpenOrCreate, FileAccess.ReadWrite);
         using var reader = new StreamWriter(file);
         reader.Write(JsonConvert.SerializeObject(new StackbricksConfig(StackbricksManifest.CreateStackbricksManifest())));

@@ -8,17 +8,19 @@ namespace Aquc.Stackbricks.PkgPvder;
 
 public class GhProxyPkgPvder : IStackbricksPkgPvder
 {
-    public string PkgPvderId => "stbks.pkgpvder.ghproxy";
-    public StackbricksUpdateMessage updateMessage;
-    public async Task<StacebricksUpdatePackage> DownloadPackageAsync(string data,string savePosition)
+
+    public string PkgPvderId => _PkgPvderId;
+
+    public static readonly string _PkgPvderId = "stbks.pkgpvder.ghproxy";
+    public async Task<StacebricksUpdatePackage> DownloadPackageAsync(StackbricksUpdateMessage updateMessage,string savePosition)
     {
         // ncpe
-        var splitedData = data.Split("]]");
+        var splitedData = updateMessage.PkgPvderArgs.Split("]]");
         var downloadFile = $".StackbricksUpdatePackage_{updateMessage.version}.zip";
-        var responce = await Program._httpClient.GetAsync(CombineGhproxyUrl(splitedData));
+        var responce = await StackbricksProgram._httpClient.GetAsync(CombineGhproxyUrl(splitedData));
         using var fs = new FileStream(Path.Combine(savePosition, downloadFile), FileMode.Create);
         await responce.Content.CopyToAsync(fs);
-        return new StacebricksUpdatePackage(downloadFile, updateMessage, updateMessage.stackbricksManifest.programDir);
+        return new StacebricksUpdatePackage(downloadFile, updateMessage, updateMessage.stackbricksManifest.ProgramDir);
     }
     static string CombineGhproxyUrl(string[] data)
     {

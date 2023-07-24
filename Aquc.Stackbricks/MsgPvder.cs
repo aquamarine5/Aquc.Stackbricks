@@ -10,7 +10,7 @@ namespace Aquc.Stackbricks;
 public interface IStackbricksMsgPvder
 {
     public string MsgPvderId { get; }
-    public Task<StackbricksUpdateMessage> GetUpdateMessage(string data);
+    public Task<StackbricksUpdateMessage> GetUpdateMessage(StackbricksManifest stackbricksManifest);
 }
 public class StackbricksUpdateMessage
 {
@@ -25,6 +25,8 @@ public class StackbricksUpdateMessage
         PkgPvderId = pkgPvderId;
         PkgPvderArgs = pkgPvderArgs;
     }
+    public IStackbricksPkgPvder GetPkgPvder() => StackbricksPkgPvderManager.ParsePkgPvder(PkgPvderId);
+    public bool NeedUpdate() => version > stackbricksManifest.Version;
 }
 public class StackbricksMsgPvderManager
 {

@@ -32,7 +32,7 @@ public class StacebricksUpdatePackage
         ZipFile.ExtractToDirectory(zipFile, depressedDir.FullName);
         return depressedDir;
     }
-    protected void ExecuteActions()
+    public void ExecuteActions()
     {
         var pkgcfg = depressedDir.GetFiles("Aquc.Stackbricks.pkgcfg.json");
         StackbricksActionList stackbricksActionList;

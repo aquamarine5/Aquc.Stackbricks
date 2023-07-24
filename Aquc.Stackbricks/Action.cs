@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Aquc.Stackbricks.Actions;
 
 namespace Aquc.Stackbricks;
 
@@ -69,7 +70,7 @@ public class StackbricksActionList
     {
         using var fs = new FileStream(PkgConfigFile, FileMode.Open, FileAccess.Read);
         using var sr=new StreamReader(fs);
-        actions=JsonConvert.DeserializeObject<StackbricksActionListConfig>(sr.ReadToEnd()).actions;
+        actions=JsonConvert.DeserializeObject<StackbricksActionListConfig>(sr.ReadToEnd())!.actions;
     }
     public StackbricksActionList()
     {
@@ -108,28 +109,6 @@ public class ActionRunUpdatePackageActions : IStackbricksAction
     public void Execute(StackbricksActionData stackbricksAction, StacebricksUpdatePackage updatePackage)
     {
         throw new NotImplementedException();
-    }
-}
-public class ActionReplaceAll : IStackbricksAction
-{
-    public string Id => "stbks.action.replaceall";
-    public void Execute(StackbricksActionData stackbricksAction, StacebricksUpdatePackage updatePackage)
-    {
-        CopyDirectory(updatePackage.depressedDir,updatePackage.programDir);
-        if (!stackbricksAction.ContainFlag("stbks.action.replaceall.keepzipfile"))
-            File.Delete(updatePackage.zipFile);
-    }
-    private void CopyDirectory(DirectoryInfo directory, DirectoryInfo dest)
-    {
-        if (!dest.Exists) dest.Create();
-        foreach (FileInfo f in directory.GetFiles())
-        {
-            f.CopyTo(Path.Combine(dest.FullName, f.Name), true);
-        }
-        foreach (DirectoryInfo d in directory.GetDirectories())
-        {
-            CopyDirectory(d, new DirectoryInfo(Path.Combine(dest.FullName, d.Name)));
-        }
     }
 }
 public abstract class StackbricksBaseAction

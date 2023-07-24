@@ -1,13 +1,21 @@
 ﻿using Newtonsoft.Json;
+using Serilog;
+using Serilog.Core;
 using System.CommandLine;
 
 namespace Aquc.Stackbricks;
 
-public class Program
+public class StackbricksProgram
 {
     public static readonly HttpClient _httpClient = new ();
-    public static async void Main(string[] args)
+    public static StackbricksService stackbricksService = new();
+    public static readonly Logger logger=new LoggerConfiguration()
+        .WriteTo.Console()
+        .WriteTo.File($"log/{DateTime.Now:yyyyMMdd}.log")
+        .CreateLogger();
+    public static void Main(string[] args)
     {
+
         var updateCommand = new Command("update")
         {
 
@@ -24,9 +32,25 @@ public class Program
         {
 
         };
-        updateCommand.SetHandler(() =>
+        var configCreateCommand = new Command("create")
         {
 
+        };
+        var configCommand = new Command("config")
+        {
+            configCreateCommand
+        };
+        updateCommand.SetHandler(async () =>
+        {
+            await stackbricksService.UpdateWhenAvailable();
+        });
+        configCreateCommand.SetHandler(() =>
+        {
+
+            using var file = new FileStream("Aquc.Stackbricks.config.json", FileMode.OpenOrCreate, FileAccess.ReadWrite);
+            using var reader = new StreamWriter(file);
+            reader.Write(JsonConvert.SerializeObject(new StackbricksConfig(StackbricksManifest.CreateStackbricksManifest())));
+            Console.WriteLine(JsonConvert.SerializeObject(new StackbricksConfig(StackbricksManifest.CreateStackbricksManifest())));
         });
         var root = new RootCommand() 
         {
@@ -34,10 +58,9 @@ public class Program
             checkCommand,
             installCommand,
             downloadCommand,
+            configCommand
         };
-        await root.InvokeAsync(args);
-        using var file = new FileStream("Aquc.Stackbricks.config.json", FileMode.OpenOrCreate, FileAccess.ReadWrite);
-        using var reader = new StreamWriter(file);
-        reader.Write(JsonConvert.SerializeObject(new StackbricksConfig(StackbricksManifest.CreateStackbricksManifest())));
+        
+        root.Invoke(args);
     }
 }

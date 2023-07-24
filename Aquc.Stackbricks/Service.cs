@@ -25,7 +25,7 @@ public class StackbricksService
         {
             using var fs = new FileStream("Aquc.Stackbricks.config.json", FileMode.Open, FileAccess.Read);
             using var sr = new StreamReader(fs);
-            stackbricksConfig = JsonConvert.DeserializeObject<StackbricksConfig>(sr.ReadToEnd())!;
+            stackbricksConfig = JsonConvert.DeserializeObject<StackbricksConfig>(sr.ReadToEnd(),StackbricksProgram.jsonSerializer)!;
             stackbricksManifest = stackbricksConfig.StackbricksManifest;
             programManifest = stackbricksConfig.ProgramManifest;
         }

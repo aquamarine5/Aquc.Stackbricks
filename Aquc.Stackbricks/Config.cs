@@ -1,5 +1,8 @@
 ﻿using Aquc.Stackbricks.Actions;
 using Aquc.Stackbricks.MsgPvder;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System.Reflection;
 
 namespace Aquc.Stackbricks;
 
@@ -19,11 +22,11 @@ public class StackbricksManifest
     public Version Version;
     public DirectoryInfo ProgramDir;
     public string Id;
+    public string MsgPvderId;
+    public string MsgPvderData;
     public DateTime? LastCheckTime;
     public DateTime? LastUpdateTime;
     public List<IStackbricksAction> UpdateActions;
-    public string MsgPvderId;
-    public string MsgPvderData;
     public StackbricksManifest(Version version,string id, DateTime? lastCheckTime, DateTime? lastUpdateTime, List<IStackbricksAction> updateActions, string msgPvderId,string msgPvderData, DirectoryInfo programDir)
     {
         Version = version;
@@ -42,12 +45,42 @@ public class StackbricksManifest
     public static StackbricksManifest CreateStackbricksManifest()
     {
         return new StackbricksManifest(
-            new Version(1,1),
+            Assembly.GetExecutingAssembly().GetName().Version!,
             "Stackbricks", null, null,
             new List<IStackbricksAction>
                 {
                     new ActionReplaceAll(),
                     new ActionRunUpdatePackageActions()
-                }, BiliCommitMsgPvder._MsgPvderId,"", new DirectoryInfo("."));
+                }, BiliCommitMsgPvder._MsgPvderId,"", new DirectoryInfo(Directory.GetCurrentDirectory()));
+    }
+}
+public class VersionJsonConverter : JsonConverter<Version>
+{
+    public override Version? ReadJson(JsonReader reader, Type objectType, Version? existingValue, bool hasExistingValue, JsonSerializer serializer)
+    {
+        return new Version((serializer.Deserialize(reader) as JObject)!["version"]!.ToString());
+    }
+
+    public override void WriteJson(JsonWriter writer, Version? value, JsonSerializer serializer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("version");
+        writer.WriteValue(value!.ToString());
+        writer.WriteEndObject();
+    }
+}
+public class DirectoryInfoJsonConverter : JsonConverter<DirectoryInfo>
+{
+    public override DirectoryInfo ReadJson(JsonReader reader, Type objectType, DirectoryInfo? existingValue, bool hasExistingValue, JsonSerializer serializer)
+    {
+        return new DirectoryInfo((serializer.Deserialize(reader) as JObject)!["directory_info"]!.ToString());
+    }
+
+    public override void WriteJson(JsonWriter writer, DirectoryInfo? value, JsonSerializer serializer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("directory_info");
+        writer.WriteValue(value!.FullName);
+        writer.WriteEndObject();
     }
 }

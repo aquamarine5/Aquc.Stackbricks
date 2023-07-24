@@ -70,7 +70,7 @@ public class StackbricksActionList
     {
         using var fs = new FileStream(PkgConfigFile, FileMode.Open, FileAccess.Read);
         using var sr=new StreamReader(fs);
-        actions=JsonConvert.DeserializeObject<StackbricksActionListConfig>(sr.ReadToEnd())!.actions;
+        actions=JsonConvert.DeserializeObject<StackbricksActionListConfig>(sr.ReadToEnd(),StackbricksProgram.jsonSerializer)!.actions;
     }
     public StackbricksActionList()
     {

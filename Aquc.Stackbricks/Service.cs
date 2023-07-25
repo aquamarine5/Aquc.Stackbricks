@@ -45,19 +45,24 @@ public class StackbricksService
         var resultFile = ".Aquc.Stackbricks.applyres";
         if (File.Exists(resultFile)) File.Delete(resultFile);
         var command=
-            "timeout /t 5 /nobreak && "+
-            $"cd /d {newFileInfo.DirectoryName} && "+
-            $"rename {newFileInfo.Name} {PROGRAM_NAME} && "+
-            $"echo success_executed:{version} > {resultFile}";
+            "/C timeout /t 5 /nobreak && "+
+            $"cd /d \"{newFileInfo.DirectoryName}\" && "+
+            $"del /S \"{PROGRAM_NAME}\" && " +
+            $"echo 1 && "+
+            $"rename \"{newFileInfo.Name}\" \"{PROGRAM_NAME}\" && echo 2 && " +
+            $"echo success_executed:{version} > \"{resultFile}\" && "+
+            "exit /B && exit";
+        StackbricksProgram.logger.Information(command);
         using var process = new Process
         {
             StartInfo = new ProcessStartInfo
             {
-                FileName = command,
-                CreateNoWindow = true
+                FileName = "cmd",
+                Arguments=command
             }
         };
         process.Start();
+        StackbricksProgram.logger.Debug("Executed to apply Aquc.Stackbricks.exe updated actions.");
         Environment.Exit(0);
     }
     public async Task<bool> UpdateWhenAvailable()
@@ -66,6 +71,7 @@ public class StackbricksService
         var message = await manifest.GetMsgPvder().GetUpdateMessage(manifest);
         if (message.NeedUpdate())
         {
+            StackbricksProgram.logger.Information($"Got {message.version} to update, currently version is {manifest.Version}");
             var package = await message.GetPkgPvder().DownloadPackageAsync(message, manifest.ProgramDir.FullName);
             package.ExecuteActions();
             await UpdateManifest(message);
@@ -73,6 +79,7 @@ public class StackbricksService
         }
         else
         {
+            StackbricksProgram.logger.Information("No newest version to update");
             await UpdateCheckedManifest();
             return false;
         }
@@ -83,17 +90,20 @@ public class StackbricksService
         var message = await manifest.GetMsgPvder().GetUpdateMessage(manifest);
         if (message.NeedUpdate())
         {
+            StackbricksProgram.logger.Information($"Got {message.version} to update, currently version is {manifest.Version}");
             var file = await message.GetPkgPvder()
                 .DownloadFileAsync(message, manifest.ProgramDir.FullName, $".Aquc.Stackbricks.updated_{message.version}.exe");
             using var fs = new FileStream(StackbricksApplyUpdateConfig.APPLYUPDATE_FILENAME, FileMode.Create, FileAccess.Write);
             using var sw = new StreamWriter(fs);
             await sw.WriteAsync(JsonConvert.SerializeObject(new StackbricksApplyUpdateConfig(file.FullName), StackbricksProgram.jsonSerializer));
-            await UpdateManifest(message, false);
-            ApplyStackbricksUpdate(file, message.version);
+            //await UpdateManifest(message, false);
+            //ApplyStackbricksUpdate(file, message.version);
             return true;
         }
         else
         {
+
+            StackbricksProgram.logger.Information($"Received {message.version}, currently version is {manifest.Version}. No newest version to update.");
             await UpdateCheckedManifest(false);
             return false;
         }
@@ -103,6 +113,7 @@ public class StackbricksService
         var manifest = isProgram ? stackbricksConfig.ProgramManifest : stackbricksConfig.StackbricksManifest;
         manifest.LastCheckTime = DateTime.Now;
         await WriteConfig();
+        StackbricksProgram.logger.Debug($"Write config to {StackbricksConfig.CONFIG_FILENAME}");
     }
     public async Task UpdateManifest(StackbricksUpdateMessage msg, bool isProgram = true)
     {

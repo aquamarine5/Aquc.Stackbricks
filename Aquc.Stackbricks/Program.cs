@@ -12,6 +12,7 @@ public class StackbricksProgram
     public static readonly Logger logger=new LoggerConfiguration()
         .WriteTo.Console()
         .WriteTo.File($"log/{DateTime.Now:yyyyMMdd}.log")
+        .MinimumLevel.Verbose()
         .CreateLogger();
     public static readonly JsonSerializerSettings jsonSerializer = new Func<JsonSerializerSettings>(() =>
     {
@@ -90,7 +91,14 @@ public class StackbricksProgram
         };
         updateCommand.SetHandler(async () =>
         {
+            logger.Information("Start to update program if the program has newest version.");
             await stackbricksService.UpdateWhenAvailable();
+        });
+        selfUpdateCommand.SetHandler(async () =>
+        {
+
+            logger.Information("Start to update Aquc.Stackbricks if the program has newest version.");
+            await stackbricksService.UpdateStackbricksWhenAvailable();
         });
         configCreateCommand.SetHandler(() =>
         {

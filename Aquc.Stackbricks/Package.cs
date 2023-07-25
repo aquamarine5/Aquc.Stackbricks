@@ -30,6 +30,7 @@ public class StackbricksUpdatePackage
             depressedDir.Create();
         }
         ZipFile.ExtractToDirectory(zipFile, depressedDir.FullName);
+        StackbricksProgram.logger.Debug($"Extract zipFile successfully, to={depressedDir.FullName}");
         return depressedDir;
     }
     public void ExecuteActions()

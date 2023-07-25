@@ -30,9 +30,10 @@ public class StackbricksUpdateMessage
 }
 public class StackbricksMsgPvderManager
 {
-    static Dictionary<string, IStackbricksMsgPvder> matchDict = new Dictionary<string, IStackbricksMsgPvder>
+    static readonly Dictionary<string, IStackbricksMsgPvder> matchDict = new Dictionary<string, IStackbricksMsgPvder>
     {
-        {"stbks.msgpvder.bilicmts",new BiliCommitMsgPvder() }
+        {"stbks.msgpvder.bilicmts",new BiliCommitMsgPvder() },
+        {WeiboCommitMsgPvder.ID, new WeiboCommitMsgPvder() }
     };
     public static IStackbricksMsgPvder ParseMsgPvder(string msgPvderId)
     {

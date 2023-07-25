@@ -108,7 +108,7 @@ public class StackbricksActionDataJsonConverter : JsonConverter<StackbricksActio
 
     public override void WriteJson(JsonWriter writer, StackbricksActionData? value, JsonSerializer serializer)
     {
-        serializer.Serialize(writer, value);
+        new JsonSerializer().Serialize(writer, value);
         /*
         writer.WriteStartObject();
         writer.WriteStartObject();

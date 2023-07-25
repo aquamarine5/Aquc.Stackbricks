@@ -9,8 +9,8 @@ namespace Aquc.Stackbricks.PkgPvder;
 public class GhProxyPkgPvder : IStackbricksPkgPvder
 {
 
-    public string PkgPvderId => _PkgPvderId;
-    public static readonly string _PkgPvderId = "stbks.pkgpvder.ghproxy";
+    public string PkgPvderId => ID;
+    public const string ID = "stbks.pkgpvder.ghproxy";
 
     public async Task<StackbricksUpdatePackage> DownloadPackageAsync(StackbricksUpdateMessage updateMessage, string savePosition, string zipFileName)
     {
@@ -18,6 +18,7 @@ public class GhProxyPkgPvder : IStackbricksPkgPvder
         var splitedData = updateMessage.PkgPvderArgs.Split("]]");
         var downloadFile = Path.Combine(savePosition, zipFileName);
         await DownloadAsync(CombineGhproxyUrl(splitedData), Path.Combine(savePosition, downloadFile));
+        StackbricksProgram.logger.Debug($"{ID}: Download zipPackageFile successfull, file={zipFileName}");
         return new StackbricksUpdatePackage(downloadFile, updateMessage, updateMessage.stackbricksManifest.ProgramDir);
     }
     public async Task<StackbricksUpdatePackage> DownloadPackageAsync(StackbricksUpdateMessage updateMessage, string savePosition) =>
@@ -37,7 +38,9 @@ public class GhProxyPkgPvder : IStackbricksPkgPvder
     {
         var splitedData = updateMessage.PkgPvderArgs.Split("]]");
         var downloadFile = Path.Combine(savePosition, string.IsNullOrEmpty(fileName) ? splitedData[3] : fileName);
+        StackbricksProgram.logger.Information(CombineGhproxyUrl(splitedData));
         await DownloadAsync(CombineGhproxyUrl(splitedData), Path.Combine(savePosition, downloadFile));
+        StackbricksProgram.logger.Debug($"{ID}: Download file successfull, file={Path.GetFileName(downloadFile)}");
         return new FileInfo(downloadFile);
     }
 }

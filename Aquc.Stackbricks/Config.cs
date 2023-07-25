@@ -26,8 +26,8 @@ public class StackbricksManifest
     public string MsgPvderData;
     public DateTime? LastCheckTime;
     public DateTime? LastUpdateTime;
-    public List<IStackbricksAction> UpdateActions;
-    public StackbricksManifest(Version version,string id, DateTime? lastCheckTime, DateTime? lastUpdateTime, List<IStackbricksAction> updateActions, string msgPvderId,string msgPvderData, DirectoryInfo programDir)
+    public List<StackbricksActionData> UpdateActions;
+    public StackbricksManifest(Version version,string id, DateTime? lastCheckTime, DateTime? lastUpdateTime, List<StackbricksActionData> updateActions, string msgPvderId,string msgPvderData, DirectoryInfo programDir)
     {
         Version = version;
         ProgramDir = programDir;
@@ -47,10 +47,10 @@ public class StackbricksManifest
         return new StackbricksManifest(
             Assembly.GetExecutingAssembly().GetName().Version!,
             "Stackbricks", null, null,
-            new List<IStackbricksAction>
+            new List<StackbricksActionData>
                 {
-                    new ActionReplaceAll(),
-                    new ActionRunUpdatePackageActions()
+                    new StackbricksActionData(new ActionReplaceAll()),
+                    new StackbricksActionData(new ActionRunUpdatePackageActions()),
                 }, BiliCommitMsgPvder._MsgPvderId,"", new DirectoryInfo(Directory.GetCurrentDirectory()));
     }
 }
@@ -58,29 +58,61 @@ public class VersionJsonConverter : JsonConverter<Version>
 {
     public override Version? ReadJson(JsonReader reader, Type objectType, Version? existingValue, bool hasExistingValue, JsonSerializer serializer)
     {
-        return new Version((serializer.Deserialize(reader) as JObject)!["version"]!.ToString());
+        return new Version(serializer.Deserialize(reader)!.ToString()!);
     }
 
     public override void WriteJson(JsonWriter writer, Version? value, JsonSerializer serializer)
     {
-        writer.WriteStartObject();
-        writer.WritePropertyName("version");
         writer.WriteValue(value!.ToString());
-        writer.WriteEndObject();
     }
 }
 public class DirectoryInfoJsonConverter : JsonConverter<DirectoryInfo>
 {
     public override DirectoryInfo ReadJson(JsonReader reader, Type objectType, DirectoryInfo? existingValue, bool hasExistingValue, JsonSerializer serializer)
     {
-        return new DirectoryInfo((serializer.Deserialize(reader) as JObject)!["directory_info"]!.ToString());
+        return new DirectoryInfo(serializer.Deserialize(reader)!.ToString()!);
     }
 
     public override void WriteJson(JsonWriter writer, DirectoryInfo? value, JsonSerializer serializer)
     {
-        writer.WriteStartObject();
-        writer.WritePropertyName("directory_info");
         writer.WriteValue(value!.FullName);
+    }
+}
+public class StackbricksActionDataJsonConverter : JsonConverter<StackbricksActionData>
+{
+    public override StackbricksActionData? ReadJson(JsonReader reader, Type objectType, StackbricksActionData? existingValue, bool hasExistingValue, JsonSerializer serializer)
+    {
+        var obj=(serializer.Deserialize(reader) as JObject)!;
+        return new StackbricksActionData(obj["Id"]!.ToString(), obj["Args"]!.ToObject<List<string>>()!, obj["Flags"]!.ToObject<List<string>>()!);
+    }
+
+    public override void WriteJson(JsonWriter writer, StackbricksActionData? value, JsonSerializer serializer)
+    {
+        serializer.Serialize(writer, value);
+        /*
+        writer.WriteStartObject();
+        writer.WriteStartObject();
+        writer.WritePropertyName("Id");
+        writer.WriteValue(value!.Id);
         writer.WriteEndObject();
+        writer.WriteStartObject();
+        writer.WritePropertyName("Args");
+        writer.WriteStartArray();
+        foreach (var arg in value.Args)
+        {
+            writer.WriteValue(arg);
+        }
+        writer.WriteEndArray();
+        writer.WriteEndObject();
+
+        writer.WriteStartObject();
+        writer.WritePropertyName("Flags");
+        writer.WriteStartArray();
+        foreach (var flag in value.Flags)
+        {
+            writer.WriteValue(flag);
+        }
+        writer.WriteEndArray();
+        writer.WriteEndObject();*/
     }
 }

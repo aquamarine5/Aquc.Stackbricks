@@ -26,6 +26,7 @@ public class StackbricksActionData
         Args = new List<string>();
         Flags = new List<string>();
     }
+    public StackbricksActionData(IStackbricksAction action) : this(action.Id) { }
     public bool ContainFlag(string i) => Flags.Contains(i);
 }
 public class StackbricksActionManager
@@ -72,7 +73,7 @@ public class StackbricksActionList
         using var sr=new StreamReader(fs);
         actions=JsonConvert.DeserializeObject<StackbricksActionListConfig>(sr.ReadToEnd(),StackbricksProgram.jsonSerializer)!.actions;
     }
-    public StackbricksActionList()
+    public StackbricksActionList(List<StackbricksActionData> list)
     {
         actions = new List<StackbricksActionData>
         {

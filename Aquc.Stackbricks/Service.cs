@@ -38,7 +38,7 @@ public class StackbricksService
         var message = await stackbricksManifest.GetMsgPvder().GetUpdateMessage(stackbricksManifest);
         if (message.NeedUpdate())
         {
-            var package = await message.GetPkgPvder().DownloadPackageAsync(message, "");
+            var package = await message.GetPkgPvder().DownloadPackageAsync(message, stackbricksManifest.ProgramDir.FullName);
             package.ExecuteActions();
             return true;
         }

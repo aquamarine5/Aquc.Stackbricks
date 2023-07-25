@@ -38,7 +38,7 @@ public class StacebricksUpdatePackage
         StackbricksActionList stackbricksActionList;
         if (pkgcfg.Length==0)
         {
-            stackbricksActionList = new StackbricksActionList();
+            stackbricksActionList = new StackbricksActionList(updateMessage.stackbricksManifest.UpdateActions);
         }
         else
         {

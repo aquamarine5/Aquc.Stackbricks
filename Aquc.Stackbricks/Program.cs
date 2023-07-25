@@ -8,19 +8,23 @@ namespace Aquc.Stackbricks;
 public class StackbricksProgram
 {
     public static readonly HttpClient _httpClient = new ();
-    public static StackbricksService stackbricksService = null;
     public static readonly Logger logger=new LoggerConfiguration()
         .WriteTo.Console()
         .WriteTo.File($"log/{DateTime.Now:yyyyMMdd}.log")
         .CreateLogger();
     public static readonly JsonSerializerSettings jsonSerializer = new Func<JsonSerializerSettings>(() =>
     {
-        JsonSerializerSettings serializerSettings = new();
+        JsonSerializerSettings serializerSettings = new()
+        {
+            Formatting = Formatting.Indented
+        };
         serializerSettings.Converters.Add(new DirectoryInfoJsonConverter());
         serializerSettings.Converters.Add(new VersionJsonConverter());
+        serializerSettings.Converters.Add(new StackbricksActionDataJsonConverter());
         return serializerSettings;
     }).Invoke();
 
+    public static StackbricksService stackbricksService = new StackbricksService();
     public static void Main(string[] args)
     {
         var updateCommand = new Command("update")

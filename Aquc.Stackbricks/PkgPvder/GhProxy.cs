@@ -16,10 +16,12 @@ public class GhProxyPkgPvder : IStackbricksPkgPvder
     {
         // ncpe
         var splitedData = updateMessage.PkgPvderArgs.Split("]]");
-        var downloadFile = $".StackbricksUpdatePackage_{updateMessage.version}.zip";
+        var downloadFile = Path.Combine(savePosition, $".StackbricksUpdatePackage_{updateMessage.version}.zip");
         var responce = await StackbricksProgram._httpClient.GetAsync(CombineGhproxyUrl(splitedData));
         using var fs = new FileStream(Path.Combine(savePosition, downloadFile), FileMode.Create);
+        
         await responce.Content.CopyToAsync(fs);
+        fs.Dispose();
         return new StacebricksUpdatePackage(downloadFile, updateMessage, updateMessage.stackbricksManifest.ProgramDir);
     }
     static string CombineGhproxyUrl(string[] data)

@@ -80,7 +80,7 @@ public class StackbricksActionList
             new StackbricksActionData("stbks.action.replaceall")
         };
     }
-    public void ExecuteList(StacebricksUpdatePackage updatePackage)
+    public void ExecuteList(StackbricksUpdatePackage updatePackage)
     {
         foreach (var actionData in actions)
         {
@@ -92,12 +92,12 @@ public class StackbricksActionList
 public interface IStackbricksAction
 {
     public string Id { get; }
-    public void Execute(StackbricksActionData stackbricksAction, StacebricksUpdatePackage updatePackage);
+    public void Execute(StackbricksActionData stackbricksAction, StackbricksUpdatePackage updatePackage);
 }
 public class ActionOpen : IStackbricksAction
 {
     public string Id => "stbks.action.open";
-    public void Execute(StackbricksActionData stackbricksAction, StacebricksUpdatePackage updatePackage)
+    public void Execute(StackbricksActionData stackbricksAction, StackbricksUpdatePackage updatePackage)
     {
 
         throw new NotImplementedException();
@@ -107,7 +107,7 @@ public class ActionRunUpdatePackageActions : IStackbricksAction
 {
 
     public string Id => "stbks.action.runupdpkgactions";
-    public void Execute(StackbricksActionData stackbricksAction, StacebricksUpdatePackage updatePackage)
+    public void Execute(StackbricksActionData stackbricksAction, StackbricksUpdatePackage updatePackage)
     {
         throw new NotImplementedException();
     }

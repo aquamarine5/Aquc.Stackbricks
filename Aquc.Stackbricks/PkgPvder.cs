@@ -11,7 +11,10 @@ namespace Aquc.Stackbricks;
 public interface IStackbricksPkgPvder
 {
     public string PkgPvderId { get; }
-    public Task<StacebricksUpdatePackage> DownloadPackageAsync(StackbricksUpdateMessage updateMessage,string savePosition);
+    public Task<StackbricksUpdatePackage> DownloadPackageAsync(StackbricksUpdateMessage updateMessage, string savePosition);
+    public Task<StackbricksUpdatePackage> DownloadPackageAsync(StackbricksUpdateMessage updateMessage, string savePosition, string zipFileName);
+
+    public Task<FileInfo> DownloadFileAsync(StackbricksUpdateMessage updateMessage, string savePosition, string fileName="");
 }
 
 public class StackbricksPkgPvderManager

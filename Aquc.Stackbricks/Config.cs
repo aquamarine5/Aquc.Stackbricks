@@ -8,6 +8,7 @@ namespace Aquc.Stackbricks;
 
 public class StackbricksConfig
 {
+    public const string CONFIG_FILENAME = "Aquc.Stackbricks.config.json";
     public int ConfigVersion = 1;
     public StackbricksManifest StackbricksManifest;
     public StackbricksManifest ProgramManifest;
@@ -54,6 +55,25 @@ public class StackbricksManifest
                 }, BiliCommitMsgPvder._MsgPvderId,"", new DirectoryInfo(Directory.GetCurrentDirectory()));
     }
 }
+public class StackbricksApplyUpdateConfig
+{
+    public const string APPLYUPDATE_FILENAME = "Aquc.Stackbricks.applyupd.json";
+
+    public string newfilePosition;
+    public bool needApply;
+    public StackbricksApplyUpdateConfig(string newfilePosition)
+    {
+        this.newfilePosition = newfilePosition;
+        needApply = true;
+    }
+    public StackbricksApplyUpdateConfig()
+    {
+        newfilePosition = "";
+        needApply=false;
+    }
+}
+
+#region CustomJsonConverter
 public class VersionJsonConverter : JsonConverter<Version>
 {
     public override Version? ReadJson(JsonReader reader, Type objectType, Version? existingValue, bool hasExistingValue, JsonSerializer serializer)
@@ -116,3 +136,4 @@ public class StackbricksActionDataJsonConverter : JsonConverter<StackbricksActio
         writer.WriteEndObject();*/
     }
 }
+#endregion

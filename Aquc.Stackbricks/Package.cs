@@ -7,13 +7,13 @@ using System.Threading.Tasks;
 
 namespace Aquc.Stackbricks;
 
-public class StacebricksUpdatePackage
+public class StackbricksUpdatePackage
 {
     public StackbricksUpdateMessage updateMessage;
     public DirectoryInfo programDir;
     public string zipFile;
     public DirectoryInfo depressedDir;
-    public StacebricksUpdatePackage(string zipFile,StackbricksUpdateMessage updateMessage,DirectoryInfo programDir)
+    public StackbricksUpdatePackage(string zipFile,StackbricksUpdateMessage updateMessage,DirectoryInfo programDir)
     {
         this.zipFile = zipFile;
         this.updateMessage= updateMessage;

@@ -12,7 +12,7 @@ public class ActionReplaceAll : IStackbricksAction
     public string Id => _ActionId;
 
     public static readonly string _ActionId = "stbks.action.replaceall";
-    public void Execute(StackbricksActionData stackbricksAction, StacebricksUpdatePackage updatePackage)
+    public void Execute(StackbricksActionData stackbricksAction, StackbricksUpdatePackage updatePackage)
     {
         CopyDirectory(updatePackage.depressedDir, updatePackage.programDir);
         if (!stackbricksAction.ContainFlag("stbks.action.replaceall.keepzipfile"))

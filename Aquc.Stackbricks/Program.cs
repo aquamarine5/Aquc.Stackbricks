@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.Toolkit.Uwp.Notifications;
+using Newtonsoft.Json;
 using Sentry;
 using Serilog;
 using Serilog.Core;
@@ -55,26 +56,18 @@ public class StackbricksProgram
 
     public static async Task Main(string[] args)
     {
-        var updateCommand = new Command("update")
-        {
+        var updateCommand = new Command("update");
+        var checkCommand = new Command("check");
+        var installCommand = new Command("install");
+        var downloadCommand = new Command("download");
+        var updateallCommand = new Command("updateall");
 
-        };
-        var checkCommand = new Command("check")
+        var configCreateCommand = new Command("create");
+        var configCommand = new Command("config")
         {
-
+            configCreateCommand
         };
-        var installCommand = new Command("install")
-        {
 
-        };
-        var downloadCommand = new Command("download")
-        {
-
-        };
-        var configCreateCommand = new Command("create")
-        {
-
-        };
         var selfUpdateCommand = new Command("update");
         var selfApplyCommand = new Command("apply");
         var selfCheckCommand = new Command("check")
@@ -87,10 +80,15 @@ public class StackbricksProgram
             selfCheckCommand,
             selfUpdateCommand
         };
-        var configCommand = new Command("config")
+
+        var testCommand = new Command("test");
+        testCommand.SetHandler(() =>
         {
-            configCreateCommand
-        };
+
+            new ToastContentBuilder()
+                .AddText($"{1} 已成功更新至版本 {2}")
+                .Show();
+        });
         updateCommand.SetHandler(async () =>
         {
             StackbricksService stackbricksService = new();
@@ -103,9 +101,16 @@ public class StackbricksProgram
             logger.Information("Start to update Aquc.Stackbricks if the program has newest version.");
             await stackbricksService.UpdateStackbricksWhenAvailable();
         });
+        updateallCommand.SetHandler(async () =>
+        {
+            StackbricksService stackbricksService = new();
+            logger.Information("Start to update program if the program has newest version.");
+            await stackbricksService.UpdateWhenAvailable();
+            logger.Information("Start to update Aquc.Stackbricks if the program has newest version.");
+            await stackbricksService.UpdateStackbricksWhenAvailable();
+        });
         configCreateCommand.SetHandler(() =>
         {
-
             using var file = new FileStream("Aquc.Stackbricks.config.json", FileMode.Create, FileAccess.Write);
             using var reader = new StreamWriter(file);
             reader.Write(JsonConvert.SerializeObject(new StackbricksConfig(StackbricksManifest.CreateBlankManifest()), jsonSerializer));
@@ -113,10 +118,9 @@ public class StackbricksProgram
         });
         var root = new RootCommand()
         {
+            testCommand,
+            updateallCommand,
             updateCommand,
-            checkCommand,
-            installCommand,
-            downloadCommand,
             configCommand,
             selfCommand
         };

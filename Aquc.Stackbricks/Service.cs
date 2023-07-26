@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.Toolkit.Uwp.Notifications;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -33,8 +34,16 @@ public class StackbricksService
             throw new FileNotFoundException(StackbricksConfig.CONFIG_FILENAME);
         }
     }
+
+    async void ShowUpdatedUWPToast(StackbricksUpdateMessage message)
+    {
+        new ToastContentBuilder()
+            .AddText($"{message.stackbricksManifest.Id} 已成功更新至版本 {message.version}")
+            .Show();
+    }
     public async Task<bool> UpdateWhenAvailable()
     {
+        
         var manifest = programManifest;
         var message = await manifest.GetMsgPvder().GetUpdateMessage(manifest);
         if (message.NeedUpdate())
@@ -52,10 +61,12 @@ public class StackbricksService
             return false;
         }
     }
-    public async Task<bool> UpdateStackbricksWhenAvailable()
+    public async Task<bool> UpdateStackbricksWhenAvailable(bool showToast=false)
     {
         var manifest = stackbricksManifest;
         var message = await manifest.GetMsgPvder().GetUpdateMessage(manifest);
+
+        ShowUpdatedUWPToast(message);
         if (message.NeedUpdate())
         {
             StackbricksProgram.logger.Information($"Got {message.version} to update, currently version is {manifest.Version}");
@@ -63,11 +74,14 @@ public class StackbricksService
                 .DownloadFileAsync(message, manifest.ProgramDir.FullName, $".Aquc.Stackbricks.updated_{message.version}.exe");
             file.ExecuteActions();
             await UpdateManifest(message, false);
+            if (showToast)
+            {
+
+            }
             return true;
         }
         else
         {
-
             StackbricksProgram.logger.Information($"Received {message.version}, currently version is {manifest.Version}. No newest version to update.");
             await UpdateCheckedManifest(false);
             return false;

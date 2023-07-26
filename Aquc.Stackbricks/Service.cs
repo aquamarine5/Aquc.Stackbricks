@@ -17,13 +17,6 @@ public class StackbricksService
 
     public const string PROGRAM_NAME = "Aquc.Stackbricks.exe";
 
-    [Obsolete]
-    public StackbricksService(StackbricksConfig stackbricksConfig)
-    {
-        this.stackbricksConfig = stackbricksConfig;
-        stackbricksManifest = stackbricksConfig.StackbricksManifest;
-        programManifest = stackbricksConfig.ProgramManifest;
-    }
     public StackbricksService()
     {
         if (File.Exists(StackbricksConfig.CONFIG_FILENAME))
@@ -39,32 +32,6 @@ public class StackbricksService
             StackbricksProgram.logger.Error("Aquc.Stackbricks.config.json was not found.");
             throw new FileNotFoundException(StackbricksConfig.CONFIG_FILENAME);
         }
-    }
-    protected void ApplyStackbricksUpdate(FileInfo newFileInfo,Version version)
-    {
-        var resultFile = ".Aquc.Stackbricks.applyres";
-        if (File.Exists(resultFile)) File.Delete(resultFile);
-        var command=
-            "/C timeout /t 5 /nobreak && "+
-            $"cd /d \"{newFileInfo.DirectoryName}\" && "+
-            $"del /S \"{PROGRAM_NAME}\" && " +
-            $"echo 1 && "+
-            $"rename \"{newFileInfo.Name}\" \"{PROGRAM_NAME}\" && echo 2 && " +
-            $"echo success_executed:{version} > \"{resultFile}\" && "+
-            "exit /B && exit";
-        StackbricksProgram.logger.Information(command);
-        using var process = new Process
-        {
-            StartInfo = new ProcessStartInfo
-            {
-                FileName = "cmd",
-                Arguments=command,
-                CreateNoWindow=true
-            }
-        };
-        process.Start();
-        StackbricksProgram.logger.Debug("Executed to apply Aquc.Stackbricks.exe updated actions.");
-        Environment.Exit(0);
     }
     public async Task<bool> UpdateWhenAvailable()
     {
@@ -94,11 +61,8 @@ public class StackbricksService
             StackbricksProgram.logger.Information($"Got {message.version} to update, currently version is {manifest.Version}");
             var file = await message.GetPkgPvder()
                 .DownloadFileAsync(message, manifest.ProgramDir.FullName, $".Aquc.Stackbricks.updated_{message.version}.exe");
-            using var fs = new FileStream(StackbricksApplyUpdateConfig.APPLYUPDATE_FILENAME, FileMode.Create, FileAccess.Write);
-            using var sw = new StreamWriter(fs);
-            await sw.WriteAsync(JsonConvert.SerializeObject(new StackbricksApplyUpdateConfig(file.FullName), StackbricksProgram.jsonSerializer));
+            file.ExecuteActions();
             await UpdateManifest(message, false);
-            ApplyStackbricksUpdate(file, message.version);
             return true;
         }
         else

@@ -9,14 +9,21 @@ namespace Aquc.Stackbricks.Actions;
 
 public class ActionReplaceAll : IStackbricksAction
 {
-    public string Id => _ActionId;
+    public string ActionId => ID;
 
-    public static readonly string _ActionId = "stbks.action.replaceall";
+    public const string ID = "stbks.action.replaceall";
+
+    public const string FLAG_KEEPZIPFILE = "stbks.action.replaceall.keepzipfile";
+
     public void Execute(StackbricksActionData stackbricksAction, StackbricksUpdatePackage updatePackage)
     {
-        CopyDirectory(updatePackage.depressedDir, updatePackage.programDir);
-        if (!stackbricksAction.ContainFlag("stbks.action.replaceall.keepzipfile"))
-            File.Delete(updatePackage.zipFile);
+        if (updatePackage.isZip)
+            File.Copy(updatePackage.file, Path.Combine(updatePackage.programDir.FullName, Path.GetFileName(updatePackage.file)), true);
+        else
+            CopyDirectory(updatePackage.depressedDir, updatePackage.programDir);
+
+        if (!stackbricksAction.ContainFlag(FLAG_KEEPZIPFILE))
+            File.Delete(updatePackage.file);
     }
     private void CopyDirectory(DirectoryInfo directory, DirectoryInfo dest)
     {

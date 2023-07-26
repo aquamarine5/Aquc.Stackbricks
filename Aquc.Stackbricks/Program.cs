@@ -8,8 +8,8 @@ namespace Aquc.Stackbricks;
 
 public class StackbricksProgram
 {
-    public static readonly HttpClient _httpClient = new ();
-    public static readonly Logger logger=new LoggerConfiguration()
+    public static readonly HttpClient _httpClient = new();
+    public static readonly Logger logger = new LoggerConfiguration()
         .WriteTo.Console()
         .WriteTo.File($"log/{DateTime.Now:yyyyMMdd}.log")
         .MinimumLevel.Verbose()
@@ -26,7 +26,7 @@ public class StackbricksProgram
         return serializerSettings;
     }).Invoke();
 
-    public static StackbricksService stackbricksService = new StackbricksService();
+    public static readonly StackbricksService stackbricksService = new();
     public static void Main(string[] args)
     {
         SentrySdk.Init(options =>
@@ -59,7 +59,7 @@ public class StackbricksProgram
         };
         var checkCommand = new Command("check")
         {
-            
+
         };
         var installCommand = new Command("install")
         {
@@ -105,10 +105,10 @@ public class StackbricksProgram
 
             using var file = new FileStream("Aquc.Stackbricks.config.json", FileMode.Create, FileAccess.Write);
             using var reader = new StreamWriter(file);
-            reader.Write(JsonConvert.SerializeObject(new StackbricksConfig(StackbricksManifest.CreateStackbricksManifest()),jsonSerializer));
+            reader.Write(JsonConvert.SerializeObject(new StackbricksConfig(StackbricksManifest.CreateStackbricksManifest()), jsonSerializer));
             logger.Information("Success created default Aquc.Stackbricks.config.json");
         });
-        var root = new RootCommand() 
+        var root = new RootCommand()
         {
             updateCommand,
             checkCommand,

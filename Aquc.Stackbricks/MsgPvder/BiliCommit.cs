@@ -9,8 +9,8 @@ namespace Aquc.Stackbricks.MsgPvder;
 
 public class BiliCommitMsgPvder : IStackbricksMsgPvder
 {
-    public string MsgPvderId => _MsgPvderId;
-    public static readonly string _MsgPvderId = "stbks.msgpvder.bilicmts";
+    public string MsgPvderId => ID;
+    public const string ID = "stbks.msgpvder.bilicmts";
     public async Task<StackbricksUpdateMessage> GetUpdateMessage(StackbricksManifest stackbricksManifest)
     {
         var message=await BiliCommitsClass.GetReply(StackbricksProgram._httpClient,stackbricksManifest.MsgPvderData);

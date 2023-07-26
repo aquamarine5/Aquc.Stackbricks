@@ -46,30 +46,12 @@ public class StackbricksManifest
     public static StackbricksManifest CreateStackbricksManifest()
     {
         return new StackbricksManifest(
-            Assembly.GetExecutingAssembly().GetName().Version!,
-            "Stackbricks", null, null,
+            Assembly.GetExecutingAssembly().GetName().Version??new Version(0,1),
+            "Aquc.Stackbricks", null, null,
             new List<StackbricksActionData>
                 {
-                    new StackbricksActionData(new ActionReplaceAll()),
-                    new StackbricksActionData(new ActionRunUpdatePackageActions()),
-                }, BiliCommitMsgPvder._MsgPvderId,"", new DirectoryInfo(Directory.GetCurrentDirectory()));
-    }
-}
-public class StackbricksApplyUpdateConfig
-{
-    public const string APPLYUPDATE_FILENAME = "Aquc.Stackbricks.applyupd.json";
-
-    public string newfilePosition;
-    public bool needApply;
-    public StackbricksApplyUpdateConfig(string newfilePosition)
-    {
-        this.newfilePosition = newfilePosition;
-        needApply = true;
-    }
-    public StackbricksApplyUpdateConfig()
-    {
-        newfilePosition = "";
-        needApply=false;
+                    new StackbricksActionData(new ActionApplySelfUpdate()),
+                }, WeiboCommitMsgPvder.ID, "4927489886915247", new DirectoryInfo(Directory.GetCurrentDirectory()));
     }
 }
 

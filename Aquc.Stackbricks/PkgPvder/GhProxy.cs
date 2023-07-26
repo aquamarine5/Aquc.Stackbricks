@@ -19,7 +19,7 @@ public class GhProxyPkgPvder : IStackbricksPkgPvder
         var downloadFile = Path.Combine(savePosition, zipFileName);
         await DownloadAsync(CombineGhproxyUrl(splitedData), Path.Combine(savePosition, downloadFile));
         StackbricksProgram.logger.Debug($"{ID}: Download zipPackageFile successfull, file={zipFileName}");
-        return new StackbricksUpdatePackage(downloadFile, updateMessage, updateMessage.stackbricksManifest.ProgramDir);
+        return new StackbricksUpdatePackage(downloadFile, updateMessage);
     }
     public async Task<StackbricksUpdatePackage> DownloadPackageAsync(StackbricksUpdateMessage updateMessage, string savePosition) =>
         await DownloadPackageAsync(updateMessage, savePosition, $".StackbricksUpdatePackage_{updateMessage.version}.zip");
@@ -34,13 +34,13 @@ public class GhProxyPkgPvder : IStackbricksPkgPvder
         return $"https://ghproxy.com/github.com/{data[0]}/{data[1]}/releases/download/{data[2]}/{data[3]}";
     }
 
-    public async Task<FileInfo> DownloadFileAsync(StackbricksUpdateMessage updateMessage, string savePosition, string fileName = "")
+    public async Task<StackbricksUpdatePackage> DownloadFileAsync(StackbricksUpdateMessage updateMessage, string savePosition, string fileName = "")
     {
         var splitedData = updateMessage.PkgPvderArgs.Split("]]");
         var downloadFile = Path.Combine(savePosition, string.IsNullOrEmpty(fileName) ? splitedData[3] : fileName);
         StackbricksProgram.logger.Information(CombineGhproxyUrl(splitedData));
         await DownloadAsync(CombineGhproxyUrl(splitedData), Path.Combine(savePosition, downloadFile));
         StackbricksProgram.logger.Debug($"{ID}: Download file successfull, file={Path.GetFileName(downloadFile)}");
-        return new FileInfo(downloadFile);
+        return new StackbricksUpdatePackage(downloadFile,updateMessage,false);
     }
 }

@@ -11,33 +11,38 @@ public class StackbricksUpdatePackage
 {
     public StackbricksUpdateMessage updateMessage;
     public DirectoryInfo programDir;
-    public string zipFile;
+    public string file;
     public DirectoryInfo depressedDir;
-    public StackbricksUpdatePackage(string zipFile,StackbricksUpdateMessage updateMessage,DirectoryInfo programDir)
+    public bool isZip;
+
+    public const string FILE_PKGCFG = "Aquc.Stackbricks.pkgcfg.json";
+
+    public StackbricksUpdatePackage(string file, StackbricksUpdateMessage updateMessage, bool isZip = true)
     {
-        this.zipFile = zipFile;
-        this.updateMessage= updateMessage;
-        this.programDir= programDir;
-        depressedDir=DepressedZipFile();
+        this.isZip = isZip;
+        this.file = file;
+        this.updateMessage = updateMessage;
+        programDir = updateMessage.stackbricksManifest.ProgramDir;
+        depressedDir = isZip ? DepressedZipFile() : programDir;
     }
     protected DirectoryInfo DepressedZipFile()
     {
         var depressedDir = new DirectoryInfo(Path.Combine(programDir.FullName, $".StackbricksUpdatePackage_{updateMessage.version}.depressed"));
         if (!depressedDir.Exists) depressedDir.Create();
-        else 
-        { 
+        else
+        {
             depressedDir.Delete(true);
             depressedDir.Create();
         }
-        ZipFile.ExtractToDirectory(zipFile, depressedDir.FullName);
-        StackbricksProgram.logger.Debug($"Extract zipFile successfully, to={depressedDir.FullName}");
+        ZipFile.ExtractToDirectory(file, depressedDir.FullName);
+        StackbricksProgram.logger.Debug($"Extract file successfully, to={depressedDir.FullName}");
         return depressedDir;
     }
     public void ExecuteActions()
     {
-        var pkgcfg = depressedDir.GetFiles("Aquc.Stackbricks.pkgcfg.json");
+        var pkgcfg = isZip ? depressedDir.GetFiles(FILE_PKGCFG) : Array.Empty<FileInfo>();
         StackbricksActionList stackbricksActionList;
-        if (pkgcfg.Length==0)
+        if (pkgcfg.Length == 0)
         {
             stackbricksActionList = new StackbricksActionList(updateMessage.stackbricksManifest.UpdateActions);
         }

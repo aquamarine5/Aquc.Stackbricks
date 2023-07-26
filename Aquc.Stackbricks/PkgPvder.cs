@@ -14,7 +14,7 @@ public interface IStackbricksPkgPvder
     public Task<StackbricksUpdatePackage> DownloadPackageAsync(StackbricksUpdateMessage updateMessage, string savePosition);
     public Task<StackbricksUpdatePackage> DownloadPackageAsync(StackbricksUpdateMessage updateMessage, string savePosition, string zipFileName);
 
-    public Task<FileInfo> DownloadFileAsync(StackbricksUpdateMessage updateMessage, string savePosition, string fileName="");
+    public Task<StackbricksUpdatePackage> DownloadFileAsync(StackbricksUpdateMessage updateMessage, string savePosition, string fileName = "");
 }
 
 public class StackbricksPkgPvderManager

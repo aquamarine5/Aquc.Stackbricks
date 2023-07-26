@@ -26,19 +26,20 @@ public class StackbricksActionData
         Args = new List<string>();
         Flags = new List<string>();
     }
-    public StackbricksActionData(IStackbricksAction action) : this(action.Id) { }
+    public StackbricksActionData(IStackbricksAction action) : this(action.ActionId) { }
     public bool ContainFlag(string i) => Flags.Contains(i);
 }
 public class StackbricksActionManager
 {
-    static readonly Dictionary<string, IStackbricksAction> DefaultActions=new()
+    static readonly Dictionary<string, IStackbricksAction> DefaultActions = new()
     {
-        { "stbks.action.open", new ActionOpen()},
-        {"stbks.action.replaceall",new ActionReplaceAll() },
-        {"stbks.action.runupdpkgactions",new ActionRunUpdatePackageActions() }
+        { ActionOpen.ID, new ActionOpen()},
+        { ActionReplaceAll.ID,new ActionReplaceAll() },
+        { ActionRunUpdatePackageActions.ID,new ActionRunUpdatePackageActions() },
+        {ActionApplySelfUpdate.ID,new ActionApplySelfUpdate() }
     };
     public Dictionary<string, IStackbricksAction> Actions;
-    public StackbricksActionManager() 
+    public StackbricksActionManager()
     {
         Actions = DefaultActions;
     }
@@ -48,79 +49,66 @@ public class StackbricksActionManager
     }
     public static IStackbricksAction ParseStatic(string id)
     {
-        if (DefaultActions.TryGetValue(id, out IStackbricksAction? value))return value;
+        if (DefaultActions.TryGetValue(id, out IStackbricksAction? value)) return value;
         else throw new ArgumentException();
     }
     public IStackbricksAction Parse(string id, StackbricksActionData stackbricksAction)
     {
-        if(Actions.TryGetValue(id,out IStackbricksAction? value))
+        if (Actions.TryGetValue(id, out IStackbricksAction? value))
             return value;
         else
             throw new ArgumentException();
     }
-    
+
 }
 public class StackbricksActionList
 {
     public class StackbricksActionListConfig
     {
-        public List<StackbricksActionData> actions=new();
+        public List<StackbricksActionData> actions = new();
     }
     public List<StackbricksActionData> actions;
     public StackbricksActionList(string PkgConfigFile)
     {
         using var fs = new FileStream(PkgConfigFile, FileMode.Open, FileAccess.Read);
-        using var sr=new StreamReader(fs);
-        actions=JsonConvert.DeserializeObject<StackbricksActionListConfig>(sr.ReadToEnd(),StackbricksProgram.jsonSerializer)!.actions;
+        using var sr = new StreamReader(fs);
+        actions = JsonConvert.DeserializeObject<StackbricksActionListConfig>(sr.ReadToEnd(), StackbricksProgram.jsonSerializer)!.actions;
     }
     public StackbricksActionList(List<StackbricksActionData> list)
     {
-        actions = new List<StackbricksActionData>
-        {
-            new StackbricksActionData("stbks.action.replaceall")
-        };
+        actions = list;
     }
     public void ExecuteList(StackbricksUpdatePackage updatePackage)
     {
+        StackbricksProgram.logger.Debug($"Found {actions.Count} update actions.");
         foreach (var actionData in actions)
         {
             var action = StackbricksActionManager.ParseStatic(actionData.Id);
-            action.Execute(actionData,updatePackage);
+            StackbricksProgram.logger.Debug($"Execute {actionData.Id}.");
+            action.Execute(actionData, updatePackage);
         }
     }
 }
 public interface IStackbricksAction
 {
-    public string Id { get; }
+    public string ActionId { get; }
     public void Execute(StackbricksActionData stackbricksAction, StackbricksUpdatePackage updatePackage);
 }
 public class ActionOpen : IStackbricksAction
 {
-    public string Id => "stbks.action.open";
+    public string ActionId => ID;
+    public const string ID = "stbks.action.open";
     public void Execute(StackbricksActionData stackbricksAction, StackbricksUpdatePackage updatePackage)
     {
 
-        throw new NotImplementedException();
     }
 }
 public class ActionRunUpdatePackageActions : IStackbricksAction
 {
 
-    public string Id => "stbks.action.runupdpkgactions";
+    public string ActionId => ID;
+    public const string ID = "stbks.action.runupdpkgactions";
     public void Execute(StackbricksActionData stackbricksAction, StackbricksUpdatePackage updatePackage)
     {
-        throw new NotImplementedException();
-    }
-}
-public abstract class StackbricksBaseAction
-{
-    public abstract string Id { get; }
-
-    public List<string> Args { get;}
-    public List<string> Flags { get; }
-    public StackbricksBaseAction(StackbricksActionData stackbricksAction)
-    {
-        Args=stackbricksAction.Args;
-        Flags=stackbricksAction.Flags;
     }
 }

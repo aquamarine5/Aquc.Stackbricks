@@ -12,8 +12,6 @@
     <FileVersion>$(Version)</FileVersion>
     <Version>3.0.726.1</Version>
     <SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
-    <PublishTrimmed>true</PublishTrimmed>
-    <TrimMode>link</TrimMode>
     
   </PropertyGroup>
 

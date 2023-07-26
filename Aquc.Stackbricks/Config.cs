@@ -46,12 +46,17 @@ public class StackbricksManifest
     public static StackbricksManifest CreateStackbricksManifest()
     {
         return new StackbricksManifest(
-            Assembly.GetExecutingAssembly().GetName().Version??new Version(0,1),
+            Assembly.GetExecutingAssembly().GetName().Version??new Version(0,0,0,1),
             "Aquc.Stackbricks", null, null,
             new List<StackbricksActionData>
                 {
                     new StackbricksActionData(new ActionApplySelfUpdate()),
                 }, WeiboCommitMsgPvder.ID, "4927489886915247", new DirectoryInfo(Directory.GetCurrentDirectory()));
+    }
+    public static StackbricksManifest CreateBlankManifest()
+    {
+        return new StackbricksManifest(
+            new Version(0, 0, 0, 1), "", null, null, new List<StackbricksActionData>(), "", "", new DirectoryInfo(Directory.GetCurrentDirectory()));
     }
 }
 

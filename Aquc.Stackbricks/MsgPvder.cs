@@ -18,9 +18,9 @@ public class StackbricksUpdateMessage
     public Version version;
     public string PkgPvderId;
     public string PkgPvderArgs;
-    public StackbricksUpdateMessage(StackbricksManifest stackbricksManifest,Version version, string pkgPvderId, string pkgPvderArgs)
+    public StackbricksUpdateMessage(StackbricksManifest stackbricksManifest, Version version, string pkgPvderId, string pkgPvderArgs)
     {
-        this.stackbricksManifest=stackbricksManifest;
+        this.stackbricksManifest = stackbricksManifest;
         this.version = version;
         PkgPvderId = pkgPvderId;
         PkgPvderArgs = pkgPvderArgs;
@@ -32,7 +32,7 @@ public class StackbricksMsgPvderManager
 {
     static readonly Dictionary<string, IStackbricksMsgPvder> matchDict = new Dictionary<string, IStackbricksMsgPvder>
     {
-        {"stbks.msgpvder.bilicmts",new BiliCommitMsgPvder() },
+        {BiliCommitMsgPvder.ID,new BiliCommitMsgPvder() },
         {WeiboCommitMsgPvder.ID, new WeiboCommitMsgPvder() }
     };
     public static IStackbricksMsgPvder ParseMsgPvder(string msgPvderId)

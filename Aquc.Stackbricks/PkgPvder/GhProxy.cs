@@ -23,9 +23,9 @@ public class GhProxyPkgPvder : IStackbricksPkgPvder
     }
     public async Task<StackbricksUpdatePackage> DownloadPackageAsync(StackbricksUpdateMessage updateMessage, string savePosition) =>
         await DownloadPackageAsync(updateMessage, savePosition, $".StackbricksUpdatePackage_{updateMessage.version}.zip");
-    async Task DownloadAsync(string url, string savePosition)
+    static async Task DownloadAsync(string url, string savePosition)
     {
-        var responce = await StackbricksProgram._httpClient.GetAsync(url);
+        var responce = await StackbricksProgram.httpClient.GetAsync(url);
         using var fs = new FileStream(savePosition, FileMode.Create);
         await responce.Content.CopyToAsync(fs);
     }
@@ -41,6 +41,6 @@ public class GhProxyPkgPvder : IStackbricksPkgPvder
         StackbricksProgram.logger.Information(CombineGhproxyUrl(splitedData));
         await DownloadAsync(CombineGhproxyUrl(splitedData), Path.Combine(savePosition, downloadFile));
         StackbricksProgram.logger.Debug($"{ID}: Download file successfull, file={Path.GetFileName(downloadFile)}");
-        return new StackbricksUpdatePackage(downloadFile,updateMessage,false);
+        return new StackbricksUpdatePackage(downloadFile, updateMessage, false);
     }
 }

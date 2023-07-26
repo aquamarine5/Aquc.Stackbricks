@@ -8,7 +8,7 @@ namespace Aquc.Stackbricks;
 
 public class StackbricksProgram
 {
-    public static readonly HttpClient _httpClient = new();
+    public static readonly HttpClient httpClient = new();
     public static readonly Logger logger = new LoggerConfiguration()
         .WriteTo.Console()
         .WriteTo.File($"log/{DateTime.Now:yyyyMMdd}.log")
@@ -26,8 +26,7 @@ public class StackbricksProgram
         return serializerSettings;
     }).Invoke();
 
-    public static readonly StackbricksService stackbricksService = new();
-    public static void Main(string[] args)
+    public static async Task Main(string[] args)
     {
         SentrySdk.Init(options =>
         {
@@ -91,12 +90,13 @@ public class StackbricksProgram
         };
         updateCommand.SetHandler(async () =>
         {
+            StackbricksService stackbricksService = new();
             logger.Information("Start to update program if the program has newest version.");
             await stackbricksService.UpdateWhenAvailable();
         });
         selfUpdateCommand.SetHandler(async () =>
         {
-
+            StackbricksService stackbricksService = new();
             logger.Information("Start to update Aquc.Stackbricks if the program has newest version.");
             await stackbricksService.UpdateStackbricksWhenAvailable();
         });
@@ -105,7 +105,7 @@ public class StackbricksProgram
 
             using var file = new FileStream("Aquc.Stackbricks.config.json", FileMode.Create, FileAccess.Write);
             using var reader = new StreamWriter(file);
-            reader.Write(JsonConvert.SerializeObject(new StackbricksConfig(StackbricksManifest.CreateStackbricksManifest()), jsonSerializer));
+            reader.Write(JsonConvert.SerializeObject(new StackbricksConfig(StackbricksManifest.CreateBlankManifest()), jsonSerializer));
             logger.Information("Success created default Aquc.Stackbricks.config.json");
         });
         var root = new RootCommand()
@@ -117,6 +117,7 @@ public class StackbricksProgram
             configCommand,
             selfCommand
         };
-        root.Invoke(args);
+        await root.InvokeAsync(args);
+        httpClient.Dispose();
     }
 }

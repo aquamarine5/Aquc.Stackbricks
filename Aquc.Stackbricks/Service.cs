@@ -21,7 +21,7 @@ public class StackbricksService
     {
         if (File.Exists(StackbricksConfig.CONFIG_FILENAME))
         {
-            using var fs = new FileStream(StackbricksConfig.CONFIG_FILENAME, FileMode.Open, FileAccess.Read);
+            using var fs = new FileStream(StackbricksConfig.CONFIG_FILENAME, FileMode.Open, FileAccess.Read); //?
             using var sr = new StreamReader(fs);
             stackbricksConfig = JsonConvert.DeserializeObject<StackbricksConfig>(sr.ReadToEnd(), StackbricksProgram.jsonSerializer)!;
             stackbricksManifest = stackbricksConfig.StackbricksManifest;

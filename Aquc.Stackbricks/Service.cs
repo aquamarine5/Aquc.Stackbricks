@@ -58,7 +58,8 @@ public class StackbricksService
             StartInfo = new ProcessStartInfo
             {
                 FileName = "cmd",
-                Arguments=command
+                Arguments=command,
+                CreateNoWindow=true
             }
         };
         process.Start();
@@ -96,8 +97,8 @@ public class StackbricksService
             using var fs = new FileStream(StackbricksApplyUpdateConfig.APPLYUPDATE_FILENAME, FileMode.Create, FileAccess.Write);
             using var sw = new StreamWriter(fs);
             await sw.WriteAsync(JsonConvert.SerializeObject(new StackbricksApplyUpdateConfig(file.FullName), StackbricksProgram.jsonSerializer));
-            //await UpdateManifest(message, false);
-            //ApplyStackbricksUpdate(file, message.version);
+            await UpdateManifest(message, false);
+            ApplyStackbricksUpdate(file, message.version);
             return true;
         }
         else

@@ -14,7 +14,7 @@ public class StackbricksInterop
     }
     public async Task<UpdateDataClass> Update()
     {
-        return await Execute<UpdateDataClass>(new string[] { "update", "--json" });
+        return await Execute<UpdateDataClass>(new string[] { "update", "--json", "--no-log" });
     }
     public async Task<object?> Execute(string[] args)
     {

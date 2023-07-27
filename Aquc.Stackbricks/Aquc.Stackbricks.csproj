@@ -5,7 +5,6 @@
     <TargetFramework>net6.0-windows10.0.19041.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <PublishSingleFile>true</PublishSingleFile>
     <DebugType>embedded</DebugType>
     <SatelliteResourceLanguages>en-US</SatelliteResourceLanguages>
     <AssemblyVersion>$(Version)</AssemblyVersion>

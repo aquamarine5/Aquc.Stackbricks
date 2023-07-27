@@ -43,7 +43,7 @@ public class StackbricksProgram
 
             // This option will enable Sentry's tracing features. You still need to start transactions and spans.
             o.EnableTracing = true;
-            o.Debug = !args.Contains("--no-sentrylog");
+            o.Debug = args.Contains("--sentrylog");
         });
         loggerconfig.MinimumLevel.Verbose();
         return loggerconfig.CreateLogger();
@@ -64,6 +64,8 @@ public class StackbricksProgram
     {
         var jsonOption = new Option<bool>("--json", () => { return false; });
         var uwpnofOption = new Option<bool>("--no-uwpnof", () => { return false; });
+        var nologOption= new Option<bool>("--no-log", () => { return false; });
+        var sentrylogOption= new Option<bool>("--sentrylog", () => { return false; });
 
         var updateCommand = new Command("update") { jsonOption, uwpnofOption };
         var checkCommand = new Command("check") { jsonOption, uwpnofOption };
@@ -135,6 +137,8 @@ public class StackbricksProgram
             configCommand,
             selfCommand
         };
+        root.AddGlobalOption(sentrylogOption);
+        root.AddGlobalOption(nologOption);
         await new CommandLineBuilder(root)
            .UseVersionOption()
            .UseHelp()

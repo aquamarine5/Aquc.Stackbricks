@@ -27,13 +27,13 @@ public class StackbricksInterop
                 Arguments = arg,
                 CreateNoWindow = true,
                 WorkingDirectory = processFile.DirectoryName,
-                UseShellExecute = true,
                 RedirectStandardOutput= true,
             }
         };
         process.Start();
         await process.WaitForExitAsync();
         var result=(await process.StandardOutput.ReadToEndAsync()).Split(DataClassManager.SPLIT_KEY);
+        Console.WriteLine(result[1]);
         var type = DataClassManager.ParseID(result[0]);
         return JsonSerializer.Deserialize(result[1], type);
     }

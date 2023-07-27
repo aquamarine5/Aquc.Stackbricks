@@ -15,6 +15,9 @@ public class UpdateDataClass : CheckDownloadDataClass, IDataClass
         : base(isProgram, needUpdate, version, filePath, isDirectory)
     {
     }
+    public UpdateDataClass()
+        :base(true,true,"000000000","0121")
+    { }
 }
 public class CheckDataClass : IDataClass
 {
@@ -73,6 +76,7 @@ public class InstallDataClass : IDataClass
     {
         IsProgram = isProgram;
     }
+    public InstallDataClass() { }
 }
 public class ReadLastDateTimeDataClass : IDataClass
 {
@@ -94,6 +98,7 @@ public class ReadLastDateTimeDataClass : IDataClass
         this.lastSelfCheckTime = lastSelfCheckTime;
         this.lastSelfUpdateTime = lastSelfUpdateTime;
     }
+    public ReadLastDateTimeDataClass() { }
 }
 public interface IDataClass
 {

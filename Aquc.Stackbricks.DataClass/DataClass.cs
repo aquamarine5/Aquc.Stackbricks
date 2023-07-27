@@ -74,44 +74,6 @@ public class InstallDataClass : IDataClass
         IsProgram = isProgram;
     }
 }
-/*
-public class SelfCheckDownloadDataClass : CheckDownloadDataClass, IDataClass
-{
-
-    public new string DCID => ID;
-
-    public new const string ID = "stbks.dc.selfcheckdl";
-
-    public SelfCheckDownloadDataClass(bool needUpdate, string version, string filePath, string depressedDir, bool isDirectory = true) 
-        : base(needUpdate, version, filePath, depressedDir, isDirectory)
-    {
-    }
-
-    public SelfCheckDownloadDataClass(bool needUpdate, string version, string filePath, bool isDirectory = false) 
-        : base(needUpdate, version, filePath, isDirectory)
-    {
-    }
-}
-public class SelfUpdateDataClass : UpdateDataClass, IDataClass
-{
-
-    public new string DCID => ID;
-
-    public new const string ID = "stbks.dc.selfupdate";
-
-    public SelfUpdateDataClass(bool needUpdate, string version, string filePath, string depressedDir, bool isDirectory = true) 
-        : base(needUpdate, version, filePath, depressedDir, isDirectory)
-    {
-    }
-}
-public class SelfInstallDataClass : InstallDataClass, IDataClass
-{
-
-    public new string DCID => ID;
-
-    public new const string ID = "stbks.dc.selfinstall";
-}
-*/
 public class ReadLastDateTimeDataClass : IDataClass
 {
     public DateTime lastCheckTime;
@@ -137,4 +99,32 @@ public interface IDataClass
 {
     public string DCID { get; }
     public bool IsProgram { get; }
+}
+public class DataClassManager
+{
+    public const string SPLIT_KEY = "&&&";
+
+    public readonly static Dictionary<Type, string> matchDictToID = new()
+    {
+        {typeof(UpdateDataClass),UpdateDataClass.ID },
+        {typeof(CheckDataClass),CheckDataClass.ID },
+        {typeof(CheckDownloadDataClass),CheckDownloadDataClass.ID },
+        {typeof(InstallDataClass),InstallDataClass.ID },
+    };
+    public readonly static Dictionary<string,Type> matchDictToType = new()
+    {
+        {UpdateDataClass.ID,typeof(UpdateDataClass) },
+        {CheckDataClass.ID , typeof(CheckDataClass) },
+        {CheckDownloadDataClass.ID , typeof(CheckDownloadDataClass) },
+        {InstallDataClass.ID , typeof(InstallDataClass) },
+    };
+    public static string ParseType<T>()
+        where T : IDataClass
+    {
+        return matchDictToID[typeof(T)];
+    }
+    public static Type ParseID(string id)
+    {
+        return matchDictToType[id];
+    }
 }

@@ -10,17 +10,10 @@ namespace Aquc.Stackbricks;
 
 public class DataClassParser
 {
-    readonly static Dictionary<Type, string> matchDict = new()
-    {
-        {typeof(UpdateDataClass),UpdateDataClass.ID },
-        {typeof(CheckDataClass),CheckDataClass.ID },
-        {typeof(CheckDownloadDataClass),CheckDownloadDataClass.ID },
-        {typeof(InstallDataClass),InstallDataClass.ID },
-    };
     public static string ParseDataClass<T>(T data)
         where T : IDataClass
     {
-        var str = JsonConvert.SerializeObject(data);
+        var str = DataClassManager.ParseType<T>() + DataClassManager.SPLIT_KEY + JsonConvert.SerializeObject(data);
         return str;
     }
     public static void ParseDataClassPrintin<T>(T data)
@@ -28,12 +21,7 @@ public class DataClassParser
     {
         Console.WriteLine(ParseDataClass(data));
     }
-    public static string ParseID<T>()
-        where T : IDataClass
-    {
-        //ncpe
-        return matchDict[typeof(T)];
-    }
+    
     public static UpdateDataClass ParseUpdateDC(StackbricksUpdatePackage updatePackage, bool isProgram)
     {
         if (updatePackage.isZip)
@@ -46,7 +34,7 @@ public class DataClassParser
     {
         return new UpdateDataClass(isProgram, false, updateMessage.version.ToString(), string.Empty);
     }
-    public static CheckDataClass ParseCheckDC(StackbricksUpdateMessage updateMessage,bool isProgram)
+    public static CheckDataClass ParseCheckDC(StackbricksUpdateMessage updateMessage, bool isProgram)
     {
         return new CheckDataClass(isProgram, updateMessage.NeedUpdate(), updateMessage.version.ToString());
     }

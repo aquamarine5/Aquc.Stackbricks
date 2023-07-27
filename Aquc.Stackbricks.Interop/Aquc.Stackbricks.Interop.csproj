@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Aquc.Stackbricks.DataClass\Aquc.Stackbricks.DataClass.csproj" />
+  </ItemGroup>
+
 </Project>

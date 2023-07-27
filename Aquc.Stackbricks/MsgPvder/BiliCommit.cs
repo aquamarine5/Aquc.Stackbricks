@@ -11,7 +11,7 @@ public class BiliCommitMsgPvder : IStackbricksMsgPvder
 {
     public string MsgPvderId => ID;
     public const string ID = "stbks.msgpvder.bilicmts";
-    public async Task<StackbricksUpdateMessage> GetUpdateMessage(StackbricksManifest stackbricksManifest)
+    public async Task<StackbricksUpdateMessage> GetUpdateMessageAsync(StackbricksManifest stackbricksManifest)
     {
         var message=await BiliCommitsClass.GetReply(StackbricksProgram.httpClient,stackbricksManifest.MsgPvderData);
         StackbricksProgram.logger.Information(message);

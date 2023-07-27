@@ -12,7 +12,7 @@ public class WeiboCommitMsgPvder : IStackbricksMsgPvder
     public string MsgPvderId => ID;
     public const string ID = "stbks.msgpvder.weibocmts";
 
-    public async Task<StackbricksUpdateMessage> GetUpdateMessage(StackbricksManifest stackbricksManifest)
+    public async Task<StackbricksUpdateMessage> GetUpdateMessageAsync(StackbricksManifest stackbricksManifest)
     {
         var url = $"https://weibo.com/ajax/statuses/buildComments?flow=1&is_reload=1&id={stackbricksManifest.MsgPvderData}&is_show_bulletin=2&is_mix=0&count=10&fetch_level=0";
         var response = JsonNode.Parse(await StackbricksProgram.httpClient.GetAsync(url).Result.EnsureSuccessStatusCode().Content.ReadAsStringAsync())!;

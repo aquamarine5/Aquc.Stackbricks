@@ -10,7 +10,7 @@ namespace Aquc.Stackbricks;
 public interface IStackbricksMsgPvder
 {
     public string MsgPvderId { get; }
-    public Task<StackbricksUpdateMessage> GetUpdateMessage(StackbricksManifest stackbricksManifest);
+    public Task<StackbricksUpdateMessage> GetUpdateMessageAsync(StackbricksManifest stackbricksManifest);
 }
 public class StackbricksUpdateMessage
 {

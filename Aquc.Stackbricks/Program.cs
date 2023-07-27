@@ -1,4 +1,5 @@
-﻿using Microsoft.Toolkit.Uwp.Notifications;
+﻿using Aquc.Stackbricks.DataClass;
+using Microsoft.Toolkit.Uwp.Notifications;
 using Newtonsoft.Json;
 using Sentry;
 using Serilog;
@@ -61,23 +62,24 @@ public class StackbricksProgram
 
     public static async Task Main(string[] args)
     {
-        var jsonOption = new Option<bool>("--json");
+        var jsonOption = new Option<bool>("--json", () => { return false; });
+        var uwpnofOption = new Option<bool>("--no-uwpnof", () => { return false; });
 
-        var updateCommand = new Command("update") { jsonOption };
-        var checkCommand = new Command("check") { jsonOption };
-        var installCommand = new Command("install") { jsonOption };
-        var checkdlCommand = new Command("checkdl") { jsonOption };
-        var updateallCommand = new Command("updateall") { jsonOption };
+        var updateCommand = new Command("update") { jsonOption, uwpnofOption };
+        var checkCommand = new Command("check") { jsonOption, uwpnofOption };
+        var installCommand = new Command("install") { jsonOption, uwpnofOption };
+        var checkdlCommand = new Command("checkdl") { jsonOption, uwpnofOption };
+        var updateallCommand = new Command("updateall") { jsonOption, uwpnofOption };
 
-        var configCreateCommand = new Command("create") { jsonOption };
+        var configCreateCommand = new Command("create");
         var configCommand = new Command("config")
         {
             configCreateCommand
         };
 
-        var selfUpdateCommand = new Command("update") { jsonOption };
-        var selfInstallCommand = new Command("install") { jsonOption };
-        var selfCheckdlCommand = new Command("checkdl") { jsonOption };
+        var selfUpdateCommand = new Command("update") { jsonOption, uwpnofOption };
+        var selfInstallCommand = new Command("install") { jsonOption, uwpnofOption };
+        var selfCheckdlCommand = new Command("checkdl") { jsonOption, uwpnofOption };
         var selfCommand = new Command("self")
         {
             selfInstallCommand,
@@ -93,26 +95,31 @@ public class StackbricksProgram
                 .AddText($"{1} 已成功更新至版本 {2}")
                 .Show();
         });
-        updateCommand.SetHandler(async () =>
+        updateCommand.SetHandler(async (isJson, isNoUwpnof) =>
         {
             StackbricksService stackbricksService = new();
             logger.Information("Start to update program if the program has newest version.");
-            await stackbricksService.UpdateWhenAvailable();
-        });
-        selfUpdateCommand.SetHandler(async () =>
+            if (isJson) DataClassParser.ParseDataClassPrintin(await stackbricksService.UpdateDC(isNoUwpnof));
+            else await stackbricksService.Update();
+        }, jsonOption, uwpnofOption);
+        selfUpdateCommand.SetHandler(async (isJson, isNoUwpnof) =>
         {
             StackbricksService stackbricksService = new();
             logger.Information("Start to update Aquc.Stackbricks if the program has newest version.");
-            await stackbricksService.UpdateStackbricksWhenAvailable();
-        });
-        updateallCommand.SetHandler(async () =>
+            if (isJson) DataClassParser.ParseDataClassPrintin(await stackbricksService.UpdateStackbricksDC(isNoUwpnof));
+            else await stackbricksService.UpdateStackbricks();
+        }, jsonOption, uwpnofOption);
+        updateallCommand.SetHandler(async (isJson, isNoUwpnof) =>
         {
             StackbricksService stackbricksService = new();
             logger.Information("Start to update program if the program has newest version.");
-            await stackbricksService.UpdateWhenAvailable();
+            if (isJson) DataClassParser.ParseDataClassPrintin(await stackbricksService.UpdateDC(isNoUwpnof));
+            else await stackbricksService.Update();
+
             logger.Information("Start to update Aquc.Stackbricks if the program has newest version.");
-            await stackbricksService.UpdateStackbricksWhenAvailable();
-        });
+            if (isJson) DataClassParser.ParseDataClassPrintin(await stackbricksService.UpdateStackbricksDC(isNoUwpnof));
+            else await stackbricksService.UpdateStackbricks();
+        }, jsonOption, uwpnofOption);
         configCreateCommand.SetHandler(() =>
         {
             using var file = new FileStream("Aquc.Stackbricks.config.json", FileMode.Create, FileAccess.Write);

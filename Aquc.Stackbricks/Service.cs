@@ -1,4 +1,5 @@
-﻿using Microsoft.Toolkit.Uwp.Notifications;
+﻿using Aquc.Stackbricks.DataClass;
+using Microsoft.Toolkit.Uwp.Notifications;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -17,6 +18,22 @@ public class StackbricksService
     public StackbricksManifest programManifest;
 
     public const string PROGRAM_NAME = "Aquc.Stackbricks.exe";
+
+    class StackbricksUpdateResult
+    {
+        public StackbricksUpdateMessage updateMessage;
+        public StackbricksUpdatePackage? updatePackage;
+        public StackbricksUpdateResult(StackbricksUpdateMessage updateMessage, StackbricksUpdatePackage? updatePackage)
+        {
+            this.updateMessage = updateMessage;
+            this.updatePackage = updatePackage;
+        }
+        public StackbricksUpdateResult(StackbricksUpdateMessage updateMessage)
+        {
+            this.updateMessage = updateMessage;
+            updatePackage = null;
+        }
+    }
 
     public StackbricksService()
     {
@@ -47,11 +64,37 @@ public class StackbricksService
             .AddText($"{message.stackbricksManifest.Id} 已经是最新版本")
             .Show();
     }
-    public async Task<bool> UpdateWhenAvailable(bool showToast = true)
+    public async Task<bool> Update(bool showToast = true)
     {
-        
+        var result = await BuiltinUpdate();
+        if (showToast)
+        {
+            if (result.updateMessage.NeedUpdate())
+                ShowUpdatedUWPToast(result.updateMessage);
+            else
+                ShowNewestUWPToast(result.updateMessage);
+        }
+        return result.updateMessage.NeedUpdate();
+    }
+    public async Task<UpdateDataClass> UpdateDC(bool showToast = true)
+    {
+        var result = await BuiltinUpdateStackbricks();
+        if (showToast)
+        {
+            if (result.updateMessage.NeedUpdate())
+                ShowUpdatedUWPToast(result.updateMessage);
+            else
+                ShowNewestUWPToast(result.updateMessage);
+        }
+        if (result.updateMessage.NeedUpdate())
+            return DataClassParser.ParseUpdateDC(result.updatePackage!, true);
+        else
+            return DataClassParser.ParseUpdateDC(result.updateMessage, true);
+    }
+    async Task<StackbricksUpdateResult> BuiltinUpdate()
+    {
         var manifest = programManifest;
-        var message = await manifest.GetMsgPvder().GetUpdateMessage(manifest);
+        var message = await manifest.GetMsgPvder().GetUpdateMessageAsync(manifest);
         if (message.NeedUpdate())
         {
             StackbricksProgram.logger.Information($"Got {message.version} to update, currently version is {manifest.Version}");
@@ -59,23 +102,21 @@ public class StackbricksService
             package.ExecuteActions();
             await UpdateManifest(message);
 
-            if (showToast)
-                ShowUpdatedUWPToast(message);
-            return true;
+            return new StackbricksUpdateResult(message, package);
         }
         else
         {
             StackbricksProgram.logger.Information("No newest version to update");
             await UpdateCheckedManifest();
-            if (showToast)
-                ShowNewestUWPToast(message);
-            return false;
+
+            return new StackbricksUpdateResult(message);
         }
     }
-    public async Task<bool> UpdateStackbricksWhenAvailable(bool showToast=true)
+
+    async Task<StackbricksUpdateResult> BuiltinUpdateStackbricks()
     {
         var manifest = stackbricksManifest;
-        var message = await manifest.GetMsgPvder().GetUpdateMessage(manifest);
+        var message = await manifest.GetMsgPvder().GetUpdateMessageAsync(manifest);
         if (message.NeedUpdate())
         {
             StackbricksProgram.logger.Information($"Got {message.version} to update, currently version is {manifest.Version}");
@@ -83,18 +124,42 @@ public class StackbricksService
                 .DownloadFileAsync(message, manifest.ProgramDir.FullName, $".Aquc.Stackbricks.updated_{message.version}.exe");
             file.ExecuteActions();
             await UpdateManifest(message, false);
-            if (showToast)
-                ShowUpdatedUWPToast(message);
-            return true;
+            return new StackbricksUpdateResult(message, file);
         }
         else
         {
             StackbricksProgram.logger.Information($"Received {message.version}, currently version is {manifest.Version}. No newest version to update.");
             await UpdateCheckedManifest(false);
-            if (showToast)
-                ShowNewestUWPToast(message);
-            return false;
+            return new StackbricksUpdateResult(message);
         }
+    }
+    public async Task<bool> UpdateStackbricks(bool showToast = true)
+    {
+        var result = await BuiltinUpdateStackbricks();
+        if (showToast)
+        {
+            if (result.updateMessage.NeedUpdate())
+                ShowUpdatedUWPToast(result.updateMessage);
+            else
+                ShowNewestUWPToast(result.updateMessage);
+        }
+        return result.updateMessage.NeedUpdate();
+    }
+    public async Task<UpdateDataClass> UpdateStackbricksDC(bool showToast = true)
+    {
+        var result = await BuiltinUpdateStackbricks();
+
+        if (showToast)
+        {
+            if (result.updateMessage.NeedUpdate())
+                ShowUpdatedUWPToast(result.updateMessage);
+            else
+                ShowNewestUWPToast(result.updateMessage);
+        }
+        if (result.updateMessage.NeedUpdate())
+            return DataClassParser.ParseUpdateDC(result.updatePackage!, false);
+        else
+            return DataClassParser.ParseUpdateDC(result.updateMessage, false);
     }
     public async Task UpdateCheckedManifest(bool isProgram = true)
     {
@@ -103,7 +168,8 @@ public class StackbricksService
         await WriteConfig();
         StackbricksProgram.logger.Debug($"Write config to {StackbricksConfig.CONFIG_FILENAME}");
     }
-    public async Task UpdateManifest(StackbricksUpdateMessage msg, bool isProgram = true)
+
+    private async Task UpdateManifest(StackbricksUpdateMessage msg, bool isProgram = true)
     {
         var manifest = isProgram ? stackbricksConfig.ProgramManifest : stackbricksConfig.StackbricksManifest;
         manifest.LastCheckTime = DateTime.Now;

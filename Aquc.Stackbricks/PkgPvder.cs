@@ -19,7 +19,7 @@ public interface IStackbricksPkgPvder
 
 public class StackbricksPkgPvderManager
 {
-    static Dictionary<string, IStackbricksPkgPvder> matchDict = new Dictionary<string, IStackbricksPkgPvder>
+    readonly static Dictionary<string, IStackbricksPkgPvder> matchDict = new()
     {
         {"stbks.pkgpvder.ghproxy",new GhProxyPkgPvder() }
     };

@@ -14,10 +14,14 @@ namespace Aquc.Stackbricks;
 public class StackbricksProgram
 {
     public static readonly HttpClient httpClient = new();
-    public static readonly Logger logger = new LoggerConfiguration()
-        .WriteTo.Console()
-        .WriteTo.File($"log/{DateTime.Now:yyyyMMdd}.log")
-        .WriteTo.Sentry(o =>
+    public static readonly Logger logger = new Func<Logger>(() =>
+    {
+        var args = Environment.GetCommandLineArgs();
+        var loggerconfig = new LoggerConfiguration()
+            .WriteTo.File($"log/{DateTime.Now:yyyyMMdd}.log");
+        if (!args.Contains("--no-log"))
+            loggerconfig.WriteTo.Console();
+        loggerconfig.WriteTo.Sentry(o =>
         {
             // Debug and higher are stored as breadcrumbs (default os Information)
             o.MinimumBreadcrumbLevel = LogEventLevel.Debug;
@@ -38,10 +42,11 @@ public class StackbricksProgram
 
             // This option will enable Sentry's tracing features. You still need to start transactions and spans.
             o.EnableTracing = true;
-            o.Debug = true;
-        })
-        .MinimumLevel.Verbose()
-        .CreateLogger();
+            o.Debug = !args.Contains("--no-sentrylog");
+        });
+        loggerconfig.MinimumLevel.Verbose();
+        return loggerconfig.CreateLogger();
+    }).Invoke();
     public static readonly JsonSerializerSettings jsonSerializer = new Func<JsonSerializerSettings>(() =>
     {
         JsonSerializerSettings serializerSettings = new()
@@ -56,28 +61,27 @@ public class StackbricksProgram
 
     public static async Task Main(string[] args)
     {
-        var updateCommand = new Command("update");
-        var checkCommand = new Command("check");
-        var installCommand = new Command("install");
-        var downloadCommand = new Command("download");
-        var updateallCommand = new Command("updateall");
+        var jsonOption = new Option<bool>("--json");
 
-        var configCreateCommand = new Command("create");
+        var updateCommand = new Command("update") { jsonOption };
+        var checkCommand = new Command("check") { jsonOption };
+        var installCommand = new Command("install") { jsonOption };
+        var checkdlCommand = new Command("checkdl") { jsonOption };
+        var updateallCommand = new Command("updateall") { jsonOption };
+
+        var configCreateCommand = new Command("create") { jsonOption };
         var configCommand = new Command("config")
         {
             configCreateCommand
         };
 
-        var selfUpdateCommand = new Command("update");
-        var selfApplyCommand = new Command("apply");
-        var selfCheckCommand = new Command("check")
-        {
-
-        };
+        var selfUpdateCommand = new Command("update") { jsonOption };
+        var selfInstallCommand = new Command("install") { jsonOption };
+        var selfCheckdlCommand = new Command("checkdl") { jsonOption };
         var selfCommand = new Command("self")
         {
-            selfApplyCommand,
-            selfCheckCommand,
+            selfInstallCommand,
+            selfCheckdlCommand,
             selfUpdateCommand
         };
 

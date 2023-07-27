@@ -34,6 +34,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Aquc.BiliCommits\Aquc.BiliCommits\Aquc.BiliCommits.csproj" />
+    <ProjectReference Include="..\Aquc.Stackbricks.DataClass\Aquc.Stackbricks.DataClass.csproj" />
   </ItemGroup>
 
 </Project>

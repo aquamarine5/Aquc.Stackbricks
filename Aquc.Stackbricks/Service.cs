@@ -35,13 +35,19 @@ public class StackbricksService
         }
     }
 
-    async void ShowUpdatedUWPToast(StackbricksUpdateMessage message)
+    static void ShowUpdatedUWPToast(StackbricksUpdateMessage message)
     {
         new ToastContentBuilder()
             .AddText($"{message.stackbricksManifest.Id} 已成功更新至版本 {message.version}")
             .Show();
     }
-    public async Task<bool> UpdateWhenAvailable()
+    static void ShowNewestUWPToast(StackbricksUpdateMessage message)
+    {
+        new ToastContentBuilder()
+            .AddText($"{message.stackbricksManifest.Id} 已经是最新版本")
+            .Show();
+    }
+    public async Task<bool> UpdateWhenAvailable(bool showToast = true)
     {
         
         var manifest = programManifest;
@@ -52,21 +58,24 @@ public class StackbricksService
             var package = await message.GetPkgPvder().DownloadPackageAsync(message, manifest.ProgramDir.FullName);
             package.ExecuteActions();
             await UpdateManifest(message);
+
+            if (showToast)
+                ShowUpdatedUWPToast(message);
             return true;
         }
         else
         {
             StackbricksProgram.logger.Information("No newest version to update");
             await UpdateCheckedManifest();
+            if (showToast)
+                ShowNewestUWPToast(message);
             return false;
         }
     }
-    public async Task<bool> UpdateStackbricksWhenAvailable(bool showToast=false)
+    public async Task<bool> UpdateStackbricksWhenAvailable(bool showToast=true)
     {
         var manifest = stackbricksManifest;
         var message = await manifest.GetMsgPvder().GetUpdateMessage(manifest);
-
-        ShowUpdatedUWPToast(message);
         if (message.NeedUpdate())
         {
             StackbricksProgram.logger.Information($"Got {message.version} to update, currently version is {manifest.Version}");
@@ -75,15 +84,15 @@ public class StackbricksService
             file.ExecuteActions();
             await UpdateManifest(message, false);
             if (showToast)
-            {
-
-            }
+                ShowUpdatedUWPToast(message);
             return true;
         }
         else
         {
             StackbricksProgram.logger.Information($"Received {message.version}, currently version is {manifest.Version}. No newest version to update.");
             await UpdateCheckedManifest(false);
+            if (showToast)
+                ShowNewestUWPToast(message);
             return false;
         }
     }

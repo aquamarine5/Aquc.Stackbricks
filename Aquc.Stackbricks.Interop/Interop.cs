@@ -1,7 +1,6 @@
 ﻿using Aquc.Stackbricks.DataClass;
 using System.Diagnostics;
-using System.Text.Json;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace Aquc.Stackbricks.Interop;
 
@@ -35,7 +34,7 @@ public class StackbricksInterop
         var result=(await process.StandardOutput.ReadToEndAsync()).Split(DataClassManager.SPLIT_KEY);
         Console.WriteLine(result[1]);
         var type = DataClassManager.ParseID(result[0]);
-        return JsonSerializer.Deserialize(result[1], type);
+        return JsonConvert.DeserializeObject(result[1], type);
     }
     public async Task<T> Execute<T>(string[] args)
         where T : IDataClass

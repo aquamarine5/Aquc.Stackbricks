@@ -15,9 +15,6 @@ public class UpdateDataClass : CheckDownloadDataClass, IDataClass
         : base(isProgram, needUpdate, version, filePath, isDirectory)
     {
     }
-    public UpdateDataClass()
-        :base(true,true,"000000000","0121")
-    { }
 }
 public class CheckDataClass : IDataClass
 {

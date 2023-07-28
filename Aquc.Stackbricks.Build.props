@@ -1,0 +1,9 @@
+<Project>
+<PropertyGroup>
+<VersionPrefix>3.1.0.728</VersionPrefix>
+<VersionSuffix>beta</VersionSuffix>
+<Authors>aquamarine5</Authors>
+<Company>aquamarine5; RenegadeCreation</Company>
+<Copyright>aquamarine5; RenegadeCreation</Copyright>
+</PropertyGroup>
+</Project>

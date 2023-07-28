@@ -1,5 +1,8 @@
-﻿namespace Aquc.Stackbricks.DataClass;
+﻿using System.Text.Json.Serialization;
 
+namespace Aquc.Stackbricks.DataClass;
+
+[JsonConverter(typeof(UpdateDCJsonConverter))]
 public class UpdateDataClass : CheckDownloadDataClass, IDataClass
 {
     public new string DCID => ID;
@@ -16,6 +19,8 @@ public class UpdateDataClass : CheckDownloadDataClass, IDataClass
     {
     }
 }
+
+[JsonConverter(typeof(CheckDCJsonConverter))]
 public class CheckDataClass : IDataClass
 {
 

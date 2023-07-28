@@ -64,8 +64,8 @@ public class StackbricksProgram
     {
         var jsonOption = new Option<bool>("--json", () => { return false; });
         var uwpnofOption = new Option<bool>("--no-uwpnof", () => { return false; });
-        var nologOption= new Option<bool>("--no-log", () => { return false; });
-        var sentrylogOption= new Option<bool>("--sentrylog", () => { return false; });
+        var nologOption = new Option<bool>("--no-log", () => { return false; });
+        var sentrylogOption = new Option<bool>("--sentrylog", () => { return false; });
 
         var updateCommand = new Command("update") { jsonOption, uwpnofOption };
         var checkCommand = new Command("check") { jsonOption, uwpnofOption };
@@ -81,11 +81,11 @@ public class StackbricksProgram
 
         var selfUpdateCommand = new Command("update") { jsonOption, uwpnofOption };
         var selfInstallCommand = new Command("install") { jsonOption, uwpnofOption };
-        var selfCheckdlCommand = new Command("checkdl") { jsonOption, uwpnofOption };
+        var selfCheckCommand = new Command("check") { jsonOption, uwpnofOption };
         var selfCommand = new Command("self")
         {
             selfInstallCommand,
-            selfCheckdlCommand,
+            selfCheckCommand,
             selfUpdateCommand
         };
 
@@ -122,6 +122,18 @@ public class StackbricksProgram
             if (isJson) DataClassParser.ParseDataClassPrintin(await stackbricksService.UpdateStackbricksDC(isNoUwpnof));
             else await stackbricksService.UpdateStackbricks();
         }, jsonOption, uwpnofOption);
+        checkCommand.SetHandler(async (isJson, isNoUwpnof) =>
+        {
+            StackbricksService stackbricksService = new();
+            if (isJson) DataClassParser.ParseDataClassPrintin(await stackbricksService.CheckUpdateDC());
+            else await stackbricksService.CheckUpdate(isNoUwpnof);
+        }, jsonOption, uwpnofOption);
+        selfCheckCommand.SetHandler(async (isJson, isNoUwpnof) =>
+        {
+            StackbricksService stackbricksService = new();
+            if (isJson) DataClassParser.ParseDataClassPrintin(await stackbricksService.CheckStackbricksUpdateDC());
+            else await stackbricksService.CheckStackbricksUpdate(isNoUwpnof);
+        }, jsonOption, uwpnofOption);
         configCreateCommand.SetHandler(() =>
         {
             using var file = new FileStream("Aquc.Stackbricks.config.json", FileMode.Create, FileAccess.Write);
@@ -135,7 +147,8 @@ public class StackbricksProgram
             updateallCommand,
             updateCommand,
             configCommand,
-            selfCommand
+            selfCommand,
+            checkCommand
         };
         root.AddGlobalOption(sentrylogOption);
         root.AddGlobalOption(nologOption);

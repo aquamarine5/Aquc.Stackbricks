@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Aquc.Stackbricks.Interop", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Aquc.Stackbricks.DataClass", "Aquc.Stackbricks.DataClass\Aquc.Stackbricks.DataClass.csproj", "{A362FAED-879B-48D1-A0EB-244EADB56A99}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "解决方案项", "解决方案项", "{15A51967-EB73-4A53-BBC6-815E51DCB1E9}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{15A51967-EB73-4A53-BBC6-815E51DCB1E9}"
 	ProjectSection(SolutionItems) = preProject
 		Aquc.Stackbricks.Build.props = Aquc.Stackbricks.Build.props
 	EndProjectSection

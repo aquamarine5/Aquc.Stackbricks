@@ -11,9 +11,9 @@
 - Use `Aquc.Stackbricks config create` to create an empty config.
 - Open the `Aquc.Stackbricks.config.json` config file and write the `ProgramManifest` values.
 ## About ProgramManifest
-- Version': current version of the program
-- ProgramDir`: directory of the program file, use `\\` to replace `\`.
-- Id`: Name to identify the program
+- `Version`: current version of the program
+- `ProgramDir`: directory of the program file, use `\\` to replace `\`.
+- `Id`: Name to identify the program
 - `LastCheckTime` and `LastUpdateTime`: remain `null`.
 ### MsgPvderId and MsgPvderData
 
@@ -41,6 +41,7 @@
 | *stbks.action.applyselfupdate* | **Should not use this action in ProgramManifest**, apply Stackbricks self update| | | |
 
 ## How to interoperation?
-- ``
+- `update`: check for update, download package and run update action if program has latest version
+- `self update`: check for Stackbricks update, download package and apply update if Stackbricks has latest version
 
 ![Alt](https://repobeats.axiom.co/api/embed/65438e651c9b1b2fb5ac54201fc8ec26cba0b0a9.svg "Repobeats analytics image")

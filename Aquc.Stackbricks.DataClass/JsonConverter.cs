@@ -51,5 +51,25 @@ public class CheckDCJsonConverter : JsonConverter<CheckDataClass>
         writer.WriteString("DCID", value.DCID);
         writer.WriteBoolean("isProgram", value.IsProgram);
         writer.WriteBoolean("needUpdate", value.needUpdate);
+        writer.WriteEndObject();
+    }
+}
+
+public class ExceptionDCJsonConverter : JsonConverter<ExceptionDataClass>
+{
+    public override ExceptionDataClass? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    {
+
+        var jsonNode = JsonNode.Parse(ref reader)!;
+        return new ExceptionDataClass(jsonNode["type"]!.ToString(), jsonNode["message"]!.ToString());
+    }
+
+    public override void Write(Utf8JsonWriter writer, ExceptionDataClass value, JsonSerializerOptions options)
+    {
+        writer.WriteStartObject();
+        writer.WriteString("type", value.type);
+        writer.WriteString("message", value.message);
+        writer.WriteString("DCID", value.DCID);
+        writer.WriteEndObject();
     }
 }

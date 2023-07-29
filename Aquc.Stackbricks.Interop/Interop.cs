@@ -1,6 +1,7 @@
 ﻿using Aquc.Stackbricks.DataClass;
 using System.Diagnostics;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Aquc.Stackbricks.Interop;
 
@@ -11,11 +12,12 @@ public class StackbricksInterop
     {
         processFile= file;
     }
-    public async Task<UpdateDataClass> Update()
+    public async Task<InteropDataClass<UpdateDataClass>> Update()
     {
         return await Execute<UpdateDataClass>(new string[] { "self","update", "--json", "--no-log" });
     }
-    public async Task<object?> Execute(string[] args)
+    public async Task<InteropDataClass<T>> Execute<T>(string[] args)
+        where T : IDataClass
     {
         var arg = string.Join(" ", args);
         var process = new Process
@@ -35,11 +37,9 @@ public class StackbricksInterop
         var result=output.Split(DataClassManager.SPLIT_KEY);
         Console.WriteLine(output);
         var type = DataClassManager.ParseID(result[0]);
-        return JsonSerializer.Deserialize(result[1], type);
-    }
-    public async Task<T> Execute<T>(string[] args)
-        where T : IDataClass
-    {
-        return (T)(await Execute(args))!;
+        if (result[0] == ExceptionDataClass.ID)
+            return new InteropDataClass<T>(default, JsonSerializer.Deserialize<ExceptionDataClass>(result[1]));
+        else
+            return new InteropDataClass<T>((T)JsonSerializer.Deserialize(result[1], type)!,default);
     }
 }

@@ -38,6 +38,26 @@ public class CheckDataClass : IDataClass
         IsProgram = isProgram;
     }
 }
+
+[JsonConverter(typeof(ExceptionDCJsonConverter))]
+public class ExceptionDataClass : IDataClass
+{
+    public string DCID => ID;
+    public const string ID = "stbks.dc.exception";
+    public string type;
+    public string message;
+    public bool IsProgram => false;
+    public ExceptionDataClass(Exception exception)
+    {
+        type=exception.GetType().Name; message=exception.Message;
+    }
+    public ExceptionDataClass(string type, string message)
+    {
+        this.type = type;
+        this.message = message;
+    }
+}
+
 public class CheckDownloadDataClass : CheckDataClass, IDataClass
 {
 
@@ -66,6 +86,20 @@ public class CheckDownloadDataClass : CheckDataClass, IDataClass
 
     }
 }
+
+public class InteropDataClass<T>
+    where T : IDataClass
+{
+    public T? Value;
+    public ExceptionDataClass? Exception;
+    public bool IsSuccess=>Exception==default;
+    public InteropDataClass(T? value, ExceptionDataClass? exception)
+    {
+        Value = value;
+        Exception = exception;
+    }
+}
+
 public class InstallDataClass : IDataClass
 {
 
@@ -117,13 +151,15 @@ public class DataClassManager
         {typeof(CheckDataClass),CheckDataClass.ID },
         {typeof(CheckDownloadDataClass),CheckDownloadDataClass.ID },
         {typeof(InstallDataClass),InstallDataClass.ID },
+        {typeof(ExceptionDataClass),ExceptionDataClass.ID },
     };
-    public readonly static Dictionary<string,Type> matchDictToType = new()
+    public readonly static Dictionary<string, Type> matchDictToType = new()
     {
         {UpdateDataClass.ID,typeof(UpdateDataClass) },
         {CheckDataClass.ID , typeof(CheckDataClass) },
         {CheckDownloadDataClass.ID , typeof(CheckDownloadDataClass) },
         {InstallDataClass.ID , typeof(InstallDataClass) },
+        {ExceptionDataClass.ID,typeof(ExceptionDataClass) },
     };
     public static string ParseType<T>()
         where T : IDataClass

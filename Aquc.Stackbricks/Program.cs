@@ -62,6 +62,20 @@ public class StackbricksProgram
 
     public static async Task Main(string[] args)
     {
+        try
+        {
+            await BuiltinMain(args);
+        }
+        catch(Exception ex)
+        {
+            if (args.Contains("--json"))
+                DataClassParser.ParseDataClassPrintin(new ExceptionDataClass(ex));
+            throw;
+        }
+    }
+
+    static async Task BuiltinMain(string[] args)
+    {
         var jsonOption = new Option<bool>("--json", () => { return false; });
         var uwpnofOption = new Option<bool>("--no-uwpnof", () => { return false; });
         var nologOption = new Option<bool>("--no-log", () => { return false; });

@@ -88,9 +88,11 @@ public class StackbricksProgram
         var updateallCommand = new Command("updateall") { jsonOption, uwpnofOption };
 
         var configCreateCommand = new Command("create");
+        var configActionsCreateCommand = new Command("create_actionslist");
         var configCommand = new Command("config")
         {
-            configCreateCommand
+            configCreateCommand,
+            configActionsCreateCommand
         };
 
         var selfUpdateCommand = new Command("update") { jsonOption, uwpnofOption };
@@ -154,6 +156,14 @@ public class StackbricksProgram
             using var reader = new StreamWriter(file);
             reader.Write(JsonConvert.SerializeObject(new StackbricksConfig(StackbricksManifest.CreateBlankManifest()), jsonSerializer));
             logger.Information("Success created default Aquc.Stackbricks.config.json");
+        });
+        configActionsCreateCommand.SetHandler(() =>
+        {
+
+            using var file = new FileStream("Aquc.Stackbricks.actionslist.json", FileMode.Create, FileAccess.Write);
+            using var reader = new StreamWriter(file);
+            reader.Write(JsonConvert.SerializeObject(new StackbricksActionList.StackbricksActionListConfig(), jsonSerializer));
+            logger.Information("Success created default Aquc.Stackbricks.actionlist.json");
         });
         var root = new RootCommand()
         {

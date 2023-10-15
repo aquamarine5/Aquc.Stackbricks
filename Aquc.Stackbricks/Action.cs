@@ -36,7 +36,8 @@ public class StackbricksActionManager
         { ActionOpen.ID, new ActionOpen()},
         { ActionReplaceAll.ID,new ActionReplaceAll() },
         { ActionRunUpdatePackageActions.ID,new ActionRunUpdatePackageActions() },
-        {ActionApplySelfUpdate.ID,new ActionApplySelfUpdate() }
+        { ActionApplySelfUpdate.ID,new ActionApplySelfUpdate() },
+        { ActionExecuteCommand.ID,new ActionExecuteCommand() },
     };
     public Dictionary<string, IStackbricksAction> Actions;
     public StackbricksActionManager()

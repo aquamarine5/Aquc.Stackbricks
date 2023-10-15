@@ -12,6 +12,8 @@ namespace Aquc.Stackbricks.Actions
     {
         public const string ID = "stbks.action.execute";
 
+        public const string FLAG_WAITFOREXIT = "stbks.action.execute.waitforexit";
+
         public string ActionId => ID;
 
         public void Execute(StackbricksActionData stackbricksAction, StackbricksUpdatePackage updatePackage)
@@ -26,7 +28,10 @@ namespace Aquc.Stackbricks.Actions
                     CreateNoWindow = true
                 }
             };
-            process.Start();
+            if (stackbricksAction.ContainFlag(FLAG_WAITFOREXIT))
+                process.WaitForExit(300000);
+            else
+                process.Start();
         }
     }
 }

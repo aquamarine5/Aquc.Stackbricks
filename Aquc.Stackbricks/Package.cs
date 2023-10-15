@@ -15,7 +15,7 @@ public class StackbricksUpdatePackage
     public DirectoryInfo depressedDir;
     public bool isZip;
 
-    public const string FILE_PKGCFG = "Aquc.Stackbricks.pkgcfg.json";
+    public const string FILE_PKGCFG = "Aquc.Stackbricks.actionslist.json";
 
     public StackbricksUpdatePackage(string file, StackbricksUpdateMessage updateMessage, bool isZip = true)
     {

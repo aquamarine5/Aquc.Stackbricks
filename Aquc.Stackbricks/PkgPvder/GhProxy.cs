@@ -31,14 +31,15 @@ public class GhProxyPkgPvder : IStackbricksPkgPvder
     }
     static string CombineGhproxyUrl(string[] data)
     {
-        return $"https://ghproxy.com/github.com/{data[0]}/{data[1]}/releases/download/{data[2]}/{data[3]}";
+        var result = $"https://ghproxy.com/github.com/{data[0]}/{data[1]}/releases/download/{data[2]}/{data[3]}";
+        StackbricksProgram.logger.Debug($"{ID}: Download link: {result}");
+        return result;
     }
 
     public async Task<StackbricksUpdatePackage> DownloadFileAsync(StackbricksUpdateMessage updateMessage, string savePosition, string fileName = "")
     {
         var splitedData = updateMessage.PkgPvderArgs.Split("]]");
         var downloadFile = Path.Combine(savePosition, string.IsNullOrEmpty(fileName) ? splitedData[3] : fileName);
-        StackbricksProgram.logger.Information(CombineGhproxyUrl(splitedData));
         await DownloadAsync(CombineGhproxyUrl(splitedData), Path.Combine(savePosition, downloadFile));
         StackbricksProgram.logger.Debug($"{ID}: Download file successfull, file={Path.GetFileName(downloadFile)}");
         return new StackbricksUpdatePackage(downloadFile, updateMessage, false);

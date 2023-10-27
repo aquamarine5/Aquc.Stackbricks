@@ -73,7 +73,13 @@ public class StackbricksProgram
             throw;
         }
     }
-
+    static void BindConsole(string[] args)
+    {
+        if (!args.Contains("--no-log"))
+        {
+            DebugConsole.Create();
+        }
+    }
     static async Task BuiltinMain(string[] args)
     {
         var jsonOption = new Option<bool>("--json", () => { return false; });
@@ -174,6 +180,7 @@ public class StackbricksProgram
             selfCommand,
             checkCommand
         };
+        BindConsole(args);
         root.AddGlobalOption(sentrylogOption);
         root.AddGlobalOption(nologOption);
         await new CommandLineBuilder(root)
@@ -188,5 +195,6 @@ public class StackbricksProgram
            .Build()
            .InvokeAsync(args);
         httpClient.Dispose();
+        DebugConsole.Delete();
     }
 }

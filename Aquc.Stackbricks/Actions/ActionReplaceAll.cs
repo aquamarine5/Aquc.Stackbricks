@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,10 +18,15 @@ public class ActionReplaceAll : IStackbricksAction
 
     public void Execute(StackbricksActionData stackbricksAction, StackbricksUpdatePackage updatePackage)
     {
-        if (updatePackage.isZip)
+        if (!updatePackage.isZip)
             File.Copy(updatePackage.file, Path.Combine(updatePackage.programDir.FullName, Path.GetFileName(updatePackage.file)), true);
         else
+        {
+
             CopyDirectory(updatePackage.depressedDir, updatePackage.programDir);
+
+            StackbricksProgram.logger.Debug($"{ID}: Copy {updatePackage.depressedDir} to {updatePackage.programDir}");
+        }
 
         if (!stackbricksAction.ContainFlag(FLAG_KEEPZIPFILE))
             File.Delete(updatePackage.file);

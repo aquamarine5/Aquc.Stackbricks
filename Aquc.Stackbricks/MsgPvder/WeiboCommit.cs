@@ -22,7 +22,7 @@ public class WeiboCommitMsgPvder : IStackbricksMsgPvder
             stackbricksManifest,
             new Version(message[1]),
             message[2],
-            message[3][..^1] //?
+            message[3]
             );
     }
 }

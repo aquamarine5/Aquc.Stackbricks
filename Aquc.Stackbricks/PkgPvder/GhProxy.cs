@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -25,13 +26,70 @@ public class GhProxyPkgPvder : IStackbricksPkgPvder
         await DownloadPackageAsync(updateMessage, savePosition, $".StackbricksUpdatePackage_{updateMessage.version}.zip");
     static async Task DownloadAsync(string url, string savePosition)
     {
-        var responce = await StackbricksProgram.httpClient.GetAsync(url);
-        using var fs = new FileStream(savePosition, FileMode.Create);
-        await responce.Content.CopyToAsync(fs);
+        var dir = Path.GetDirectoryName(savePosition);
+        if (!Directory.Exists(dir) && dir != null) Directory.CreateDirectory(dir);
+
+        var responce = await StackbricksProgram.httpClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead);
+        using var fs = new FileStream(savePosition, FileMode.Create, FileAccess.ReadWrite);
+        using var sr = await responce.Content.ReadAsStreamAsync();
+        var totalRead = 0L;
+        var buffer = new byte[10240];
+        var isMoreToRead = true;
+        float percentComplete;
+        do
+        {
+            long? length = responce.Content.Headers.ContentLength;
+            string? filename = responce.Content.Headers.ContentDisposition?.Name;
+            string lengthText = ConvertByteToText(length);
+            if (length == null)
+            {
+                StackbricksProgram.logger.Warning($"{ID}: Cannot get package content-length.");
+            }
+            else
+            {
+                StackbricksProgram.logger.Debug($"{ID}: Get {filename}, {lengthText}.");
+            }
+            var progressbar = Environment.GetCommandLineArgs().Contains("--log-progress");
+            var read = await sr.ReadAsync(buffer);
+            if (read == 0)
+            {
+                isMoreToRead = false;
+            }
+            else
+            {
+                await fs.WriteAsync(buffer.AsMemory(0, read));
+                totalRead += read;
+
+                if (progressbar && length != null)
+                {
+                    percentComplete = (float)((float)totalRead / length * 100);
+                    int currentLineCursor = Console.CursorTop;
+                    Console.SetCursorPosition(0, Console.CursorTop - 1);
+                    Console.WriteLine($"{ID}: Downloading file: {ConvertByteToText(totalRead)}/{lengthText} ({percentComplete:0.00}%)");
+                    Console.SetCursorPosition(0, currentLineCursor);
+                }
+            }
+        }
+        while (isMoreToRead);
+    }
+    static string ConvertByteToText(long? length)
+    {
+        if (length == null) return "";
+        float lengthf=(float)length;
+        if (length < 1024)
+            return length + "B";
+        else if (length < 1048576)
+            return (lengthf / 1024).ToString("0.00") + "KB";
+        else if (length < 1073741824L)
+            return (lengthf / 1048576).ToString("0.00") + "MB";
+        else if (length < 1099511627776L)
+            return (lengthf / 1073741824L).ToString("0.00") + "GB";
+        else
+            return (lengthf / 1099511627776L).ToString("0.00") + "TB";
     }
     static string CombineGhproxyUrl(string[] data)
     {
-        var result = $"https://ghproxy.com/github.com/{data[0]}/{data[1]}/releases/download/{data[2]}/{data[3]}";
+        var result = $"https://mirror.ghproxy.com/github.com/{data[0]}/{data[1]}/releases/download/{data[2]}/{data[3]}";
         StackbricksProgram.logger.Debug($"{ID}: Download link: {result}");
         return result;
     }

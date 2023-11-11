@@ -30,8 +30,6 @@ namespace Aquc.Stackbricks
         }
         public static void Create()
         {
-
-            //AllocConsole();
             AttachConsole(-1);
         }
         public static void Delete()

@@ -14,7 +14,7 @@ namespace Aquc.Stackbricks;
 
 public class StackbricksProgram
 {
-    public static readonly HttpClient httpClient = new();
+    public static readonly HttpClient httpClient = new() { Timeout=TimeSpan.FromSeconds(3000)};
     public static readonly Logger logger = new Func<Logger>(() =>
     {
         var args = Environment.GetCommandLineArgs();
@@ -78,14 +78,21 @@ public class StackbricksProgram
         if (!args.Contains("--no-log"))
         {
             DebugConsole.Create();
+            Console.WriteLine("\n");
         }
+    }
+    static void AllocConsole()
+    {
+        DebugConsole.Delete();
     }
     static async Task BuiltinMain(string[] args)
     {
+        BindConsole(args);
         var jsonOption = new Option<bool>("--json", () => { return false; });
         var uwpnofOption = new Option<bool>("--no-uwpnof", () => { return false; });
         var nologOption = new Option<bool>("--no-log", () => { return false; });
         var sentrylogOption = new Option<bool>("--sentrylog", () => { return false; });
+        var logProgressOption = new Option<bool>("--log-progress", () => { return false; });
 
         var updateCommand = new Command("update") { jsonOption, uwpnofOption };
         var checkCommand = new Command("check") { jsonOption, uwpnofOption };
@@ -180,9 +187,9 @@ public class StackbricksProgram
             selfCommand,
             checkCommand
         };
-        BindConsole(args);
         root.AddGlobalOption(sentrylogOption);
         root.AddGlobalOption(nologOption);
+        root.AddGlobalOption(logProgressOption);
         await new CommandLineBuilder(root)
            .UseVersionOption()
            .UseHelp()
@@ -196,5 +203,6 @@ public class StackbricksProgram
            .InvokeAsync(args);
         httpClient.Dispose();
         DebugConsole.Delete();
+        Environment.Exit(0);
     }
 }

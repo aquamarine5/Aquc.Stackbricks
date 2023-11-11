@@ -22,29 +22,30 @@ public class StackbricksProgram
             .WriteTo.File($"log/{DateTime.Now:yyyyMMdd}.log");
         if (!args.Contains("--no-log"))
             loggerconfig.WriteTo.Console();
-        loggerconfig.WriteTo.Sentry(o =>
-        {
-            // Debug and higher are stored as breadcrumbs (default os Information)
-            o.MinimumBreadcrumbLevel = LogEventLevel.Debug;
-            // Error and higher is sent as event (default is Error)
-            o.MinimumEventLevel = LogEventLevel.Error;
-            // If DSN is not set, the SDK will look for an environment variable called SENTRY_DSN. If nothing is found, SDK is disabled.
-            o.Dsn = "https://92a9029060f841219ef1306de87c345f@o4505418205364224.ingest.sentry.io/4505458345377792";
-            o.AttachStacktrace = true;
-            // send PII like the username of the user logged in to the device
-            o.SendDefaultPii = true;
-            // Optional Serilog text formatter used to format LogEvent to string. If TextFormatter is set, FormatProvider is ignored.
-            // Other configuration
-            o.AutoSessionTracking = true;
+        if(!args.Contains("--no-sentry"))
+            loggerconfig.WriteTo.Sentry(o =>
+            {
+                // Debug and higher are stored as breadcrumbs (default os Information)
+                o.MinimumBreadcrumbLevel = LogEventLevel.Debug;
+                // Error and higher is sent as event (default is Error)
+                o.MinimumEventLevel = LogEventLevel.Error;
+                // If DSN is not set, the SDK will look for an environment variable called SENTRY_DSN. If nothing is found, SDK is disabled.
+                o.Dsn = "https://92a9029060f841219ef1306de87c345f@o4505418205364224.ingest.sentry.io/4505458345377792";
+                o.AttachStacktrace = true;
+                // send PII like the username of the user logged in to the device
+                o.SendDefaultPii = true;
+                // Optional Serilog text formatter used to format LogEvent to string. If TextFormatter is set, FormatProvider is ignored.
+                // Other configuration
+                o.AutoSessionTracking = true;
 
-            // This option is recommended for client applications only. It ensures all threads use the same global scope.
-            // If you're writing a background service of any kind, you should remove this.
-            o.IsGlobalModeEnabled = false;
+                // This option is recommended for client applications only. It ensures all threads use the same global scope.
+                // If you're writing a background service of any kind, you should remove this.
+                o.IsGlobalModeEnabled = false;
 
-            // This option will enable Sentry's tracing features. You still need to start transactions and spans.
-            o.EnableTracing = true;
-            o.Debug = args.Contains("--sentrylog");
-        });
+                // This option will enable Sentry's tracing features. You still need to start transactions and spans.
+                o.EnableTracing = true;
+                o.Debug = args.Contains("--sentrylog");
+            });
         loggerconfig.MinimumLevel.Verbose();
         return loggerconfig.CreateLogger();
     }).Invoke();
@@ -91,6 +92,7 @@ public class StackbricksProgram
         var jsonOption = new Option<bool>("--json", () => { return false; });
         var uwpnofOption = new Option<bool>("--no-uwpnof", () => { return false; });
         var nologOption = new Option<bool>("--no-log", () => { return false; });
+        var nosentryOption= new Option<bool>("--no-sentry", () => { return false; });
         var sentrylogOption = new Option<bool>("--sentrylog", () => { return false; });
         var logProgressOption = new Option<bool>("--log-progress", () => { return false; });
 
@@ -190,6 +192,7 @@ public class StackbricksProgram
         root.AddGlobalOption(sentrylogOption);
         root.AddGlobalOption(nologOption);
         root.AddGlobalOption(logProgressOption);
+        root.AddGlobalOption(nosentryOption);
         await new CommandLineBuilder(root)
            .UseVersionOption()
            .UseHelp()

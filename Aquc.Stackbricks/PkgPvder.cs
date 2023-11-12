@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Aquc.Stackbricks;
 
-public interface IStackbricksPkgPvder
+public interface IUpdatePkgPvder
 {
     public string PkgPvderId { get; }
     public Task<UpdatePackage> DownloadPackageAsync(UpdateMessage updateMessage, string savePosition);
@@ -19,11 +19,11 @@ public interface IStackbricksPkgPvder
 
 public class PackagePvderManager
 {
-    readonly static Dictionary<string, IStackbricksPkgPvder> matchDict = new()
+    readonly static Dictionary<string, IUpdatePkgPvder> matchDict = new()
     {
         {"stbks.pkgpvder.ghproxy",new GhProxyPkgPvder() }
     };
-    public static IStackbricksPkgPvder ParsePkgPvder(string pkgPvderId)
+    public static IUpdatePkgPvder ParsePkgPvder(string pkgPvderId)
     {
         // ncpe
         return matchDict[pkgPvderId];

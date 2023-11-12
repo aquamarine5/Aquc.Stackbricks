@@ -25,7 +25,7 @@ public class UpdateMessage
         PkgPvderId = pkgPvderId;
         PkgPvderArgs = pkgPvderArgs;
     }
-    public IStackbricksPkgPvder GetPkgPvder() => PackagePvderManager.ParsePkgPvder(PkgPvderId);
+    public IUpdatePkgPvder GetPkgPvder() => PackagePvderManager.ParsePkgPvder(PkgPvderId);
     public bool NeedUpdate() => version > stackbricksManifest.Version;
 }
 public class MessagePvderManager

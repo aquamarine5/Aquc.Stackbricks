@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Aquc.Stackbricks.PkgPvder;
 
-public class GhProxyPkgPvder : IStackbricksPkgPvder
+public class GhProxyPkgPvder : IUpdatePkgPvder
 {
 
     public string PkgPvderId => ID;

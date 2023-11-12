@@ -11,13 +11,13 @@ namespace Aquc.Stackbricks;
 public interface IStackbricksPkgPvder
 {
     public string PkgPvderId { get; }
-    public Task<StackbricksUpdatePackage> DownloadPackageAsync(StackbricksUpdateMessage updateMessage, string savePosition);
-    public Task<StackbricksUpdatePackage> DownloadPackageAsync(StackbricksUpdateMessage updateMessage, string savePosition, string zipFileName);
+    public Task<UpdatePackage> DownloadPackageAsync(UpdateMessage updateMessage, string savePosition);
+    public Task<UpdatePackage> DownloadPackageAsync(UpdateMessage updateMessage, string savePosition, string zipFileName);
 
-    public Task<StackbricksUpdatePackage> DownloadFileAsync(StackbricksUpdateMessage updateMessage, string savePosition, string fileName = "");
+    public Task<UpdatePackage> DownloadFileAsync(UpdateMessage updateMessage, string savePosition, string fileName = "");
 }
 
-public class StackbricksPkgPvderManager
+public class PackagePvderManager
 {
     readonly static Dictionary<string, IStackbricksPkgPvder> matchDict = new()
     {

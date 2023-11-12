@@ -13,16 +13,16 @@ public class GhProxyPkgPvder : IStackbricksPkgPvder
     public string PkgPvderId => ID;
     public const string ID = "stbks.pkgpvder.ghproxy";
 
-    public async Task<StackbricksUpdatePackage> DownloadPackageAsync(StackbricksUpdateMessage updateMessage, string savePosition, string zipFileName)
+    public async Task<UpdatePackage> DownloadPackageAsync(UpdateMessage updateMessage, string savePosition, string zipFileName)
     {
         // ncpe
         var splitedData = updateMessage.PkgPvderArgs.Split("]]");
         var downloadFile = Path.Combine(savePosition, zipFileName);
         await DownloadAsync(CombineGhproxyUrl(splitedData), Path.Combine(savePosition, downloadFile));
         StackbricksProgram.logger.Debug($"{ID}: Download zipPackageFile successfull, file={zipFileName}");
-        return new StackbricksUpdatePackage(downloadFile, updateMessage);
+        return new UpdatePackage(downloadFile, updateMessage);
     }
-    public async Task<StackbricksUpdatePackage> DownloadPackageAsync(StackbricksUpdateMessage updateMessage, string savePosition) =>
+    public async Task<UpdatePackage> DownloadPackageAsync(UpdateMessage updateMessage, string savePosition) =>
         await DownloadPackageAsync(updateMessage, savePosition, $".StackbricksUpdatePackage_{updateMessage.version}.zip");
     static async Task DownloadAsync(string url, string savePosition)
     {
@@ -94,12 +94,12 @@ public class GhProxyPkgPvder : IStackbricksPkgPvder
         return result;
     }
 
-    public async Task<StackbricksUpdatePackage> DownloadFileAsync(StackbricksUpdateMessage updateMessage, string savePosition, string fileName = "")
+    public async Task<UpdatePackage> DownloadFileAsync(UpdateMessage updateMessage, string savePosition, string fileName = "")
     {
         var splitedData = updateMessage.PkgPvderArgs.Split("]]");
         var downloadFile = Path.Combine(savePosition, string.IsNullOrEmpty(fileName) ? splitedData[3] : fileName);
         await DownloadAsync(CombineGhproxyUrl(splitedData), Path.Combine(savePosition, downloadFile));
         StackbricksProgram.logger.Debug($"{ID}: Download file successfull, file={Path.GetFileName(downloadFile)}");
-        return new StackbricksUpdatePackage(downloadFile, updateMessage, false);
+        return new UpdatePackage(downloadFile, updateMessage, false);
     }
 }

@@ -22,7 +22,7 @@ public class DataClassParser
         Console.WriteLine(ParseDataClass(data));
     }
     
-    public static UpdateDataClass ParseUpdateDC(StackbricksUpdatePackage updatePackage, bool isProgram)
+    public static UpdateDataClass ParseUpdateDC(UpdatePackage updatePackage, bool isProgram)
     {
         if (updatePackage.isZip)
             return new UpdateDataClass(isProgram, true, updatePackage.updateMessage.version.ToString(), updatePackage.file);
@@ -30,15 +30,15 @@ public class DataClassParser
             return new UpdateDataClass(isProgram, true, updatePackage.updateMessage.version.ToString(), updatePackage.file, updatePackage.depressedDir.FullName);
     }
 
-    public static UpdateDataClass ParseUpdateDC(StackbricksUpdateMessage updateMessage, bool isProgram)
+    public static UpdateDataClass ParseUpdateDC(UpdateMessage updateMessage, bool isProgram)
     {
         return new UpdateDataClass(isProgram, false, updateMessage.version.ToString(), string.Empty);
     }
-    public static CheckDataClass ParseCheckDC(StackbricksUpdateMessage updateMessage, bool isProgram)
+    public static CheckDataClass ParseCheckDC(UpdateMessage updateMessage, bool isProgram)
     {
         return new CheckDataClass(isProgram, updateMessage.NeedUpdate(), updateMessage.version.ToString());
     }
-    public static CheckDownloadDataClass ParseCheckDownloadDC(StackbricksUpdatePackage updatePackage, bool isProgram)
+    public static CheckDownloadDataClass ParseCheckDownloadDC(UpdatePackage updatePackage, bool isProgram)
     {
         return ParseUpdateDC(updatePackage, isProgram);
     }

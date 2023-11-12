@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace Aquc.Stackbricks.Actions;
 
 
-public class ActionReplaceAll : IStackbricksAction
+public class ActionReplaceAll : IUpdateAction
 {
     public string ActionId => ID;
 
@@ -16,7 +16,7 @@ public class ActionReplaceAll : IStackbricksAction
 
     public const string FLAG_KEEPZIPFILE = "stbks.action.replaceall.keepzipfile";
 
-    public void Execute(StackbricksActionData stackbricksAction, StackbricksUpdatePackage updatePackage)
+    public void Execute(UpdateActionData stackbricksAction, UpdatePackage updatePackage)
     {
         if (!updatePackage.isZip)
             File.Copy(updatePackage.file, Path.Combine(updatePackage.programDir.FullName, Path.GetFileName(updatePackage.file)), true);

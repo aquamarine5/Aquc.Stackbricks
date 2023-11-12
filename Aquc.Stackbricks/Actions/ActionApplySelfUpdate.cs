@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Aquc.Stackbricks.Actions;
 
-public class ActionApplySelfUpdate : IStackbricksAction
+public class ActionApplySelfUpdate : IUpdateAction
 {
     public string ActionId => ID;
 
@@ -16,7 +16,7 @@ public class ActionApplySelfUpdate : IStackbricksAction
 
     public const string FILE_APPLYRESULT = ".Aquc.Stackbricks.applyresult.txt";
 
-    public void Execute(StackbricksActionData stackbricksAction, StackbricksUpdatePackage updatePackage)
+    public void Execute(UpdateActionData stackbricksAction, UpdatePackage updatePackage)
     {
         var resultFile = FILE_APPLYRESULT;
         var newFileInfo = new FileInfo(updatePackage.file);

@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace Aquc.Stackbricks;
 
-public class StackbricksUpdatePackage
+public class UpdatePackage
 {
-    public StackbricksUpdateMessage updateMessage;
+    public UpdateMessage updateMessage;
     public DirectoryInfo programDir;
     public string file;
     public DirectoryInfo depressedDir;
@@ -17,7 +17,7 @@ public class StackbricksUpdatePackage
 
     public const string FILE_PKGCFG = "Aquc.Stackbricks.actionslist.json";
 
-    public StackbricksUpdatePackage(string file, StackbricksUpdateMessage updateMessage, bool isZip = true)
+    public UpdatePackage(string file, UpdateMessage updateMessage, bool isZip = true)
     {
         this.isZip = isZip;
         this.file = file;
@@ -41,14 +41,14 @@ public class StackbricksUpdatePackage
     public void ExecuteActions()
     {
         var pkgcfg = isZip ? depressedDir.GetFiles(FILE_PKGCFG) : Array.Empty<FileInfo>();
-        StackbricksActionList stackbricksActionList;
+        UpdateActionList stackbricksActionList;
         if (pkgcfg.Length == 0)
         {
-            stackbricksActionList = new StackbricksActionList(updateMessage.stackbricksManifest.UpdateActions);
+            stackbricksActionList = new UpdateActionList(updateMessage.stackbricksManifest.UpdateActions);
         }
         else
         {
-            stackbricksActionList = new StackbricksActionList(pkgcfg[0].FullName);
+            stackbricksActionList = new UpdateActionList(pkgcfg[0].FullName);
         }
         stackbricksActionList.ExecuteList(this);
     }

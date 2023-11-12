@@ -57,7 +57,7 @@ public class StackbricksProgram
         };
         serializerSettings.Converters.Add(new DirectoryInfoJsonConverter());
         serializerSettings.Converters.Add(new VersionJsonConverter());
-        serializerSettings.Converters.Add(new StackbricksActionDataJsonConverter());
+        serializerSettings.Converters.Add(new UpdateActionDataJsonConverter());
         return serializerSettings;
     }).Invoke();
 
@@ -177,7 +177,7 @@ public class StackbricksProgram
 
             using var file = new FileStream("Aquc.Stackbricks.actionslist.json", FileMode.Create, FileAccess.Write);
             using var reader = new StreamWriter(file);
-            reader.Write(JsonConvert.SerializeObject(new StackbricksActionList.StackbricksActionListConfig(), jsonSerializer));
+            reader.Write(JsonConvert.SerializeObject(new UpdateActionList.UpdateActionListConfig(), jsonSerializer));
             logger.Information("Success created default Aquc.Stackbricks.actionlist.json");
         });
         var root = new RootCommand()

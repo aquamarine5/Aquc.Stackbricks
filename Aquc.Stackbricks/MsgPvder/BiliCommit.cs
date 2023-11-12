@@ -7,11 +7,11 @@ using System.Threading.Tasks;
 
 namespace Aquc.Stackbricks.MsgPvder;
 
-public class BiliCommitMsgPvder : IStackbricksMsgPvder
+public class BiliCommitMsgPvder : IMessagePvder
 {
     public string MsgPvderId => ID;
     public const string ID = "stbks.msgpvder.bilicmts";
-    public async Task<StackbricksUpdateMessage> GetUpdateMessageAsync(StackbricksManifest stackbricksManifest)
+    public async Task<UpdateMessage> GetUpdateMessageAsync(StackbricksManifest stackbricksManifest)
     {
         var message=await BiliCommitsClass.GetReply(StackbricksProgram.httpClient,stackbricksManifest.MsgPvderData);
         StackbricksProgram.logger.Information(message);
@@ -26,10 +26,10 @@ public class BiliCommitMsgPvder : IStackbricksMsgPvder
         throw new NotImplementedException();
     }
 
-    static StackbricksUpdateMessage ParseToUpdateMessageV1(string[] message, StackbricksManifest manifest)
+    static UpdateMessage ParseToUpdateMessageV1(string[] message, StackbricksManifest manifest)
     {
         // ncpe
-        return new StackbricksUpdateMessage(
+        return new UpdateMessage(
             manifest,
             new Version(message[1]),
             message[2],

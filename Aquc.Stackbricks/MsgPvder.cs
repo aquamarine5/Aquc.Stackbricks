@@ -7,35 +7,35 @@ using System.Threading.Tasks;
 
 namespace Aquc.Stackbricks;
 
-public interface IStackbricksMsgPvder
+public interface IMessagePvder
 {
     public string MsgPvderId { get; }
-    public Task<StackbricksUpdateMessage> GetUpdateMessageAsync(StackbricksManifest stackbricksManifest);
+    public Task<UpdateMessage> GetUpdateMessageAsync(StackbricksManifest stackbricksManifest);
 }
-public class StackbricksUpdateMessage
+public class UpdateMessage
 {
     public StackbricksManifest stackbricksManifest;
     public Version version;
     public string PkgPvderId;
     public string PkgPvderArgs;
-    public StackbricksUpdateMessage(StackbricksManifest stackbricksManifest, Version version, string pkgPvderId, string pkgPvderArgs)
+    public UpdateMessage(StackbricksManifest stackbricksManifest, Version version, string pkgPvderId, string pkgPvderArgs)
     {
         this.stackbricksManifest = stackbricksManifest;
         this.version = version;
         PkgPvderId = pkgPvderId;
         PkgPvderArgs = pkgPvderArgs;
     }
-    public IStackbricksPkgPvder GetPkgPvder() => StackbricksPkgPvderManager.ParsePkgPvder(PkgPvderId);
+    public IStackbricksPkgPvder GetPkgPvder() => PackagePvderManager.ParsePkgPvder(PkgPvderId);
     public bool NeedUpdate() => version > stackbricksManifest.Version;
 }
-public class StackbricksMsgPvderManager
+public class MessagePvderManager
 {
-    static readonly Dictionary<string, IStackbricksMsgPvder> matchDict = new()
+    static readonly Dictionary<string, IMessagePvder> matchDict = new()
     {
         {BiliCommitMsgPvder.ID,new BiliCommitMsgPvder() },
         {WeiboCommitMsgPvder.ID, new WeiboCommitMsgPvder() }
     };
-    public static IStackbricksMsgPvder ParseMsgPvder(string msgPvderId)
+    public static IMessagePvder ParseMsgPvder(string msgPvderId)
     {
         // ncpe
         return matchDict[msgPvderId];

@@ -21,14 +21,14 @@ public class StackbricksService
 
     class StackbricksUpdateResult
     {
-        public StackbricksUpdateMessage updateMessage;
-        public StackbricksUpdatePackage? updatePackage;
-        public StackbricksUpdateResult(StackbricksUpdateMessage updateMessage, StackbricksUpdatePackage? updatePackage)
+        public UpdateMessage updateMessage;
+        public UpdatePackage? updatePackage;
+        public StackbricksUpdateResult(UpdateMessage updateMessage, UpdatePackage? updatePackage)
         {
             this.updateMessage = updateMessage;
             this.updatePackage = updatePackage;
         }
-        public StackbricksUpdateResult(StackbricksUpdateMessage updateMessage)
+        public StackbricksUpdateResult(UpdateMessage updateMessage)
         {
             this.updateMessage = updateMessage;
             updatePackage = null;
@@ -80,19 +80,19 @@ public class StackbricksService
     public async Task<CheckDataClass> CheckStackbricksUpdateDC()
         => DataClassParser.ParseCheckDC(await stackbricksManifest.GetMsgPvder().GetUpdateMessageAsync(stackbricksManifest), false);
 
-    static void ShowCheckUWPToast(StackbricksUpdateMessage message)
+    static void ShowCheckUWPToast(UpdateMessage message)
     {
         new ToastContentBuilder()
             .AddText(message.NeedUpdate() ? $"{message.stackbricksManifest.Id} 有新更新 {message.version} 可用" : $"{message.stackbricksManifest} 已经是最新版本")
             .Show();
     }
-    static void ShowUpdatedUWPToast(StackbricksUpdateMessage message)
+    static void ShowUpdatedUWPToast(UpdateMessage message)
     {
         new ToastContentBuilder()
             .AddText($"{message.stackbricksManifest.Id} 已成功更新至版本 {message.version}")
             .Show();
     }
-    static void ShowNewestUWPToast(StackbricksUpdateMessage message)
+    static void ShowNewestUWPToast(UpdateMessage message)
     {
         new ToastContentBuilder()
             .AddText($"{message.stackbricksManifest.Id} 已经是最新版本")
@@ -203,7 +203,7 @@ public class StackbricksService
         StackbricksProgram.logger.Debug($"Write config to {StackbricksConfig.CONFIG_FILENAME}");
     }
 
-    private async Task UpdateManifest(StackbricksUpdateMessage msg, bool isProgram = true)
+    private async Task UpdateManifest(UpdateMessage msg, bool isProgram = true)
     {
         var manifest = isProgram ? stackbricksConfig.ProgramManifest : stackbricksConfig.StackbricksManifest;
         manifest.LastCheckTime = DateTime.Now;

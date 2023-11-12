@@ -27,8 +27,8 @@ public class StackbricksManifest
     public string MsgPvderData;
     public DateTime? LastCheckTime;
     public DateTime? LastUpdateTime;
-    public List<StackbricksActionData> UpdateActions;
-    public StackbricksManifest(Version version,string id, DateTime? lastCheckTime, DateTime? lastUpdateTime, List<StackbricksActionData> updateActions, string msgPvderId,string msgPvderData, DirectoryInfo programDir)
+    public List<UpdateActionData> UpdateActions;
+    public StackbricksManifest(Version version,string id, DateTime? lastCheckTime, DateTime? lastUpdateTime, List<UpdateActionData> updateActions, string msgPvderId,string msgPvderData, DirectoryInfo programDir)
     {
         Version = version;
         ProgramDir = programDir;
@@ -39,24 +39,24 @@ public class StackbricksManifest
         LastUpdateTime = lastUpdateTime;
         UpdateActions = updateActions;
     }
-    public IStackbricksMsgPvder GetMsgPvder()
+    public IMessagePvder GetMsgPvder()
     {
-        return StackbricksMsgPvderManager.ParseMsgPvder(MsgPvderId);
+        return MessagePvderManager.ParseMsgPvder(MsgPvderId);
     }
     public static StackbricksManifest CreateStackbricksManifest()
     {
         return new StackbricksManifest(
             Assembly.GetExecutingAssembly().GetName().Version??new Version(0,0,0,1),
             "Aquc.Stackbricks", null, null,
-            new List<StackbricksActionData>
+            new List<UpdateActionData>
                 {
-                    new StackbricksActionData(new ActionApplySelfUpdate()),
+                    new UpdateActionData(new ActionApplySelfUpdate()),
                 }, WeiboCommitMsgPvder.ID, "4927489886915247", new DirectoryInfo(Directory.GetCurrentDirectory()));
     }
     public static StackbricksManifest CreateBlankManifest()
     {
         return new StackbricksManifest(
-            new Version(0, 0, 0, 1), "", null, null, new List<StackbricksActionData>(), "", "", new DirectoryInfo(Directory.GetCurrentDirectory()));
+            new Version(0, 0, 0, 1), "", null, null, new List<UpdateActionData>(), "", "", new DirectoryInfo(Directory.GetCurrentDirectory()));
     }
 }
 
@@ -85,15 +85,15 @@ public class DirectoryInfoJsonConverter : JsonConverter<DirectoryInfo>
         writer.WriteValue(value!.FullName);
     }
 }
-public class StackbricksActionDataJsonConverter : JsonConverter<StackbricksActionData>
+public class UpdateActionDataJsonConverter : JsonConverter<UpdateActionData>
 {
-    public override StackbricksActionData? ReadJson(JsonReader reader, Type objectType, StackbricksActionData? existingValue, bool hasExistingValue, JsonSerializer serializer)
+    public override UpdateActionData? ReadJson(JsonReader reader, Type objectType, UpdateActionData? existingValue, bool hasExistingValue, JsonSerializer serializer)
     {
         var obj=(serializer.Deserialize(reader) as JObject)!;
-        return new StackbricksActionData(obj["Id"]!.ToString(), obj["Args"]!.ToObject<List<string>>()!, obj["Flags"]!.ToObject<List<string>>()!);
+        return new UpdateActionData(obj["Id"]!.ToString(), obj["Args"]!.ToObject<List<string>>()!, obj["Flags"]!.ToObject<List<string>>()!);
     }
 
-    public override void WriteJson(JsonWriter writer, StackbricksActionData? value, JsonSerializer serializer)
+    public override void WriteJson(JsonWriter writer, UpdateActionData? value, JsonSerializer serializer)
     {
         new JsonSerializer().Serialize(writer, value);
         /*

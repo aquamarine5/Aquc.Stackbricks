@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Aquc.Stackbricks.Actions
 {
-    public class ActionExecuteCommand : IStackbricksAction
+    public class ActionExecuteCommand : IUpdateAction
     {
         public const string ID = "stbks.action.execute";
 
@@ -16,7 +16,7 @@ namespace Aquc.Stackbricks.Actions
 
         public string ActionId => ID;
 
-        public void Execute(StackbricksActionData stackbricksAction, StackbricksUpdatePackage updatePackage)
+        public void Execute(UpdateActionData stackbricksAction, UpdatePackage updatePackage)
         {
             StackbricksProgram.logger.Debug($"Apply command line: cmd {stackbricksAction.Args[0]}");
             using var process = new Process

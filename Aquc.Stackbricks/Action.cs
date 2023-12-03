@@ -62,12 +62,13 @@ public class UpdateActionManager
     }
 
 }
+public class UpdateActionListConfig
+{
+    public List<UpdateActionData> actions = new();
+}
 public class UpdateActionList
 {
-    public class UpdateActionListConfig
-    {
-        public List<UpdateActionData> actions = new();
-    }
+    
     public List<UpdateActionData> actions;
     public UpdateActionList(string PkgConfigFile)
     {

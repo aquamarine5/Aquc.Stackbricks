@@ -9,6 +9,7 @@ using Serilog.Formatting.Display;
 using System.CommandLine;
 using System.CommandLine.Builder;
 using System.CommandLine.Parsing;
+using System.Diagnostics;
 
 namespace Aquc.Stackbricks;
 
@@ -119,7 +120,7 @@ public class StackbricksProgram
             selfCheckCommand,
             selfUpdateCommand
         };
-
+        var registerCommand = new Command("register");
         var testCommand = new Command("test");
         testCommand.SetHandler(() =>
         {
@@ -177,11 +178,28 @@ public class StackbricksProgram
 
             using var file = new FileStream("Aquc.Stackbricks.actionslist.json", FileMode.Create, FileAccess.Write);
             using var reader = new StreamWriter(file);
-            reader.Write(JsonConvert.SerializeObject(new UpdateActionList.UpdateActionListConfig(), jsonSerializer));
+            reader.Write(JsonConvert.SerializeObject(new UpdateActionListConfig(), jsonSerializer));
             logger.Information("Success created default Aquc.Stackbricks.actionlist.json");
+        });
+
+        registerCommand.SetHandler(async () =>
+        {
+            using var process = new Process
+            {
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = "schtasks",
+                    Arguments = $"/Create /F /SC daily /st 18:00 /TR \"'{Environment.ProcessPath + "' upload"}\" /TN \"Aquacore\\Aquc.Logging.UploadLogFileSchtask\"",
+                    CreateNoWindow = true
+                }
+            };
+            process.Start();
+            await process.WaitForExitAsync();
+            logger.Information($"Register successfully.");
         });
         var root = new RootCommand()
         {
+            registerCommand,
             testCommand,
             updateallCommand,
             updateCommand,

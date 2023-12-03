@@ -10,7 +10,7 @@
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <SatelliteResourceLanguages>en-US</SatelliteResourceLanguages>
     <SupportedOSPlatformVersion>7.0</SupportedOSPlatformVersion>
-    
+    <PublishSingleFile>true</PublishSingleFile>
   </PropertyGroup>
 
   <ItemGroup>

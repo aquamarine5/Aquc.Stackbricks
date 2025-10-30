@@ -6,6 +6,13 @@
 [![Release date](https://img.shields.io/github/release-date-pre/aquamarine5/Aquc.Stackbricks)]()
 [![](https://img.shields.io/github/actions/workflow/status/aquamarine5/Aquc.Stackbricks/codeql.yml)]()
 [![Download count](https://img.shields.io/github/downloads/aquamarine5/Aquc.Stackbricks/total)]()
+
+> [!TIP]
+> 关于更新服务在Kotlin（适用于JVM或Jetpack Compose）的移植版参见[Stackbricks项目](https://github.com/aquamarine5/Stackbricks)，此项目是在.NET的C#语言版本。
+
+> [!WARNING]
+> 此项目已经长期不再维护，且目前没有恢复维护的计划。
+
 # How to start?
 - First, download the single executable file `Aquc.Stackbricks.exe` from [release] (https://github.com/aquamarine5/Aquc.Stackbricks/releases/latest).
 - Use `Aquc.Stackbricks config create` to create an empty config.
